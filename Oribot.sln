@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oribot", "Oribot.csproj", "{99333EBD-8480-4C1F-9987-D505CFFE322D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99333EBD-8480-4C1F-9987-D505CFFE322D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99333EBD-8480-4C1F-9987-D505CFFE322D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99333EBD-8480-4C1F-9987-D505CFFE322D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99333EBD-8480-4C1F-9987-D505CFFE322D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17B8F825-5716-4433-A85B-EBB3500DFBE6}
+	EndGlobalSection
+EndGlobal
