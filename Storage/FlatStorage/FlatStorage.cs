@@ -30,11 +30,7 @@ namespace OriBot.Storage.FlatStorage
         }
         public override Task CleanupAsync()
         {
-            if (!_initialized)
-            {
-                throw new InvalidOperationException("Storage is not initialized.");
-            }
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
 
         public override bool Exists(string scope, string key)
