@@ -23,7 +23,7 @@ namespace OriBot.Storage.FlatStorage
             _initialized = initialized;
             _basestorageLocation = basestoragelocation;
             _storageName = storagename;
-            _computed = Path.Join(basestoragelocation, storagename);
+            _computed = computed;
         }
         public override Task CleanupAsync()
         {
