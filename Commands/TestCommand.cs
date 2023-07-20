@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,7 +11,7 @@ using OriBot.Framework;
 
 namespace OriBot.Commands
 {
-    public class TestCommandModule : Command
+    public class TestCommandModule : Command<OricordContext>
     {
         public static Stopwatch pingtime;
 
@@ -29,7 +29,7 @@ namespace OriBot.Commands
         {
             pingtime = new Stopwatch();
             pingtime.Start();
-            await ReplyAsync("@ping " + ((OricordContext)Fcontext).a);
+            await ReplyAsync("@ping");
             
             return;
         }
