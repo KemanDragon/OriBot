@@ -67,6 +67,5 @@ namespace OriBot.Storage2
         {
             return Save();
         }
-
     }
 }

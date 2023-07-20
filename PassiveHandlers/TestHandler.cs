@@ -16,7 +16,7 @@ namespace OriBot.PassiveHandlers
 
         public override async Task Run()
         {
-           // await _message.Channel.SendMessageAsync("Test");
+        //    await _message.Channel.SendMessageAsync("Test");
         }
     }
 }

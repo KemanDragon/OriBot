@@ -40,8 +40,7 @@ namespace OriBot.PassiveHandlers
             foreach (var item in _passiveHandlers)
             {
                 Activator.CreateInstance(item, _client, message);
-            }
-            
+            }   
         }
     }
 }

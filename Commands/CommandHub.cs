@@ -34,11 +34,9 @@ namespace OriBot.Commands
 
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
-           
+
+            // TODO:
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-
-
-
             if (!message.HasStringPrefix(">> ", ref argPos) || message.Author.IsBot || message.IsTTS)
                 return;
 

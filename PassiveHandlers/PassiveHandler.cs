@@ -32,7 +32,5 @@ namespace OriBot.PassiveHandlers
         }
 
         public abstract Task Run();
-
-
     }
 }

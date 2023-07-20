@@ -27,7 +27,5 @@ namespace OriBot.Commands
             get { return (T)main.Memory.contextStorage[Context.Guild.Id]; }
         }
 
-
-
     }
 }

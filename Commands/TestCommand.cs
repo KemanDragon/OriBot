@@ -15,15 +15,11 @@ namespace OriBot.Commands
     {
         public static Stopwatch pingtime;
 
-
-
         [Command("say")]
         [Summary("Echoes a message.")]
         public async Task SayAsync([Summary("The text to echo")] string echo, [Remainder] string text2)
         {
-
             await ReplyAsync(echo + "|" + text2);
-
             return;
         }
 
