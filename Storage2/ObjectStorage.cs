@@ -53,7 +53,6 @@ namespace OriBot.Storage2
             }
         }
 
-
         public string Save()
         {
             return JsonConvert.SerializeObject(this, Formatting.None);

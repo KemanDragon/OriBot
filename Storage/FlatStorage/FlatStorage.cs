@@ -97,6 +97,7 @@ namespace OriBot.Storage.FlatStorage
         }
 
         
+
         public override void Set<T>(string scope, string key, T value)
         {
             if (!_initialized)

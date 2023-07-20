@@ -8,6 +8,5 @@ namespace OriBot.Framework
 {
     public abstract class GeneralServerContext
     {
-        
     }
 }

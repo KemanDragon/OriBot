@@ -12,7 +12,6 @@ namespace OriBot.PassiveHandlers
     {
         public TestHandler(DiscordSocketClient client, SocketUserMessage message) : base(client, message)
         {
-            
         }
 
         public override async Task Run()

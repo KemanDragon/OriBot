@@ -66,7 +66,7 @@ More Documentation can be found [here](https://github.com/SlamTheDragon/Oribot-v
  Mutes a user for the given duration, logs the mute, and DMs them with [Reason]. Moderator only.
 
 `>> unmute [User ID] [Reason]`
- Unmutes a user, moderator only.
+ Unmutes a user. Moderator only.
 
 `>> warn [harsh, minor] [User ID] [Reason]`
  DMs the user with an automated warning, and logs it internally. Moderator only.

@@ -30,7 +30,7 @@ namespace OriBot.Commands
             pingtime = new Stopwatch();
             pingtime.Start();
             await ReplyAsync("@ping " + ((OricordContext)Fcontext).a);
-
+            
             return;
         }
     }
