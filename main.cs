@@ -42,7 +42,7 @@ namespace main
             // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
             // var token = File.ReadAllText("token.txt");
             // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
-            // Console.WriteLine(JObject.Load(File.ReadAllText("test.json")).ToString());
+            // // Console.WriteLine(JObject.Load(File.ReadAllText("test.json")).ToString());
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
             await InitializeOtherSystems();

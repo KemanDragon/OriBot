@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -34,9 +34,7 @@ namespace OriBot.PassiveHandlers
         {
             var message = messageParam as SocketUserMessage;
             if (message == null) return;
-            
             // Create a number to track where the prefix ends and the command begins
-            int argPos = 0;
             foreach (var item in _passiveHandlers)
             {
                 Activator.CreateInstance(item, _client, message);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,10 +24,6 @@ namespace OriBot.PassiveHandlers
         {
             _client = client;
             _message = message;
-            Run();
-        }
-        private async Task _Run()
-        {
             Run();
         }
 
