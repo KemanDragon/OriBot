@@ -8,6 +8,6 @@ namespace OriBot.Framework
 {
     public class Attributes
     {
-        
+
     }
 }

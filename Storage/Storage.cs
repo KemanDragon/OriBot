@@ -9,7 +9,6 @@ namespace OriBot.Storage
             
         }
 
-
         public abstract T? Get<T>(string scope, string key, out bool success);
         public abstract void Set<T>(string scope, string key, T value);
 

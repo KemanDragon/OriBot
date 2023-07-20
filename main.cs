@@ -18,7 +18,6 @@ namespace main
         public static Dictionary<ulong,GeneralServerContext> contextStorage = new();
     }
 
-
     internal class Program
     {
         public static Task Main(string[] args) => new Program().MainAsync();

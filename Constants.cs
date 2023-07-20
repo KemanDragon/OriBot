@@ -8,6 +8,5 @@ namespace OriBot
 {
     public static class Constants
     {
-
     }
 }

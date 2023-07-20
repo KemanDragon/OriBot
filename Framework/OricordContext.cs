@@ -9,5 +9,6 @@ namespace OriBot.Framework
     public class OricordContext : GeneralServerContext
     {
         public string a = "1";
+        
     }
 }
