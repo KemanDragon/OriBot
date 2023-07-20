@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using OriBot.Storage2;
+
 namespace OriBot.Storage.FlatStorage
 {
     public class FlatStorage : Storage
@@ -122,6 +124,8 @@ namespace OriBot.Storage.FlatStorage
                     return v.ToString();
                 case bool v:
                     return v.ToString();
+                case JObject v:
+                    return v.Save();
                 default:
                     return null;     
             }
@@ -138,6 +142,8 @@ namespace OriBot.Storage.FlatStorage
                     return (T)(object)int.Parse(value);
                 case bool v:
                     return (T)(object)bool.Parse(value);
+                case JObject v:
+                    return (T)(object)JObject.Load(value);
                 default:
                     return default(T);
             }
