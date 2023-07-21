@@ -1,11 +1,11 @@
-using Discord.Commands;
-using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Discord.Commands;
+using Discord.WebSocket;
 
 namespace OriBot.Commands
 {
@@ -37,8 +37,10 @@ namespace OriBot.Commands
 
             // TODO:
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!message.HasStringPrefix(">> ", ref argPos) || message.Author.IsBot || message.IsTTS)
+            if (!message.HasStringPrefix(">> ", ref argPos) || message.Author.IsBot || message.IsTTS) {
                 return;
+            }
+                
 
             // Create a WebSocket-based command context based on the message
             var context = new SocketCommandContext(_client, message);

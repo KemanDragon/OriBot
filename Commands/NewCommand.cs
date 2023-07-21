@@ -11,6 +11,7 @@ using OriBot.Framework;
 
 namespace OriBot.Commands
 {
+    [Attributes.RequireCorrectServer(1005355539447959552)]
     public class WhatISaidModule : Command<OricordContext>
     {
         public static string whatisaid = "nothing";

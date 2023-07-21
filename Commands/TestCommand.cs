@@ -11,6 +11,8 @@ using OriBot.Framework;
 
 namespace OriBot.Commands
 {
+    
+    [Attributes.RequireCorrectServer(1005355539447959552,1131908192004231178)]
     public class TestCommandModule : Command<OricordContext>
     {
         public static Stopwatch pingtime;
