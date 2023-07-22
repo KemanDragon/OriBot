@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Discord.WebSocket;
 
-using OriBot.Commands;
+
 
 
 using OriBot.PassiveHandlers;
@@ -23,9 +23,10 @@ namespace OriBot.PassiveHandlers
 
             if (_message.Content == "@ping")
             {
-                TestCommandModule.pingtime.Stop();
-                await _message.Channel.SendMessageAsync("Pong!, milliseconds: " + TestCommandModule.pingtime.ElapsedMilliseconds);
-                await _message.DeleteAsync();
+                
+                
+               // await _message.Channel.SendMessageAsync("Pong!, milliseconds: " + TestCommandModule.pingtime.ElapsedMilliseconds);
+              //  await _message.DeleteAsync();
             }
         }
     }

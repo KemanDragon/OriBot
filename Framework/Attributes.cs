@@ -9,24 +9,17 @@ namespace OriBot.Framework
 {
     public class Attributes
     {
+        public abstract class PreconditionAttribute : Attribute {
+            public abstract bool CheckCondition();
+        }
+
         public class RequireCorrectServerAttribute : PreconditionAttribute
         {
-            private ulong[] ID = { };
-
-            public RequireCorrectServerAttribute(params ulong[] id)
+            public override bool CheckCondition()
             {
-                ID = id;
+                return true;
             }
-
-            public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context2, CommandInfo command, IServiceProvider services)
-            {
-                if (ID.Contains(context2.Guild.Id))
-                {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                } else {
-                    return Task.FromResult(PreconditionResult.FromError("You are not in the correct server"));
-                }
-            }
+        
         }
     }
 }
