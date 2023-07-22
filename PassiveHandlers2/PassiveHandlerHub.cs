@@ -14,7 +14,7 @@ namespace OriBot.PassiveHandlers2
         {
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
             {
-                if (type.IsSubclassOf(typeof(BasePassiveHandler)))
+                if (type.IsSubclassOf(typeof(BasePassiveHandler)) && !type.IsAbstract)
                 {
                     _passiveHandlers.Add(type);
                     var methods = new List<MethodInfo>();

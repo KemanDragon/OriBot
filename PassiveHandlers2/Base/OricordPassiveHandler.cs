@@ -3,7 +3,7 @@ using OriBot.Framework;
 
 namespace OriBot.PassiveHandlers2
 {
-    public class OricordPassiveHandler : BasePassiveHandler
+    public abstract class OricordPassiveHandler : BasePassiveHandler
     {
         public OricordPassiveHandler(DiscordSocketClient client, SocketMessage message) : base(client, message)
         {
