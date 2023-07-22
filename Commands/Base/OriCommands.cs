@@ -9,7 +9,7 @@ using OriBot.Framework;
 
 namespace OriBot.Commands2
 {
-    [RequireCorrectServer(1005355539447959552)]
+    [RequireCorrectServer(1005355539447959552,988594970778804245,1131908192004231178)]
     public class OricordCommand : InteractionModuleBase {
 
         public OricordContext DataContext {
