@@ -71,7 +71,7 @@ namespace main
                     case 1:
                         Logging.Debug("Be gone");
                         sel = 0;
-                        Cleanup();
+                        await Cleanup();
                         break;
                     case 2:
                         Logging.Info("define help here please lol");
@@ -84,7 +84,6 @@ namespace main
                 }
             }
         }
-
 
         public async Task Login(CancellationToken ct)
         {
@@ -116,7 +115,6 @@ namespace main
                 Logging.Error(e.ToString());
             }
         }
-
 
         private void RegisterSlashCommands()
         {

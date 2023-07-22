@@ -11,7 +11,7 @@ namespace OriBot.PassiveHandlers2
 
         [PassiveHandler]
         public void Test() {
-            Logging.Debug("YES",Origin.MAIN);
+            Logging.Debug("YES");
         }
     }
 }
