@@ -1,8 +1,12 @@
 using Newtonsoft.Json;
+using OriBot.Storage2;
 
 public static class JSON {
     public static string stringify(dynamic obj)
     {
+        if (obj is JObject) {
+            return obj.ToString();
+        }
         return JsonConvert.SerializeObject(obj, Formatting.None);
     }
 
