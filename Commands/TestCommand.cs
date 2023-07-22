@@ -1,37 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+
 using System.Threading.Tasks;
-
-using Discord.Commands;
-
+using Discord;
+using Discord.Interactions;
+using Discord.WebSocket;
 using OriBot.Framework;
 
-namespace OriBot.Commands
+namespace OriBot.Commands2
 {
-    public class TestCommandModule : Command<OricordContext>
-    {
-        public static Stopwatch pingtime;
+    
+    public class MiscModule : OricordCommand {
 
-        [Command("say")]
-        [Summary("Echoes a message.")]
-        public async Task SayAsync([Summary("The text to echo")] string echo, [Remainder] string text2)
+        
+        [SlashCommand("echo", "Echo an input")]
+        public async Task Echo(string input)
         {
-            await ReplyAsync(echo + "|" + text2);
-            return;
-        }
-
-        [Command("ping")]
-        [Summary("Echoes a message.")]
-        public async Task PingAsync()
-        {
-            pingtime = new Stopwatch();
-            pingtime.Start();
-            await ReplyAsync("@ping");
             
-            return;
+            await RespondAsync(Context.Channel.Name);
+            await RespondAsync(input);
         }
+
     }
 }
