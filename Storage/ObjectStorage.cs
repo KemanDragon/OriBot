@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using OriBot.Framework;
 
-namespace OriBot.Storage2
+namespace OriBot.Storage
 {
     public class JObject
     {
