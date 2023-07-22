@@ -1,4 +1,4 @@
-namespace OriBot.Commands2
+namespace OriBot.Framework
 {
     public abstract class Context {
         

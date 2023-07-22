@@ -32,8 +32,10 @@ namespace OriBot.PassiveHandlers
 
         private async Task HandleMessageAsync(SocketMessage messageParam)
         {
+            
             var message = messageParam as SocketUserMessage;
             if (message == null) return;
+            
             // Create a number to track where the prefix ends and the command begins
             foreach (var item in _passiveHandlers)
             {

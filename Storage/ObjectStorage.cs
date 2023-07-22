@@ -7,61 +7,49 @@ namespace OriBot.Storage2
 {
     public class JObject
     {
-        [JsonProperty]
-        private Dictionary<dynamic, dynamic> _storage;
+        
+        private Dictionary<dynamic, dynamic> _internaldict = new();
 
-        [JsonProperty]
-        private bool strict = false;
-
-        public JObject(bool strict = false)
-        {
-            this.strict = strict;
+        public JObject(string obj) {
+            _internaldict = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(obj);
         }
 
-        [JsonConstructor]
-        public JObject(Dictionary<dynamic, dynamic> starterobject, bool strict = false)
+        
+        public JObject(Dictionary<dynamic, dynamic> starterobject)
         {
-            this.strict = strict;
-            this._storage = starterobject;
+            this._internaldict = starterobject;
         }
+
+        public JObject() {}
+
+
 
         public dynamic this[dynamic key]
         {
             get
             {
-                if (_storage is null)
-                {
-                    _storage = new();
-                }
-                if (!_storage.TryGetValue(key,out dynamic _))
-                {
-                    if (strict)
-                    {
-                        Logging.Warn("Null returned when trying to get key " + key + ", a crash may be happening. Disable Strict mode to prevent this from happening");
-                        return null;
-                    }
-                    _storage[key] = new JObject(false);
-                }
-                return _storage[key];
+
+                return _internaldict[key];
             }
             set
             {
-                if(_storage is null)
-                {
-                    _storage = new();
-                }
-                _storage[key] = value;
+                _internaldict[key] = value;
             }
         }
 
         public string Save()
         {
-            return JsonConvert.SerializeObject(this, Formatting.None);
+            return JsonConvert.SerializeObject(_internaldict, Formatting.None);
         }
 
         public static JObject Load(string obj)
         {
-            return JsonConvert.DeserializeObject<JObject>(obj);
+            var tmp = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(obj);
+            return new JObject(tmp);
+        }
+
+        public static JObject Blank() {
+            return new JObject();
         }
 
         public override string ToString()
