@@ -11,17 +11,17 @@ namespace OriBot.Storage2
         private Dictionary<dynamic, dynamic> _storage;
 
         [JsonProperty]
-        private bool strict = false;
+        private bool _strict = false;
 
         public JObject(bool strict = false)
         {
-            this.strict = strict;
+            this._strict = strict;
         }
 
         [JsonConstructor]
         public JObject(Dictionary<dynamic, dynamic> starterobject, bool strict = false)
         {
-            this.strict = strict;
+            this._strict = strict;
             this._storage = starterobject;
         }
 
@@ -35,7 +35,7 @@ namespace OriBot.Storage2
                 }
                 if (!_storage.TryGetValue(key,out dynamic _))
                 {
-                    if (strict)
+                    if (_strict)
                     {
                         Logging.Warn("Null returned when trying to get key " + key + ", a crash may be happening. Disable Strict mode to prevent this from happening", Origin.SERVER);
                         return null;
