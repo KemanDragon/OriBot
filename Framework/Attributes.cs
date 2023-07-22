@@ -19,7 +19,6 @@ namespace OriBot.Framework
             {
                 return true;
             }
-        
         }
     }
 }

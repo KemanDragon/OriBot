@@ -8,7 +8,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using OriBot.Commands2;
-
+using OriBot.Framework;
 using OriBot.PassiveHandlers;
 
 
@@ -78,8 +78,7 @@ namespace main
 
         private Task Log(LogMessage msg)
         {
-            Console.WriteLine(msg.ToString());
-
+            Logging.Info(msg.ToString(), Origin.MAIN);
             return Task.CompletedTask;
         }
     }
