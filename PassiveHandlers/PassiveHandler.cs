@@ -26,7 +26,6 @@ namespace OriBot.PassiveHandlers
             _message = message;
             Run();
         }
-
         public abstract Task Run();
     }
 }

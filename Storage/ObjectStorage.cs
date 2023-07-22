@@ -37,7 +37,7 @@ namespace OriBot.Storage2
                 {
                     if (strict)
                     {
-                        Logging.Warn("Null returned when trying to get key " + key + ", a crash may be happening. Disable Strict mode to prevent this from happening", Origin.SERVER);
+                        Logging.Warn("Null returned when trying to get key " + key + ", a crash may be happening. Disable Strict mode to prevent this from happening");
                         return null;
                     }
                     _storage[key] = new JObject(false);
