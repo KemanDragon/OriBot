@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// I copy pasted my logger atm from my MCSJ Project :xd:
 
 namespace OriBot.Framework
 {
@@ -13,29 +13,34 @@ namespace OriBot.Framework
     {
         private static Logger logger;
 
-        static Logging()
+        static Logging() // dont remove this (reminder for slam)
         {
             logger = new Logger();
         }
 
-        public static void Debug(string message, Origin sysOrigin)
+        public static void Debug(string message)
         {
-            logger.Debug(message, sysOrigin);
+            logger.Debug(message);
         }
 
-        public static void Info(string message, Origin sysOrigin)
+        public static void Info(string message)
         {
-            logger.Info(message, sysOrigin);
+            logger.Info(message);
         }
 
-        public static void Warn(string message, Origin sysOrigin)
+        public static void Warn(string message)
         {
-            logger.Warn(message, sysOrigin);
+            logger.Warn(message);
         }
 
-        public static void Error(string message, Origin sysOrigin)
+        public static void Error(string message)
         {
-            logger.Error(message, sysOrigin);
+            logger.Error(message);
+        }
+
+        public static void Cleanup()
+        {
+            logger.tryPack();
         }
     }
 
@@ -47,31 +52,18 @@ namespace OriBot.Framework
         ERROR
     }
 
-    // may need to revise lmao
-    public enum Origin
-    {
-        // MAIN: Filesystems, Project Management, Threading, Etc.
-        MAIN,
-        // SERVER: Websockets, Middleware, Etc.
-        SERVER,
-        // INTERFACE: Electron, GUI Logs, Etc.
-        INTERFACE
-    }
-
     public sealed class Logger
     {
-        private bool isDebug = true;
+        // FIXME: Add to config
+        public bool isDebug = true;
+        private string _filePath { get; set; }
+        private string _appName = "Oribot-v5.0.0";
+        private string _appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-        private static readonly Logger instance = new Logger();
-
-        private string FilePath { get; set; }
 
         public Logger()
         {
-            // log gets stored in OS's appdata, we can change that later
-            string appName = "Oribot-v5.0.0";
-            string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string logFolderPath = Path.Combine(appDataFolder, appName, "Logs");
+            string logFolderPath = Path.Combine(_appDataFolder, _appName, "Logs");
 
             // create the directory if it doesn't exist
             if (!Directory.Exists(logFolderPath))
@@ -79,53 +71,103 @@ namespace OriBot.Framework
                 Directory.CreateDirectory(logFolderPath);
             }
 
-            this.FilePath = Path.Combine(logFolderPath, "latest.log");
+            this._filePath = Path.Combine(logFolderPath, "latest.log");
         }
 
-        public static Logger Instance
+        public void tryPack()
         {
-            get
+            // FIXME:
+            // can you, get this working properly xd
+            // I aim it to go like uhhhh
+            // \OribotAppdataFolder (we can change that later)
+            //      L latest.log
+            //      L \.old 
+            //          L {date}.gz
+            //
+            string compressedFolderPath = Path.Combine(_appDataFolder, _appName, "Logs", ".old");
+
+            if (!Directory.Exists(compressedFolderPath))
             {
-                return instance;
+                Directory.CreateDirectory(compressedFolderPath);
+            }
+
+            string newName = Path.Combine(_filePath, $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}.log");
+
+            RenameFile(_filePath, newName);
+            CompressLogFile(_filePath, compressedFolderPath);
+        }
+
+        private void CompressLogFile(string sourceFilePath, string compressedFilePath)
+        {
+            try
+            {
+                using (var sourceStream = new FileStream(sourceFilePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (var compressedFileStream = new FileStream(compressedFilePath, FileMode.Create, FileAccess.Write))
+                    {
+                        using (var gzipStream = new GZipStream(compressedFileStream, CompressionMode.Compress))
+                        {
+                            sourceStream.CopyTo(gzipStream);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error compressing the log file: {ex.Message}");
             }
         }
 
-        public void Log(LogLevel level, Origin origin, string message)
+        private void RenameFile(string currentFilePath, string newFilePath)
         {
-            string logEntry = $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} [{level}] [{origin}] {message}";
+            try
+            {
+                File.Move(currentFilePath, newFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error renaming the file: {ex.Message}");
+            }
+        }
+
+
+        private void Log(LogLevel level, string message)
+        {
+            //$"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} [{level}] [{origin}] {message}";
+            string logEntry = $"[{level}] {message}";
 
             // Write to console
             System.Console.WriteLine(logEntry);
 
             // Write to log file
-            using (StreamWriter writer = File.AppendText(this.FilePath))
+            using (StreamWriter writer = File.AppendText(this._filePath))
             {
                 writer.WriteLine(logEntry);
             }
         }
 
-        public void Debug(string message, Origin sysOrigin)
+        public void Debug(string message)
         {
             if (isDebug)
             {
-                Log(LogLevel.DEBUG, sysOrigin, message);
+                Log(LogLevel.DEBUG, message);
             }
             return;
         }
 
-        public void Info(string message, Origin sysOrigin)
+        public void Info(string message)
         {
-            Log(LogLevel.INFO, sysOrigin, message);
+            Log(LogLevel.INFO, message);
         }
 
-        public void Warn(string message, Origin sysOrigin)
+        public void Warn(string message)
         {
-            Log(LogLevel.WARN, sysOrigin, message);
+            Log(LogLevel.WARN, message);
         }
 
-        public void Error(string message, Origin sysOrigin)
+        public void Error(string message)
         {
-            Log(LogLevel.ERROR, sysOrigin, message);
+            Log(LogLevel.ERROR, message);
         }
     }
 }
