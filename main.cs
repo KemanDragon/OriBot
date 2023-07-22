@@ -106,6 +106,10 @@ namespace main
                 // // Console.WriteLine(JObject.Load(File.ReadAllText("test.json")).ToString());
                 await _client.LoginAsync(TokenType.Bot, token);
                 await _client.StartAsync();
+
+                // FIXME: perhaps.. remove this? xd
+                Logging.Info("##### Login Successful! #####");
+
                 // Block this task until the program is closed.
                 await Task.Delay(-1);
             }
