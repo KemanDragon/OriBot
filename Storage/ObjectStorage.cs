@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using OriBot.Framework;
 
 namespace OriBot.Storage2
 {
@@ -36,7 +37,7 @@ namespace OriBot.Storage2
                 {
                     if (strict)
                     {
-                        Console.WriteLine("WARNING: Null returned when trying to get key " + key + ", a crash may be happening. Disable Strict mode to prevent this from happening");
+                        Logging.Warn("Null returned when trying to get key " + key + ", a crash may be happening. Disable Strict mode to prevent this from happening", Origin.SERVER);
                         return null;
                     }
                     _storage[key] = new JObject(false);

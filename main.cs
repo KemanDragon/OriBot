@@ -61,8 +61,7 @@ namespace main
 
         private Task Log(LogMessage msg)
         {
-            Console.WriteLine(msg.ToString());
-
+            Logging.Info(msg.ToString(), Origin.MAIN);
             return Task.CompletedTask;
         }
     }

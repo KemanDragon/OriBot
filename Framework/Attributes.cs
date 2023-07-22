@@ -20,7 +20,6 @@ namespace OriBot.Framework
 
             public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context2, CommandInfo command, IServiceProvider services)
             {
-                
                 if (ID.Contains(context2.Guild.Id))
                 {
                     return Task.FromResult(PreconditionResult.FromSuccess());

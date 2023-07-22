@@ -48,7 +48,6 @@ namespace OriBot.Commands
                 context: context,
                 argPos: argPos,
                 services: null);
-
         }
     }
 }
