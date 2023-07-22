@@ -45,7 +45,6 @@ namespace main
             // // Console.WriteLine(JObject.Load(File.ReadAllText("test.json")).ToString());
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
-            await InitializeOtherSystems();
             // Block this task until the program is closed.
             await Task.Delay(-1);
         }
@@ -71,12 +70,7 @@ namespace main
             Memory.ContextStorage.Add("oricord", new OricordContext());
         }
 
-        public async Task InitializeOtherSystems()
-        {
-           
-          //  _passiveHandlerHub = new PassiveHandlerHub(_client);
-         //   _passiveHandlerHub.RegisterPassiveHandlers();
-        }
+
 
         private Task Log(LogMessage msg)
         {
