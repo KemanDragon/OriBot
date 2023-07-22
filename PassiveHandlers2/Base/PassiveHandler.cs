@@ -7,14 +7,16 @@ namespace OriBot.PassiveHandlers2
         internal Requirements _requirements = new Requirements();
 
         public Requirements Requirements => _requirements;
-        private readonly DiscordSocketClient _client;
+        internal readonly DiscordSocketClient client;
 
-        private readonly SocketMessage _message;
+        internal readonly SocketMessage message;
+
+        
 
         public BasePassiveHandler(DiscordSocketClient client, SocketMessage message)
         {
-            _client = client;
-            _message = message;
+            this.client = client;
+            this.message = message;
         }
     }
 }
