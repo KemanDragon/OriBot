@@ -9,8 +9,9 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using OriBot.Commands2;
 using OriBot.Framework;
-using OriBot.PassiveHandlers;
 
+using OriBot.PassiveHandlers2;
+using OriBot.Storage2;
 
 namespace main
 {
@@ -23,7 +24,7 @@ namespace main
 
         private DiscordSocketClient _client;
 
-        private PassiveHandlerHub _passiveHandlerHub;
+       // private PassiveHandlerHub _passiveHandlerHub;
 
         public async Task MainAsync()
         {
@@ -31,6 +32,7 @@ namespace main
             _client.Log += Log;
             AddAllContexts();
             RegisterSlashCommands();
+            PassiveHandlerHub.RegisterPassiveHandlers(_client);
 
             //  You can assign your bot token to a string, and pass that in to connect.
             //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.
@@ -72,8 +74,8 @@ namespace main
         public async Task InitializeOtherSystems()
         {
            
-            _passiveHandlerHub = new PassiveHandlerHub(_client);
-            _passiveHandlerHub.RegisterPassiveHandlers();
+          //  _passiveHandlerHub = new PassiveHandlerHub(_client);
+         //   _passiveHandlerHub.RegisterPassiveHandlers();
         }
 
         private Task Log(LogMessage msg)

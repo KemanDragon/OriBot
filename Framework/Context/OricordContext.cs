@@ -1,6 +1,6 @@
 using System;
 
-namespace OriBot.Commands2
+namespace OriBot.Framework
 {
     public class OricordContext : Context
     {
