@@ -5,3 +5,5 @@
 /.vs/Oribot
 /obj
 /.vs
+/token.txt
+/bin

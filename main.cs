@@ -1,44 +1,86 @@
-using Discord;
-using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
+using Discord;
+using Oribot.Utilities
+using Discord.Interactions;
+using Discord.WebSocket;
+using OriBot.Commands2;
+using OriBot.Framework;
+using OriBot.PassiveHandlers;
 using Oribot.Utilities;
 
 
-namespace main {
-    class Program
+namespace main
+{
+    public static class Memory {
+        public static Dictionary<string, Context> ContextStorage = new Dictionary<string, Context>();
+    }
+    internal class Program
     {
-        static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
+        public static Task Main(string[] args) => new Program().MainAsync();
 
-        //private DiscordSocketClient _client;
-        //private Logger logger = new Logger();
+        private DiscordSocketClient _client;
+
+        private PassiveHandlerHub _passiveHandlerHub;
 
         public async Task MainAsync()
         {
-            //logger.Log("Some logs");
-            //logger.Warn("Some warning");
-            //logger.Error("Some error");
+            _client = new DiscordSocketClient();
+            _client.Log += Log;
+            AddAllContexts();
+            RegisterSlashCommands();
 
-            // Creating config
-            //var _config = new DiscordSocketConfig {
-            //    MessageCacheSize = 100
-            //};
+            //  You can assign your bot token to a string, and pass that in to connect.
+            //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.
+            var token = File.ReadAllText("token.txt");
 
-            // Creating the client
-            //_client = new DiscordSocketClient(_config);
+            // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
+            // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
+            // var token = File.ReadAllText("token.txt");
+            // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
+            // // Console.WriteLine(JObject.Load(File.ReadAllText("test.json")).ToString());
+            await _client.LoginAsync(TokenType.Bot, token);
+            await _client.StartAsync();
+            await InitializeOtherSystems();
+            // Block this task until the program is closed.
+            await Task.Delay(-1);
+        }
 
-            ////_client.Log += Log;
+        private void RegisterSlashCommands() {
+            _client.Ready += async () =>
+            {
+                var _interactionService = new InteractionService(_client.Rest);
+                await _interactionService.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),
+                                                services: null);
 
-            //// Start the bot
-            //await _client.LoginAsync(TokenType.Bot, "MTExNzg4ODQ4MjU0Nzg2Mzc2Mw.Go5KNk.EQ2_8YMjyWXuWLY4XW6ONfF8VUOZYa9PBcxpJA");//Environment.GetEnvironmentVariable("TOKEN"));
-            //await _client.StartAsync();
-
-            //_client.MessageUpdated += MessageUpdated;
-            //_client.Ready += BotReady; 
+                await _interactionService.RegisterCommandsGloballyAsync(false);
                 
-            //// Block this task until the program is closed.
-            //await Task.Delay(-1);
+                _client.InteractionCreated += async (x) =>
+                {
+                    var ctx = new SocketInteractionContext(_client, x);
+                    await _interactionService.ExecuteCommandAsync(ctx, null);
+                };
+            };
+        }
+
+        private void AddAllContexts() {
+            Memory.ContextStorage.Add("oricord", new OricordContext());
+        }
+
+        public async Task InitializeOtherSystems()
+        {
+           
+            _passiveHandlerHub = new PassiveHandlerHub(_client);
+            _passiveHandlerHub.RegisterPassiveHandlers();
+        }
+
+        private Task Log(LogMessage msg)
+        {
+            Logging.Info(msg.ToString(), Origin.MAIN);
+            return Task.CompletedTask;
         }
         
      //   private Task BotReady()
@@ -56,4 +98,4 @@ namespace main {
 	    //}
 
     }
-}   
+}
