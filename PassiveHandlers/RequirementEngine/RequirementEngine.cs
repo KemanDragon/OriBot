@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Discord.WebSocket;
 
-namespace OriBot.PassiveHandlers2
+namespace OriBot.PassiveHandlers
 {
     public class Requirements
     {

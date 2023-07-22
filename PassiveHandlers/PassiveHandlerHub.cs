@@ -1,46 +1,61 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
 using Discord.WebSocket;
 
 namespace OriBot.PassiveHandlers
 {
-    public class PassiveHandlerHub
-    {
-        private readonly DiscordSocketClient _client;
-        private readonly List<Type> _passiveHandlers = new();
-        public PassiveHandlerHub(DiscordSocketClient client)
-        {
-            _client = client;
-        }
+    public static class PassiveHandlerHub {
+        private static readonly List<Type> _passiveHandlers = new();
 
-        public void RegisterPassiveHandlers()
+        private static readonly Dictionary<Type, List<MethodInfo>> _passiveHandlersToMethods = new();
+
+        public static bool RegisterPassiveHandlers(DiscordSocketClient client)
         {
-            Assembly.GetExecutingAssembly().GetTypes().ToList().ForEach(type =>
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
             {
-                if (type.BaseType == typeof(PassiveHandler))
+                if (type.IsSubclassOf(typeof(BasePassiveHandler)) && !type.IsAbstract)
                 {
                     _passiveHandlers.Add(type);
+                    var methods = new List<MethodInfo>();
+                    foreach (var method in type.GetMethods())
+                    {
+                        if (method.GetCustomAttribute<PassiveHandler>() != null)
+                        {
+                            methods.Add(method);
+                        }
+                    }
+                    _passiveHandlersToMethods.Add(type, methods);
                 }
-            });
-            _client.MessageReceived += HandleMessageAsync;
+            }
+            client.MessageReceived += async (message) =>
+            {
+                RunPassiveHandlers(client, message);
+            };
+            return true;
         }
 
-        private async Task HandleMessageAsync(SocketMessage messageParam)
-        {
-            
-            var message = messageParam as SocketUserMessage;
-            if (message == null) return;
-            
-            // Create a number to track where the prefix ends and the command begins
-            foreach (var item in _passiveHandlers)
+        private static void RunPassiveHandlers(DiscordSocketClient client, SocketMessage message) {
+            foreach (var item in _passiveHandlersToMethods)
             {
-                Activator.CreateInstance(item, _client, message);
-            }   
+                // First, we run the RequirementEngine
+                var instantiated = (BasePassiveHandler) Activator.CreateInstance(item.Key, args: new object[] {client, message});
+                var result = instantiated.Requirements.CheckRequirements(client, message);
+                if (!result) continue;
+                foreach (var method in item.Value)
+                {
+                    method.Invoke(instantiated, null);
+                
+                }
+            }
         }
+
+
+
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class PassiveHandler : Attribute {
+        public PassiveHandler() {}
     }
 }

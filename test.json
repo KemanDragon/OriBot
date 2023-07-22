@@ -1,0 +1,15 @@
+{
+    "_storage": {
+        "loggerFiles": {
+            "_storage": {
+                "folder": "Logs",
+                "normal": "logs.txt",
+                "warn": "warnings.txt",
+                "error": "errors.txt"
+            },
+            "_strict": true
+        },
+        "simple": "test"
+    },
+    "_strict": true
+}

@@ -7,7 +7,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using OriBot.Framework;
 
-namespace OriBot.Commands2
+namespace OriBot.Commands
 {
     public class RequireCorrectServerAttribute : PreconditionAttribute
     {

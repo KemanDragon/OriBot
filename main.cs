@@ -9,10 +9,10 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 
-using OriBot.Commands2;
+using OriBot.Commands;
 using OriBot.Framework;
 
-using OriBot.PassiveHandlers2;
+using OriBot.PassiveHandlers;
 using OriBot.Storage2;
 
 namespace main

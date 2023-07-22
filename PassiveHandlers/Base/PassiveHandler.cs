@@ -1,6 +1,6 @@
 using Discord.WebSocket;
 
-namespace OriBot.PassiveHandlers2
+namespace OriBot.PassiveHandlers
 {
     public abstract class BasePassiveHandler
     {
