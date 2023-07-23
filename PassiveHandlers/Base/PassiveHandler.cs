@@ -11,12 +11,18 @@ namespace OriBot.PassiveHandlers
 
         internal readonly SocketMessage message;
 
-        
+        internal readonly EventType type;
 
-        public BasePassiveHandler(DiscordSocketClient client, SocketMessage message)
+        public BasePassiveHandler(DiscordSocketClient client, SocketMessage message, EventType type)
         {
             this.client = client;
             this.message = message;
+            this.type = type;
         }
+    }
+
+    public enum EventType {
+        MessageSent,
+        ReactionAdded,
     }
 }

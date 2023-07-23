@@ -5,10 +5,10 @@ namespace OriBot.PassiveHandlers
 {
     public abstract class OricordPassiveHandler : BasePassiveHandler
     {
-        public OricordPassiveHandler(DiscordSocketClient client, SocketMessage message) : base(client, message)
+        public OricordPassiveHandler(DiscordSocketClient client, SocketMessage message, EventType type) : base(client, message, type)
         {
             _requirements = new Requirements(
-                (client, messageParam) =>
+                (client, messageParam, type) =>
                 {
                     
                     var message = messageParam as SocketUserMessage;
