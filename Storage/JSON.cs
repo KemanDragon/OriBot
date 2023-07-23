@@ -1,5 +1,5 @@
 using Newtonsoft.Json;
-using OriBot.Storage2;
+using OriBot.Storage;
 
 public static class JSON {
     public static string stringify(dynamic obj)
