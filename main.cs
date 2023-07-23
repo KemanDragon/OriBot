@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Discord;
+using Oribot.Utilities;
 using Discord.Interactions;
 using Discord.WebSocket;
 
@@ -13,7 +14,8 @@ using OriBot.Commands;
 using OriBot.Framework;
 
 using OriBot.PassiveHandlers;
-using OriBot.Storage2;
+using Oribot.Utilities;
+
 
 namespace main
 {
@@ -154,5 +156,20 @@ namespace main
             Logging.Info(msg.ToString());
             return Task.CompletedTask;
         }
+        
+     //   private Task BotReady()
+     //   {
+     //       logger.Log("Bot is ready");
+            
+     //       return Task.CompletedTask;
+     //   }
+
+     //   private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
+	    //{
+		   // // If the message was not in the cache, downloading it will result in getting a copy of `after`.
+		   // var message = await before.GetOrDownloadAsync();
+		   // Console.WriteLine($"{message} -> {after}");
+	    //}
+
     }
 }
