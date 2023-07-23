@@ -1,0 +1,13 @@
+{
+    "logger": {
+        "logFolder": "Logs",
+        "debugLogFile": "Debug_Log",
+        "crashLogFile": "Crash_Log",
+        "normalLogFile": "Run",
+        "fileDateTimeFormat": "HH", // TODO: Fix special chars error, i.e :, /, ...
+        "debugMode": true,
+        "clumpLevelsTogether": false,
+        "crashLogBufferSize": 100
+    }
+}
+
