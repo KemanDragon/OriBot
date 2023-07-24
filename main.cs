@@ -30,7 +30,7 @@ namespace main
 
         private DiscordSocketClient _client;
 
-       // private PassiveHandlerHub _passiveHandlerHub;
+        // private PassiveHandlerHub _passiveHandlerHub;
 
         public async Task MainAsync()
         {
@@ -71,16 +71,16 @@ namespace main
                 switch (sel)
                 {
                     case 1:
-                        Logger.Log("Be gone");
+                        Logger.Info("Be gone");
                         sel = 0;
                         await Cleanup();
                         break;
                     case 2:
-                        Logger.Log("define help here please lol");
+                        Logger.Info("define help here please lol");
                         sel = 0;
                         break;
                     default:
-                        Logger.Log("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
+                        Logger.Info("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
                         sel = 0;
                         break;
                 }
@@ -110,7 +110,7 @@ namespace main
                 await _client.StartAsync();
 
                 // FIXME: perhaps.. remove this? xd
-                Logger.Log("##### Login Successful! #####");
+                Logger.Info("##### Login Successful! #####");
 
                 // Block this task until the program is closed.
                 await Task.Delay(-1);
@@ -147,29 +147,30 @@ namespace main
 
         private async Task Cleanup()
         {
+            // FIXME: readd the logging cleanup operation
             //Logging.Cleanup();
             await Task.CompletedTask;
         }
 
         private Task Log(LogMessage msg)
         {
-            Logger.Log(msg.ToString());
+            Logger.Info(msg.ToString());
             return Task.CompletedTask;
         }
-        
-     //   private Task BotReady()
-     //   {
-     //       logger.Log("Bot is ready");
-            
-     //       return Task.CompletedTask;
-     //   }
 
-     //   private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
-	    //{
-		   // // If the message was not in the cache, downloading it will result in getting a copy of `after`.
-		   // var message = await before.GetOrDownloadAsync();
-		   // Console.WriteLine($"{message} -> {after}");
-	    //}
+        //   private Task BotReady()
+        //   {
+        //       logger.Log("Bot is ready");
+
+        //       return Task.CompletedTask;
+        //   }
+
+        //   private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
+        //{
+        // // If the message was not in the cache, downloading it will result in getting a copy of `after`.
+        // var message = await before.GetOrDownloadAsync();
+        // Console.WriteLine($"{message} -> {after}");
+        //}
 
     }
 }

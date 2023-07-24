@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 namespace Oribot.Utilities
 {
+    #region Logger
     /// <summary>
     /// A basic logger with support for colors and logs including crash logs.
     /// </summary>
@@ -13,10 +14,10 @@ namespace Oribot.Utilities
         ** ********** */
 
         // Colors
-        private static readonly Color normalColor = new Color(248, 246, 246);
+        private static readonly Color infoColor = new Color(248, 246, 246);
         private static readonly Color warningColor = new Color(245, 208, 97);
         private static readonly Color errorColor = new Color(207, 70, 71);
-        private static readonly Color fatalColor = new Color(255, 0, 255); 
+        private static readonly Color fatalColor = new Color(255, 0, 255);
 
         // Config
         private static readonly bool debug = Config.properties["logger"]["debugMode"];
@@ -30,12 +31,12 @@ namespace Oribot.Utilities
         private static readonly int crashLogBufferSize = Config.properties["logger"]["crashLogBufferSize"];
 
         // Printing
-        private const int MAX_CAT_SPACE = 7; 
+        private const int MAX_CAT_SPACE = 7;
 
         private static int previousLogLevel = 0; // 0 = Normal, ... TODO: Change to enum
         private static int currentLogLevel = 0;
 
-        private static CircularBuffer<String> crashDumpBuffer = new CircularBuffer<String>(crashLogBufferSize); 
+        private static CircularBuffer<String> crashDumpBuffer = new CircularBuffer<String>(crashLogBufferSize);
 
         // Writing
         private static String instanceFileIdentifier = null;
@@ -45,14 +46,13 @@ namespace Oribot.Utilities
         ** ************ */
 
         // To avoid instantiation
-        private Logger()
-        {
-        }
+        private Logger() { }
 
         /// <summary>
         /// Sets up the crash handling.
         /// </summary>
-        static Logger() {
+        static Logger()
+        {
             // Important for crash logs
             AppDomain.CurrentDomain.UnhandledException += Logger.DumpCrashLog;
         }
@@ -82,13 +82,13 @@ namespace Oribot.Utilities
         /// Creates a normal info level log.
         /// </summary>
         /// <param name="message"></param>
-        public static void Log(String message)
+        public static void Info(String message)
         {
             currentLogLevel = 0;
 
             if (debug)
             {
-                _Log(normalColor, "info", message);
+                _Log(infoColor, "info", message);
                 WriteLogsDebug("info", message);
             }
             else
@@ -141,13 +141,40 @@ namespace Oribot.Utilities
             previousLogLevel = currentLogLevel;
         }
 
+        /**
+            TODO: Add FATAL (unless this was done by line 57)
+        */
+        // public static void Fatal(String message)
+        // {
+        //     currentLogLevel = 3;
+
+        //     if (debug)
+        //     {
+        //         _Log(errorColor, "error", message);
+        //         WriteLogsDebug("error", message);
+        //     }
+        //     else
+        //     {
+        //         WriteLogsNormal("error", message);
+        //     }
+
+        //     previousLogLevel = currentLogLevel;
+        // }
+
+
+        /// <summary>
+        /// Creates an error level log.
+        /// </summary>
+        /// <param name="message"></param>
+
         /// <summary>
         /// Repeats a given string.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="times"></param>
         /// <returns>String result</returns>
-        private static String RepeatString(String message, int times) {
+        private static String RepeatString(String message, int times)
+        {
             return new StringBuilder(message.Length * times).Insert(0, message, times).ToString();
         }
 
@@ -200,14 +227,14 @@ namespace Oribot.Utilities
             String fileName = crashLogFile + "_" + CreateInstanceIdentifier() + ".dump";
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
-            Logger.Log($"Creating dump file at {filePath}...");
+            Logger.Info($"Creating dump file at {filePath}...");
 
             foreach (String log in crashDumpBuffer.ToArray())
             {
                 File.AppendAllText(filePath, log + "\n");
             }
 
-            Logger.Log("Dump file created!");
+            Logger.Info("Dump file created!");
             Logger.Warning("Exiting...");
             Environment.Exit(0);
         }
@@ -234,6 +261,7 @@ namespace Oribot.Utilities
             return DateTime.Now.ToString(dateTimeFormat);
         }
     }
+    #endregion
 
     /// <summary>
     /// A data structure that represents a ring/circular buffer.
