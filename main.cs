@@ -11,9 +11,10 @@ using Discord.WebSocket;
 
 using OriBot.Commands;
 using OriBot.Framework;
+using Oribot.Utilities;
 
 using OriBot.PassiveHandlers;
-using OriBot.Storage2;
+using OriBot.Storage;
 
 namespace main
 {
@@ -69,16 +70,16 @@ namespace main
                 switch (sel)
                 {
                     case 1:
-                        Logging.Debug("Be gone");
+                        Logger.Log("Be gone");
                         sel = 0;
                         await Cleanup();
                         break;
                     case 2:
-                        Logging.Info("define help here please lol");
+                        Logger.Log("define help here please lol");
                         sel = 0;
                         break;
                     default:
-                        Logging.Info("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
+                        Logger.Log("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
                         sel = 0;
                         break;
                 }
@@ -108,15 +109,15 @@ namespace main
                 await _client.StartAsync();
 
                 // FIXME: perhaps.. remove this? xd
-                Logging.Info("##### Login Successful! #####");
+                Logger.Log("##### Login Successful! #####");
 
                 // Block this task until the program is closed.
                 await Task.Delay(-1);
             }
             catch (System.Exception e)
             {
-                Logging.Error("Task Terminated");
-                Logging.Error(e.ToString());
+                Logger.Error("Task Terminated");
+                Logger.Error(e.ToString());
             }
         }
 
@@ -145,13 +146,13 @@ namespace main
 
         private async Task Cleanup()
         {
-            Logging.Cleanup();
+            //Logging.Cleanup();
             await Task.CompletedTask;
         }
 
         private Task Log(LogMessage msg)
         {
-            Logging.Info(msg.ToString());
+            Logger.Log(msg.ToString());
             return Task.CompletedTask;
         }
     }
