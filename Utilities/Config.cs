@@ -1,58 +1,74 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
 using System.IO;
 using OriBot.Storage;
 
 namespace Oribot.Utilities
 {
+    /// <summary>
+    /// Contains the project configuration.
+    /// </summary>
     class Config
     {
-        // To avoid external instantiation
-        private Config() { }
-
+        /* ********** **
+        ** ATTRIBUTES **
+        ** ********** */
         public static JObject properties;
 
+
+        /* ************ **
+        ** CONSTRUCTORS **
+        ** ************ */
+        static Config()
+        {
+            LoadConfig();
+        }
+
+        // Private contructor to avoid external instantiation
+        private Config() { }
+
+
+        /* ******* **
+        ** METHODS **
+        ** ******* */
+
+        /// <summary>
+        /// Loads the project configuration file.
+        /// </summary>
         public static void LoadConfig()
         {
-            // Clear the console once done
-            Console.WriteLine("Loading configuration...");
-
             // Get the config.json file path
             String projectDirectory = GetRootDirectory();
             String configFilePath = Path.Combine(projectDirectory, "config.json");
 
-            // Create JObject instance
+            // Update properties to load the json data
             properties = JObject.Load(File.ReadAllText(configFilePath));
-
-            // Clear the console once done
-            Console.WriteLine("Configuration loaded!");
         }
 
-        static Config()
-        { 
-            LoadConfig();
-        }
-
+        /// <summary>
+        /// Gets the root directory of the project.
+        /// </summary>
+        /// <returns>String: Root Dir</returns>
+        /// <exception cref="Exception"></exception>
         public static string GetRootDirectory()
         {
-            string currentDirectory = Directory.GetCurrentDirectory();
-            string rootDirectory = currentDirectory;
+            // Store the current root directory
+            string rootDirectory = Directory.GetCurrentDirectory();
 
+            // Loop till there is a valid root directory
             while (!string.IsNullOrEmpty(rootDirectory))
             {
+                // Check whether there are any project files in the root directory
                 string[] projectFiles = Directory.GetFiles(rootDirectory, "*.csproj");
                 if (projectFiles.Length > 0)
                 {
                     return rootDirectory;
                 }
 
+                // Change the root directory to the parent directory
                 rootDirectory = Directory.GetParent(rootDirectory)?.FullName;
             }
 
+            // If no root director was found throw an exception
             throw new Exception("Could not find the root directory of the project.");
         }
     }
