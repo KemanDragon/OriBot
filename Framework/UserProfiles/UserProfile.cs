@@ -8,6 +8,10 @@ using Discord.WebSocket;
 
 using Newtonsoft.Json;
 
+using OldOriBot.Data.MemberInformation;
+using OriBot.Framework.UserProfiles;
+using OriBot.Framework.UserProfiles.PerGuildData;
+
 using OriBot.Framework.UserProfiles.Badges;
 using OriBot.Framework.UserProfiles.ProfileConfig;
 
@@ -69,7 +73,7 @@ namespace OriBot.Framework.UserProfiles
         #region Variable Fields & User Data
 
         /// <summary>
-        /// The amount of messages sent by this user profile, setting this property will also automatically save the user profile.
+        /// The amount of messages sent by this user profile, setting this property will also *NOT* automatically save the user profile.
         /// </summary>
 
         [JsonIgnore]
@@ -79,7 +83,6 @@ namespace OriBot.Framework.UserProfiles
             set
             {
                 _MessagesSent = value;
-                Save();
             }
         }
 
@@ -98,9 +101,14 @@ namespace OriBot.Framework.UserProfiles
         [JsonProperty]
         internal int? _Color = null;
 
+
+        [JsonIgnore]
         internal ProfileConfigs _ProfileConfig = ProfileConfigs.Load(null, () =>
         {
         });
+
+        [JsonIgnore]
+        internal PerGuildDataContainer _PerGuildDataContainer = null;
 
         /// <summary>
         /// This is the profile config for this user.
@@ -126,6 +134,28 @@ namespace OriBot.Framework.UserProfiles
             private set
             {
                 _ProfileConfig = value;
+            }
+        }
+
+        [JsonIgnore]
+        public PerGuildDataContainer PerGuildData
+        {
+            get
+            {
+                if (_PerGuildDataContainer == null)
+                {
+                    _PerGuildDataContainer = PerGuildDataContainer.Load(null, () =>
+                    {
+                        Save();
+                    });
+                    Save();
+                }
+                return _PerGuildDataContainer;
+            }
+
+            private set
+            {
+                _PerGuildDataContainer = value;
             }
         }
 
@@ -293,6 +323,20 @@ namespace OriBot.Framework.UserProfiles
             }
         }
 
+        [JsonProperty]
+        public string SerializedPerGuildData
+        {
+            get
+            {
+                return PerGuildData.Serialized;
+            }
+
+            set
+            {
+                PerGuildData = PerGuildDataContainer.Load(value, () => { Save(); });
+            }
+        }
+
         #endregion Loaders and Unloaders
 
         #region Levels and Experience and Badges
@@ -339,12 +383,33 @@ namespace OriBot.Framework.UserProfiles
 
         #endregion Levels and Experience and Badges
 
+        #region Permission Level
+
+        public PermissionLevel GetPermissionLevel(ulong serverid)
+        {
+            if (PerGuildData[serverid]["PermissionLevel"] is PermissionLevel)
+            {
+                return (PermissionLevel)PerGuildData[serverid]["PermissionLevel"];
+            } else
+            {
+
+                return (PermissionLevel)Convert.ToInt32((long)PerGuildData[serverid]["PermissionLevel"]);
+            }
+        }
+
+        public void SetPermissionLevel(PermissionLevel level, ulong serverid)
+        {
+            PerGuildData[serverid]["PermissionLevel"] = level;
+        }
+
+        #endregion
+
         /// <summary>
         /// This is an instance <see cref="SocketGuildUser"/> that is passed in the constructor
         /// For now this field is only used to determine where your user profile should be saved.
         /// </summary>
         [JsonIgnore]
-        public SocketGuildUser Member { get; private set; }
+        public SocketUser Member { get; private set; }
 
         /// <summary>
         /// This is a static constructor that is used to initialize the <see cref="LevelToExperience"/> array and also sets <see cref="MAX_EXPERIENCE"/>
@@ -367,7 +432,7 @@ namespace OriBot.Framework.UserProfiles
         /// All user profiles are stored under $CWD/Data/<see cref="StorageFolderName"/>
         /// </summary>
         /// <param name="user"></param>
-        private UserProfile(SocketGuildUser user)
+        private UserProfile(SocketUser user)
         {
             Member = user;
         }
@@ -488,7 +553,7 @@ namespace OriBot.Framework.UserProfiles
         /// <returns></returns>
         ///
 
-        public static UserProfile GetOrCreateUserProfile(SocketGuildUser user)
+        public static UserProfile GetOrCreateUserProfile(SocketUser user)
         {
             var userid = user.Id;
             var tempprofile = new UserProfile(user);
@@ -531,7 +596,6 @@ namespace OriBot.Framework.UserProfiles
             tempprofile.Color = oldprofile.Color;
             tempprofile.Title = oldprofile.Title;
             tempprofile.Description = oldprofile.Description;
-
             // Conversion pt2
 
             foreach (var item in oldprofile.Badges)

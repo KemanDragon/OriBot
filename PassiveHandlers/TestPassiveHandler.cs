@@ -1,5 +1,5 @@
 using Discord.WebSocket;
-using Oribot.Utilities;
+using OriBot.Utilities;
 using OriBot.Framework;
 
 namespace OriBot.PassiveHandlers

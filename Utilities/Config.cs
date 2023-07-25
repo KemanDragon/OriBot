@@ -2,7 +2,7 @@
 using System.IO;
 using OriBot.Storage;
 
-namespace Oribot.Utilities
+namespace OriBot.Utilities
 {
     /// <summary>
     /// Contains the project configuration.

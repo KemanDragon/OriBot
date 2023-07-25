@@ -6,16 +6,16 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Discord;
-using Oribot.Utilities;
+using OriBot.Utilities;
 using Discord.Interactions;
 using Discord.WebSocket;
 
 using OriBot.Commands;
 using OriBot.Framework;
-using Oribot.Utilities;
 
 using OriBot.PassiveHandlers;
 using OriBot.Storage;
+using OriBot.Framework.UserProfiles;
 
 namespace main
 {
@@ -96,6 +96,7 @@ namespace main
                 AddAllContexts();
                 RegisterSlashCommands();
                 PassiveHandlerHub.RegisterPassiveHandlers(_client);
+                ProfileManager.StartTimers();
 
                 //  You can assign your bot token to a string, and pass that in to connect.
                 //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Oribot.Utilities
+namespace OriBot.Utilities
 {
     /// <summary>
     /// RGB Colors for terminals that support 24-bit colors
@@ -14,16 +14,15 @@ namespace Oribot.Utilities
         private static String ansiCodeReset = "\u001b[0m";
         private String ansiCode;
 
-
         /* *********** **
         ** CONSTRUCTOR **
         ** *********** */
+
         public Color(int r, int g, int b)
         {
             // TODO: check if terminal supports true color
             ansiCode = ansiCodeTemplate.Replace("r", r.ToString()).Replace("g", g.ToString()).Replace("b", b.ToString());
         }
-
 
         /* ******* **
         ** METHODS **
