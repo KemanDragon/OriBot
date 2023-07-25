@@ -3,26 +3,24 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using OriBot.Framework;
 
-namespace OriBot.Storage2
+namespace OriBot.Storage
 {
     public class JObject
     {
-        
         private Dictionary<dynamic, dynamic> _internaldict = new();
 
-        public JObject(string obj) {
+        public JObject(string obj)
+        {
             _internaldict = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(obj);
         }
 
-        
+
         public JObject(Dictionary<dynamic, dynamic> starterobject)
         {
             this._internaldict = starterobject;
         }
 
-        public JObject() {}
-
-
+        public JObject() { }
 
         public dynamic this[dynamic key]
         {
@@ -48,7 +46,8 @@ namespace OriBot.Storage2
             return new JObject(tmp);
         }
 
-        public static JObject Blank() {
+        public static JObject Blank()
+        {
             return new JObject();
         }
 

@@ -11,7 +11,6 @@ namespace OriBot.Framework.Extensions
 {
     public static class BinaryWriterExtensions
     {
-
         /// <summary>
         /// Given the <see cref="string"/> <paramref name="str"/>, this will write its contents as an array of UTF-8 <see cref="char"/>s with no preceeding length.
         /// </summary>
@@ -164,6 +163,5 @@ namespace OriBot.Framework.Extensions
             }
             return elements;
         }
-
     }
 }

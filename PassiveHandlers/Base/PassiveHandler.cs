@@ -21,7 +21,8 @@ namespace OriBot.PassiveHandlers
         }
     }
 
-    public enum EventType {
+    public enum EventType
+    {
         MessageSent,
         ReactionAdded,
     }

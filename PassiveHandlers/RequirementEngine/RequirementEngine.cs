@@ -17,7 +17,6 @@ namespace OriBot.PassiveHandlers
                     return false;
                 }
             }
-
             return true;
         }
 

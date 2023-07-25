@@ -1,4 +1,3 @@
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace OriBot.Commands
 
         public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services)
         {
-            
+
             if (ID.Contains(context.Guild.Id))
             {
                 return Task.FromResult(PreconditionResult.FromSuccess());
@@ -31,6 +30,4 @@ namespace OriBot.Commands
             }
         }
     }
-
-
 }
