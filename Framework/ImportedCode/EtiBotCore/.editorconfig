@@ -1,0 +1,13 @@
+﻿[*.cs]
+
+# IDE0024: Use block body for operators
+csharp_style_expression_bodied_operators = false:none
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = none
+
+# CS0162: Unreachable code detected
+dotnet_diagnostic.CS0162.severity = none
+
+# IDE0044: Add readonly modifier
+dotnet_diagnostic.IDE0044.severity = none

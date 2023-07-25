@@ -10,13 +10,12 @@ namespace OriBot.PassiveHandlers
             _requirements = new Requirements(
                 (client, messageParam, type) =>
                 {
-                    
                     var message = messageParam as SocketUserMessage;
                     if (message == null) return false;
                     var user = message.Author as SocketGuildUser;
                     if (user == null) return false;
                     if (user.Guild.Id != 1005355539447959552) return false;
-                    
+                    if (type != EventType.MessageSent) return false;
                     return true;
                 }
             );

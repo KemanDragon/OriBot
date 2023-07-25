@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Test_Implementation</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Eti's Logger\Eti's Logger\Eti's Logger.csproj" />
+    <ProjectReference Include="..\EtiBotCore\EtiBotCore.csproj" />
+  </ItemGroup>
+
+</Project>

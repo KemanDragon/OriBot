@@ -1,0 +1,1028 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Eti's Logger</name>
+    </assembly>
+    <members>
+        <member name="T:EtiLogger.Data.Structs.Color">
+            <summary>
+            An RGB color.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.VT_COLOR_FOREGROUND">
+            <summary>
+            A component for use in <c>VT_SEQ_COLOR {0}</c> that causes the given color to be applied to the foreground.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.VT_COLOR_BACKGROUND">
+            <summary>
+            A component for use in <c>VT_SEQ_COLOR {0}</c> that causes the given color to be applied to the background.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.VT_SEQ_COLOR">
+            <summary>
+            A format string for a VT sequence that changes the color. Format params are:
+            <list type="table">
+            <item>
+            <term><c>{0}</c></term>
+            <description>Either <see cref="F:EtiLogger.Data.Structs.Color.VT_COLOR_FOREGROUND"/> or <see cref="F:EtiLogger.Data.Structs.Color.VT_COLOR_BACKGROUND"/></description>
+            </item>
+            <item>
+            <term><c>{1}</c></term>
+            <description>The red component of the color from 0 to 255.</description>
+            </item>
+            <item>
+            <term><c>{2}</c></term>
+            <description>The green component of the color from 0 to 255.</description>
+            </item>
+            <item>
+            <term><c>{3}</c></term>
+            <description>The blue component of the color from 0 to 255.</description>
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.VT_SEQ_UNDERLINE">
+            <summary>
+            A VT sequence that causes all following text to be underlined.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.VT_SEQ_REMOVE_UNDERLINE">
+            <summary>
+            A VT sequence that causes all following text to not be underlined (cancels <see cref="F:EtiLogger.Data.Structs.Color.VT_SEQ_UNDERLINE"/>)
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.VT_RESET">
+            <summary>
+            A VT sequence that resets all color and underline values to their defaults.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.BLACK">
+            <summary>0, 0, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARKEST_GRAY">
+            <summary>31, 31, 31</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARKER_GRAY">
+            <summary>63, 63, 63</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.GRAY">
+            <summary>127, 127, 127</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.LIGHTER_GRAY">
+            <summary>192, 192, 192</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.LIGHTEST_GRAY">
+            <summary>224, 224, 224</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.WHITE">
+            <summary>255, 255, 255</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.RED">
+            <summary>255, 0, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.RED_ORANGE">
+            <summary>255, 63, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.ORANGE">
+            <summary>255, 127, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.YELLOW">
+            <summary>255, 255, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.YELLOW_GREEN">
+            <summary>127, 255, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.GREEN">
+            <summary>0, 255, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.GREEN_CYAN">
+            <summary>0, 255, 127</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.CYAN">
+            <summary>0, 255, 255</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.CYAN_BLUE">
+            <summary>0, 127, 255</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.BLUE">
+            <summary>0, 0, 255</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.MAGENTA">
+            <summary>255, 0, 255</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_RED">
+            <summary>127, 0, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_RED_ORANGE">
+            <summary>127, 31, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_ORANGE">
+            <summary>127, 63, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_YELLOW">
+            <summary>127, 127, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_YELLOW_GREEN">
+            <summary>63, 127, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_GREEN">
+            <summary>0, 127, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_GREEN_CYAN">
+            <summary>0, 127, 63</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_CYAN">
+            <summary>0, 127, 127</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_CYAN_BLUE">
+            <summary>0, 63, 127</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_BLUE">
+            <summary>0, 0, 127</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.DARK_MAGENTA">
+            <summary>127, 0, 127</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.GOLD">
+            <summary>255, 183, 66</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.BLOOD_RED">
+            <summary>15, 0, 0</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.SPIRIT_BLUE">
+            <summary>217, 252, 255</summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.R">
+            <summary>
+            The red component of this color.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.G">
+            <summary>
+            The green component of this color.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.B">
+            <summary>
+            The blue component of this color.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Structs.Color.Value">
+            <summary>
+            The color condensed into the bytes <c>0RGB</c>
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Data.Structs.Color.Hex">
+            <summary>
+            A hexadecimal representation of this color, e.g. <c>FFFFFF</c> for <c>(255, 255, 255)</c>
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.#ctor(System.Byte,System.Byte,System.Byte)">
+            <summary>
+            Constructs a new <see cref="T:EtiLogger.Data.Structs.Color"/> from the given red, green, and blue components.
+            </summary>
+            <param name="r">The red component of the color.</param>
+            <param name="g">The green component of the color.</param>
+            <param name="b">The blue component of the color.</param>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.#ctor(System.Int32)">
+            <summary>
+            Constructs a new <see cref="T:EtiLogger.Data.Structs.Color"/> from the given condensed integer color, which expects the bytes to be <c>0RGB</c>.
+            </summary>
+            <param name="color">An integer value storing an RGB color, e.g. <c>0xFFFFFF</c></param>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.#ctor(System.String)">
+            <summary>
+            Constructs a new <see cref="T:EtiLogger.Data.Structs.Color"/> from the given hexadecimal value which should be <strong>exactly</strong> 6 characters long (e.g. <c>FFFFFF</c>).
+            </summary>
+            <param name="hexColor">A string that is expected to be 6 characters long representing a hex color code, e.g. <c>FFFFFF</c></param>
+            <exception cref="T:System.ArgumentException">If the hex string is not 6 characters long, or if <see cref="M:System.Convert.ToInt32(System.String,System.Int32)"/> throws an exception of this type.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Propagated from <see cref="M:System.Convert.ToInt32(System.String,System.Int32)"/>.</exception>
+            <exception cref="T:System.FormatException">Propagated from <see cref="M:System.Convert.ToInt32(System.String,System.Int32)"/>.</exception>
+            <exception cref="T:System.OverflowException">Propagated from <see cref="M:System.Convert.ToInt32(System.String,System.Int32)"/>.</exception>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.GetVTForColor(EtiLogger.Data.Structs.Color,System.Boolean)">
+            <summary>
+            A quick way of getting the VT sequence string for the given color.
+            </summary>
+            <param name="color">The desired color.</param>
+            <param name="background">If <see langword="true"/>, then this color will apply to the background instead of the foreground.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.ColorString(System.String,EtiLogger.Data.Structs.Color,System.Boolean)">
+            <summary>
+            "Colors" this string by adding a VT sequence for the given color before it that affects the text.
+            </summary>
+            <param name="text">The text to edit.</param>
+            <param name="color">The color to apply to the text.</param>		
+            <param name="withReset">If <see langword="true"/>, then the reset code will be placed at the end of this string, which will revert all changes to the default values.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.HighlightString(System.String,EtiLogger.Data.Structs.Color,System.Boolean)">
+            <summary>
+            "Highlights" this string by adding a VT sequence for the given color before it that affects the background.
+            </summary>
+            <param name="text">The text to edit.</param>
+            <param name="color">The color to apply behind the text.</param>
+            <param name="withReset">If <see langword="true"/>, then the reset code will be placed at the end of this string, which will revert all changes to the default values.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.UnderlineString(System.String)">
+            <summary>
+            Appends the VT Underline start code before this text and the VT Underline end code after this text.
+            </summary>
+            <param name="text">The text to underline.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.FormatString(System.String,System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{System.Boolean},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color},System.Boolean)">
+            <summary>
+            Applies color, background color, and underline to the given string. Using <see langword="null"/> values will cause that property to remain unchanged.
+            </summary>
+            <param name="text">The text to change.</param>
+            <param name="color">The desired color of the text, or <see langword="null"/> to keep the existing color.</param>
+            <param name="underline">Whether to enable or disable underline explicitly, or <see langword="null"/> to keep the existing state.</param>
+            <param name="backgroundColor">The desired background or highlight color of the text, or <see langword="null"/> to keep the existing color.</param>
+            <param name="restoreColor">The color made before this call, used to ensure that it only affects this text. If set, this will be applied at the end of the string. If unset, nothing will be applied.</param>
+            <param name="restoreBackgroundColor">The original background color before this call, used to ensure that it only affects this text. If set, this will be applied at the end of the string. If unset, nothing will be applied.</param>
+            <param name="withReset">If <see langword="true"/>, then the reset code will be placed at the end of this string, which will revert all changes to the default values. Additionally, <paramref name="restoreColor"/> and <paramref name="restoreBackgroundColor"/> will be ignored.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.GetFormatString(System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{System.Boolean},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color})">
+            <summary>
+            Returns a string that will apply a color, background color, and underline to all text after it. Using <see langword="null"/> values will cause that property to remain unchanged.<para/>
+            Equivalent to calling <see cref="M:EtiLogger.Data.Structs.Color.FormatString(System.String,System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{System.Boolean},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color},System.Boolean)"/> with an empty <see cref="T:System.String"/> for the first parameter.
+            </summary>
+            <param name="color">The desired color of the text, or <see langword="null"/> to keep the existing color.</param>
+            <param name="underline">Whether to enable or disable underline explicitly, or <see langword="null"/> to keep the existing state.</param>
+            <param name="backgroundColor">The desired background or highlight color of the text, or <see langword="null"/> to keep the existing color.</param>
+            <param name="restoreColor">The color made before this call, used to ensure that it only affects this text. If set, this will be applied at the end of the string. If unset, nothing will be applied.</param>
+            <param name="restoreBackgroundColor">The original background color before this call, used to ensure that it only affects this text. If set, this will be applied at the end of the string. If unset, nothing will be applied.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.WithPseudoOpacity(EtiLogger.Data.Structs.Color,System.Byte)">
+            <summary>
+            A display trick that will linearly interpolate this <see cref="T:EtiLogger.Data.Structs.Color"/> to the specified <paramref name="backgroundColor"/> based on <paramref name="opacity"/>, where <c>opacity=0</c> will return a color equal to the <paramref name="backgroundColor"/> and where <c>opacity=255</c> will return a color equal to this color.
+            </summary>
+            <param name="backgroundColor">The color of the background.</param>
+            <param name="opacity">The opacity of this color, where 0 means it is completely invisible against the background and 255 means it is completely visible against the background.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.ToSystemColor">
+            <summary>
+            Returns this <see cref="T:EtiLogger.Data.Structs.Color"/> as a <see cref="T:System.Drawing.Color"/> instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.op_Equality(EtiLogger.Data.Structs.Color,EtiLogger.Data.Structs.Color)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.op_Inequality(EtiLogger.Data.Structs.Color,EtiLogger.Data.Structs.Color)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.Equals(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.ToString">
+            <summary>
+            Identical to referencing <see cref="P:EtiLogger.Data.Structs.Color.Hex"/>.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Data.Structs.Color.Equals(EtiLogger.Data.Structs.Color)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EtiLogger.Data.Util.ConsoleColorGrabber">
+            <summary>
+            A utility class that does its best to decide the closest <see cref="T:System.ConsoleColor"/> for a given <see cref="T:EtiLogger.Data.Structs.Color"/>.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Util.ConsoleColorGrabber.ConsoleColorToColorMap">
+            <summary>
+            A mapping from <see cref="T:System.ConsoleColor"/> to <see cref="T:EtiLogger.Data.Structs.Color"/>.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Data.Util.ConsoleColorGrabber.ProximityCache">
+            <summary>
+            A cache to store colors that have already been computed.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Data.Util.ConsoleColorGrabber.GetClosestConsoleColor(EtiLogger.Data.Structs.Color)">
+            <summary>
+            Returns the <see cref="T:System.ConsoleColor"/> most similar to this <see cref="T:EtiLogger.Data.Structs.Color"/> via euclidean distance.
+            </summary>
+            <param name="color"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EtiLogger.Data.Util.Math">
+            <summary>
+            Provides some specific math methods.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Data.Util.Math.LerpByte(System.Byte,System.Byte,System.Single)">
+            <summary>
+            Linearly interpolates start to goal based on alpha percent. Rounds the result. Unclamped.
+            </summary>
+            <param name="start"></param>
+            <param name="goal"></param>
+            <param name="alpha"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EtiLogger.Logging.ILoggable">
+            <summary>
+            Represents a class that has a special <see cref="M:EtiLogger.Logging.ILoggable.ToMessage"/> method designed for use in <see cref="T:EtiLogger.Logging.Logger"/>'s formatting system.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.ILoggable.ToMessage">
+            <summary>
+            Translate this object into a string that uses <see cref="T:EtiLogger.Logging.Logger"/>'s formatting system.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:EtiLogger.Logging.Logger">
+            <summary>
+            A console logging utility. Offers the ability to format messages with color codes.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.Default">
+            <summary>
+            The default logger.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.#cctor">
+            <summary>
+            Static init code
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.#ctor">
+            <summary>
+            Creates a new <see cref="T:EtiLogger.Logging.Logger"/> with an empty <see cref="P:EtiLogger.Logging.Logger.LogPrefix"/>.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.#ctor(System.String)">
+            <summary>
+            Creates a new <see cref="T:EtiLogger.Logging.Logger"/> and sets <see cref="P:EtiLogger.Logging.Logger.LogPrefix"/> to the given <see cref="T:System.String"/>, colored <see cref="F:EtiLogger.Data.Structs.Color.WHITE"/>
+            </summary>
+            <param name="prefix">The text to set the log's prefix to.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.#ctor(EtiLogger.Logging.LogMessage.MessageComponent)">
+            <summary>
+            Creates a new <see cref="T:EtiLogger.Logging.Logger"/> and sets <see cref="P:EtiLogger.Logging.Logger.LogPrefix"/> to the given <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/> which may contain custom formats.
+            </summary>
+            <param name="styledPrefix"></param>
+        </member>
+        <member name="F:EtiLogger.Logging.Logger.CLASS_INIT_TIMESTAMP">
+            <summary>
+            The time when this class is initialized into memory. Used for the log file name. This value does not change.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.LoggingLevel">
+            <summary>
+            The most detailed message type that can be logged.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.LogContainerFolder">
+            <summary>
+            The folder that the log file is stored in as a string. Default value is .\ (current EXE directory).
+            </summary>
+            <exception cref="T:System.InvalidOperationException"/>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.LogFilePath">
+            <summary>
+            The name of the current log file that this <see cref="T:EtiLogger.Logging.Logger"/> is writing to.<para/>
+            This is equal to <see cref="P:EtiLogger.Logging.Logger.LogContainerFolder"/> + "logfile-" + <see cref="F:EtiLogger.Logging.Logger.CLASS_INIT_TIMESTAMP"/> + ".log";
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.IsVTEnabled">
+            <summary>
+            Whether or not VT Sequences are enabled and should be used.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.EnableVTSupport">
+            <summary>
+            When called, this enables VT Sequence support for the console. Whether or not this action will be successful depends on the platform this bot is running on.<para/>
+            This method will return <see langword="true"/> if VT sequences are supported and enabled, and <see langword="false"/> if they are not.<para/>
+            VT sequences allow low level control of the console's colors, including the allowance of full 16-million color RGB text and backgrounds.<para/>
+            See <a href="https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences">https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences</a> for more information.
+            </summary>
+            <returns>True if VT sequences are supported, false if they are not.</returns>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.DefaultInfoColor">
+            <summary>
+            The default color used by the console for messages printed with no color defined at <see cref="F:EtiLogger.Logging.LogLevel.Info"/>.<para/>
+            <strong>Default:</strong> <see cref="F:EtiLogger.Data.Structs.Color.LIGHTEST_GRAY"/>
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.DefaultDebugColor">
+            <summary>
+            The default color used by the console for messages printed with no color defined at <see cref="F:EtiLogger.Logging.LogLevel.Debug"/>.<para/>
+            <strong>Default:</strong> <see cref="F:EtiLogger.Data.Structs.Color.GRAY"/>
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.DefaultTraceColor">
+            <summary>
+            The default color used by the console for messages printed with no color defined at <see cref="F:EtiLogger.Logging.LogLevel.Trace"/> or above (if manually defined).<para/>
+            <strong>Default:</strong> <see cref="F:EtiLogger.Data.Structs.Color.DARKER_GRAY"/>
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.DefaultLevel">
+            <summary>
+            The default logging level for this <see cref="T:EtiLogger.Logging.Logger"/>.<para/>
+            <strong>Default:</strong> <see cref="F:EtiLogger.Logging.LogLevel.Info"/>
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.LogPrefix">
+            <summary>
+            A <see cref="T:System.String"/> to put before all log entries from this logger (and after the timestamp) (by writing this and then immediately writing logged entries after). This text is appended verbatim, so format codes will not work.<para/>
+            <strong>Default:</strong> <see langword="new"/> <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>(<see cref="F:System.String.Empty"/>)<para/>
+            <strong>Note:</strong> Setting this to <see langword="null"/> will actually set it to the default. As such, this will never be <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.NoTimestamp">
+            <summary>
+            If <see langword="true"/>, the timestamp will be omitted from the log.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.NoLevel">
+            <summary>
+            If <see langword="true"/>, the level will be omitted from the log (removing prefixes like <c>[INFO]</c>, <c>[DEBUG]</c>, and <c>[TRACE]</c>).
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.AddTimestampToAllNewlines">
+            <summary>
+            If <see langword="true"/>, and if a message that is written to the log contains new lines, then the timestamp will be appended at the start of each line.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.InfoPrefix">
+            <summary>
+            The prefix for <see cref="F:EtiLogger.Logging.LogLevel.Info"/> messages.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.DebugPrefix">
+            <summary>
+            The prefix for <see cref="F:EtiLogger.Logging.LogLevel.Debug"/> messages.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.TracePrefix">
+            <summary>
+            The prefix for <see cref="F:EtiLogger.Logging.LogLevel.Trace"/> messages.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.DefaultTarget">
+            <summary>
+            The <see cref="T:EtiLogger.Logging.Util.OutputRelay"/> new <see cref="T:EtiLogger.Logging.Logger"/>s will be initialized with. Changing this will NOT update any existing <see cref="T:EtiLogger.Logging.Logger"/>s.<para/>
+            <strong>Default:</strong> <see cref="P:EtiLogger.Logging.Util.OutputRelay.ConsoleRelay"/>
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Logger.Target">
+            <summary>
+            The target <see cref="T:EtiLogger.Logging.Util.OutputRelay"/> that this <see cref="T:EtiLogger.Logging.Logger"/> will send its text to.<para/>
+            </summary>
+            <exception cref="T:System.ArgumentNullException">If this is set to null.</exception>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteLine(System.String,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Log some text on a single line, and make a newline afterwards.
+            </summary>
+            <param name="message">The text to log.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.Write(System.String,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Log some text on a single line.
+            </summary>
+            <param name="message">The text to log.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteLineRaw(System.String,System.Nullable{EtiLogger.Logging.LogLevel})">
+            <summary>
+            Writes the given text verbatim into the console (does not do any processing of codes e.g. §, ^#XXXXXX;, ^u;), followed by a new line.
+            </summary>
+            <param name="text">The text to write to the console</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Log a complex <see cref="T:EtiLogger.Logging.LogMessage"/> object on a single line, and make a newline afterwards.
+            </summary>
+            <param name="message">The <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteWarning(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Calls <see cref="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)"/> with the given parameters, but appends orange text beforehand reading <c>"[WARN] "</c>
+            </summary>
+            <param name="message">The <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteSevere(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Calls <see cref="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)"/> with the given parameters, but appends red text beforehand reading <c>"[SEVERE] "</c>
+            </summary>
+            <param name="message">The <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteCritical(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Calls <see cref="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)"/> with the given parameters, but appends red-orange text beforehand reading <c>"[CRITICAL] "</c>
+            </summary>
+            <param name="message">The <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteWarning(System.String,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Calls <see cref="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)"/> with the given parameters, but appends orange text beforehand reading <c>"[WARN] "</c>
+            </summary>
+            <param name="message">A <see cref="T:System.String"/> that will be used to create a <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteSevere(System.String,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Calls <see cref="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)"/> with the given parameters, but appends red-orange text beforehand reading <c>"[SEVERE] "</c>
+            </summary>
+            <param name="message">A <see cref="T:System.String"/> that will be used to create a <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteCritical(System.String,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Calls <see cref="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)"/> with the given parameters, but appends red text beforehand reading <c>"[CRITICAL] "</c>
+            </summary>
+            <param name="message">A <see cref="T:System.String"/> that will be used to create a <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteLine(EtiLogger.Logging.ILoggable,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Log an <see cref="T:EtiLogger.Logging.ILoggable"/> object on a single line, and make a newline afterwards.
+            </summary>
+            <param name="loggable">The object that will provide a <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.Write(EtiLogger.Logging.ILoggable,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Log an <see cref="T:EtiLogger.Logging.ILoggable"/> object on a single line.
+            </summary>
+            <param name="loggable">The object that will provide a <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteException(System.Exception,System.Boolean,System.Nullable{EtiLogger.Logging.LogLevel})">
+            <summary>
+            Writes errors to the console and plays a beep sound to alert the operator.<para/>
+            This has automatic handling for <see cref="T:System.AggregateException"/> and <see cref="T:System.TypeInitializationException"/>.<para/>
+            </summary>
+            <param name="ex">The exception to log.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteUnthrownException(System.Exception,System.Boolean,System.Boolean,System.Nullable{EtiLogger.Logging.LogLevel})">
+            <summary>
+            Writes errors to the console and plays a beep sound to alert the operator. This expects a manually instantiated exception rather than a thrown one, and does not support <see cref="T:System.AggregateException"/>.
+            </summary>
+            <param name="ex">The exception to log.</param>
+            <param name="throwAfter">If true, the exception will be thrown from this method after being written.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.Write(EtiLogger.Logging.LogMessage,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Log a complex <see cref="T:EtiLogger.Logging.LogMessage"/> object on a single line.
+            </summary>
+            <param name="message">The <see cref="T:EtiLogger.Logging.LogMessage"/> to write.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.WriteRaw(System.String,System.Nullable{EtiLogger.Logging.LogLevel},System.Boolean)">
+            <summary>
+            Writes the given text verbatim into the console (does not do any processing of codes e.g. §, ^#XXXXXX;, ^u;).
+            </summary>
+            <param name="text">The text to write to the console.</param>
+            <param name="alertSound">If true, this message will cause the console to beep.</param>
+            <param name="logLevel">The type of log message that this is. If this is <see langword="null"/>, <see cref="P:EtiLogger.Logging.Logger.DefaultLevel"/> is used.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.GetColorForLogLevel(EtiLogger.Logging.LogLevel)">
+            <summary>
+            Returns the corresponding default color for the given <see cref="T:EtiLogger.Logging.LogLevel"/>
+            </summary>
+            <param name="level">The <see cref="T:EtiLogger.Logging.LogLevel"/> to get the associated color of.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.GetNameForLogLevel(EtiLogger.Logging.LogLevel)">
+            <summary>
+            Returns the name of the log level based on <see cref="P:EtiLogger.Logging.Logger.InfoPrefix"/>, <see cref="P:EtiLogger.Logging.Logger.DebugPrefix"/>, and <see cref="P:EtiLogger.Logging.Logger.TracePrefix"/>.<para/>
+            The developer may optionally <see langword="override"/> <see cref="M:EtiLogger.Logging.Logger.GetNameForCustomLogLevel(EtiLogger.Logging.LogLevel)"/> from which it is possible to provide names for non-standard <see cref="T:EtiLogger.Logging.LogLevel"/>s.
+            </summary>
+            <param name="level"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.GetNameForCustomLogLevel(EtiLogger.Logging.LogLevel)">
+            <summary>
+            A method that can be overridden to provide a custom prefix for a unique <see cref="T:EtiLogger.Logging.LogLevel"/> that is not defined in the enum.<para/>
+            <strong>Default return value:</strong> "[CUSTOM]"
+            </summary>
+            <param name="customLevel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.GetFormattedTimestamp">
+            <summary>
+            Returns a formatted timestamp: "[HH:MM:SS] "
+            </summary>
+            <returns>Returns a formatted timestamp: "[HH:MM:SS] "</returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.ClearConsoleIfNecessary">
+            <summary>
+            In case the console runs out of buffer space, clear it out. This is where log files come in handy because the console has limited display.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Logger.SetAllLoggerTargetsTo(EtiLogger.Logging.Util.OutputRelay)">
+            <summary>
+            Sets the <see cref="P:EtiLogger.Logging.Logger.Target"/> property of all instantiated <see cref="T:EtiLogger.Logging.Logger"/>s to the given <paramref name="target"/>.
+            </summary>
+            <param name="target">The new <see cref="T:EtiLogger.Logging.Util.OutputRelay"/> to log to.</param>
+            <exception cref="T:System.ArgumentNullException">If the <paramref name="target"/> is null.</exception>
+        </member>
+        <member name="T:EtiLogger.Logging.LogLevel">
+            <summary>
+            A logging level, which can be used to filter between different log entry types.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogLevel.Info">
+            <summary>
+            A standard log entry message.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogLevel.Debug">
+            <summary>
+            A log entry for debugging purposes.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogLevel.Trace">
+            <summary>
+            A log entry for trace debugging, which keeps track of code flow.
+            </summary>
+        </member>
+        <member name="T:EtiLogger.Logging.LogMessage">
+            <summary>
+            Represents a pre-baked log message for <see cref="T:EtiLogger.Logging.Logger"/>, and provides methods of assembling colored log strings.<para/>
+            Most importantly, it provides a means of turning VT sequences back into <see cref="T:EtiLogger.Logging.LogMessage"/> instances.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogMessage.LEGACY_COLOR_CODE_SYM">
+            <summary>
+            The symbol used for switching to legacy console color codes.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogMessage.TEXT_CODE_SYM">
+            <summary>
+            The symbol used to signify that the formatting of text will change. 
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogMessage.DEFAULT_COLOR">
+            <summary>
+            The default color to use if no color is defined for text.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogMessage.DEFAULT_BACKGROUND_COLOR">
+            <summary>
+            The default color to use if no color is defined for the background
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogMessage.ConsoleColorMap">
+            <summary>
+            A map of byte code values to ConsoleColors
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.SBFromConsoleColor(System.ConsoleColor)">
+            <summary>
+            Given a <see cref="T:System.ConsoleColor"/>, this will return the equivalent "starbound color".
+            </summary>
+            <param name="conColor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.TranslateLegacyColors(System.String)">
+            <summary>
+            Translates legacy colors using § into the modern Starbound-style RGB codes.
+            </summary>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.Components">
+            <summary>
+            All of the <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>s that make up this <see cref="T:EtiLogger.Logging.LogMessage"/>.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.LogMessage.ComponentsInternal">
+            <summary>
+            Keeps track of all colored pieces of this message.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.#ctor">
+            <summary>
+            Create a new <see cref="T:EtiLogger.Logging.LogMessage"/>.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.#ctor(System.String)">
+            <summary>
+            Create a new <see cref="T:EtiLogger.Logging.LogMessage"/> from the given format string. Formatting methods include:
+            <list type="bullet">
+            <item>
+            <term><em>Minecraft</em> style</term>
+            <description>
+            Inspired by <em>Minecraft</em>'s formatting system, a nibble (single hex digit) can be appended after a section symbol (<c>§</c>) to change the color e.g. <c>§a</c> for light green.<para/>
+            The value corresponds to <see href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/color">the Windows Command Prompt's color command</see>.
+            </description>
+            </item>
+            <item>
+            <term><em>Starbound</em> style</term>
+            <description>
+            Inspired by <em>Starbound</em>'s formatting system, a number of operators can be used. Operators start with a caret <c>^</c> and end with a semicolom <c>;</c>.<para/>
+            Operations are: <c>^b; ^i; ^u; ^s;</c> for bold, italics, underline, and strikethrough respectively. Appending a <c>!</c> after the caret (e.g. <c>^!b;</c>) will disable the effect.<para/>
+            Colors can be implemented via inputting an HTML-style hex color code, e.g. <c>^#FF0000;</c> will create red. Finally, <c>^r;</c> or <c>^reset;</c> will remove all custom attributes.
+            </description>
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.#ctor(EtiLogger.Logging.LogMessage.MessageComponent[])">
+            <summary>
+            Constructs a <see cref="T:EtiLogger.Logging.LogMessage"/> from the provided components in order.
+            </summary>
+            <param name="components"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.WithoutFormatting(System.String)">
+            <summary>
+            Takes in the given <see cref="T:System.String"/> verbatim and does not process any color codes. The returned <see cref="T:EtiLogger.Logging.LogMessage"/> will have a single <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/> storing the raw string.
+            </summary>
+            <param name="raw"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.RemoveComponent(EtiLogger.Logging.LogMessage.MessageComponent)">
+            <summary>
+            Removes the given <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/> from the log message if it's present.
+            </summary>
+            <param name="component"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.AddComponent(EtiLogger.Logging.LogMessage.MessageComponent)">
+            <summary>
+            Appends the given <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/> on to the end of this log message.
+            </summary>
+            <param name="component"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.AddComponent(System.String,System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>
+            Adds the given parameters by constructing a new <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/> with the given args.
+            </summary>
+            <param name="text"></param>
+            <param name="color"></param>
+            <param name="background"></param>
+            <param name="bold"></param>
+            <param name="underline"></param>
+            <param name="italics"></param>
+            <param name="strike"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.AddComponents(EtiLogger.Logging.LogMessage.MessageComponent[])">
+            <summary>
+            Appends the given <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>s in order on to the end of this log message.
+            </summary>
+            <param name="components"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.AddComponent(System.String)">
+            <summary>
+            Appends this string to the end of the <see cref="T:EtiLogger.Logging.LogMessage"/>, processing all color codes inside.
+            </summary>
+            <param name="formattedString"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.AddRaw(System.String)">
+            <summary>
+            Appends this string to the end of the <see cref="T:EtiLogger.Logging.LogMessage"/> without processing any color codes.
+            </summary>
+            <param name="rawString"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.ConcatLocal(EtiLogger.Logging.LogMessage[])">
+            <summary>
+            Adds all <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>s from <paramref name="others"/> in order to the end of this <see cref="T:EtiLogger.Logging.LogMessage"/>.<para/>
+            Returns a reference to <see langword="this"/>.
+            </summary>
+            <param name="others"></param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.Concat(EtiLogger.Logging.LogMessage,EtiLogger.Logging.LogMessage[])">
+            <summary>
+            Constructs a new <see cref="T:EtiLogger.Logging.LogMessage"/> containing all <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>s from <paramref name="originalMessage"/> followed by all <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>s from <paramref name="others"/> in order.
+            </summary>
+            <param name="originalMessage"></param>
+            <param name="others"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.ToVTString">
+            <summary>
+            Returns the given string with VT sequences installed for the component information.<para/>
+            Of course, this is only usable if whatever the message is being written to supports VT sequences.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.FromVTFormattedString(System.String,System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color})">
+            <summary>
+            Takes a string generated by <see cref="M:EtiLogger.Logging.LogMessage.ToVTString"/> and translates it back into a <see cref="T:EtiLogger.Logging.LogMessage"/>.<para/>
+            This is designed for use by external libraries, e.g. if a logging GUI implements <see cref="T:EtiLogger.Logging.Util.OutputRelay"/>, it can use this to get raw color objects instead of VT codes.
+            </summary>
+            <param name="vtString">The string that presumably contains VT sequences. All unknown sequences will be written verbatim.</param>
+            <param name="defaultTextColor">The default text color. This color is applied if a reset code is detected. If it is not specified, white will be used.</param>
+            <param name="defaultBackgroundColor">The default background color. This color is applied if a reset code is detected. If it is not specified, black will be used.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"/>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.ToString">
+            <summary>
+            Returns the raw, plain-text included in this <see cref="T:EtiLogger.Logging.LogMessage"/> without any formatting codes.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.GetStringBetween(System.String,System.Char,System.Char,System.Int32)">
+            <summary>
+            Given the text, this method will find the first occurrence of <paramref name="start"/> and <paramref name="end"/>.<para/>
+            If both exist and end is after start, it will return all characters between these two (NOT including them)<para/>
+            If this case is not met, <see langword="null"/> is returned.
+            </summary>
+            <param name="text">The string to search.</param>
+            <param name="start">The character that marks the start of the result.</param>
+            <param name="end">The character that marks the end of the result.</param>
+            <param name="after">Starts the search after this character index.</param>
+            <returns></returns>
+        </member>
+        <member name="T:EtiLogger.Logging.LogMessage.MessageComponent">
+            <summary>
+            Represents a colored component of a message.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.MessageComponent.Text">
+            <summary>
+            The raw content of this component.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.MessageComponent.Color">
+            <summary>
+            The color of the text in this component, or <see langword="null"/> to make no change to the existing state in the log.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.MessageComponent.BackgroundColor">
+            <summary>
+            The color of the background in this component, or <see langword="null"/> to make no change to the existing state in the log.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.MessageComponent.Bold">
+            <summary>
+            Whether or not to make this message bold, or <see langword="null"/> to make no change to the existing state in the log.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.MessageComponent.Italics">
+            <summary>
+            Whether or not to make this message italicized, or <see langword="null"/> to make no change to the existing state in the log.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.MessageComponent.Underline">
+            <summary>
+            Whether or not to underline this message, or <see langword="null"/> to make no change to the existing state in the log.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.LogMessage.MessageComponent.Strike">
+            <summary>
+            Whether or not to make this message strikethrough, or <see langword="null"/> to make no change to the existing state in the log.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.MessageComponent.#ctor(System.String,System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{EtiLogger.Data.Structs.Color},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>
+            Construct a new <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/> from the given text and color that can optionally be bold and/or underlined.<para/>
+            This does not process custom color codes in the text.
+            </summary>
+            <param name="text">The raw text.</param>
+            <param name="color">The color of the text.</param>
+            <param name="backgroundColor">The color of the background for this text, good for highlight.</param>
+            <param name="bold">Whether or not to bold this text.</param>
+            <param name="underline">Whether or not to underline this text.</param>
+            <param name="italics">Whether or not to use italics for this text.</param>
+            <param name="strike">Whether or not to strikethrough this text.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.MessageComponent.ToVTString">
+            <summary>
+            Returns the raw VT sequence that can recreate the information stored in this <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/> in a console that supports VT.<para/>
+            Only properties that have non-<see langword="null"/> values will be applied.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.MessageComponent.ToString">
+            <summary>
+            Returns a dump of this <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>'s data as a single-line, uncolored piece of text.
+            </summary>
+            <inheritdoc cref="M:EtiLogger.Logging.LogMessage.MessageComponent.ToString(System.Boolean,System.Boolean)"/>
+        </member>
+        <member name="M:EtiLogger.Logging.LogMessage.MessageComponent.ToString(System.Boolean,System.Boolean)">
+            <summary>
+            Returns a dump of this <see cref="T:EtiLogger.Logging.LogMessage.MessageComponent"/>'s data, optionally adding newlines between elements of the string and coloring the output text..
+            </summary>
+            <remarks>
+            This is for debugging purposes. To acquire a <see cref="T:System.String"/> for use in logs, consider using <see cref="P:EtiLogger.Logging.LogMessage.MessageComponent.Text"/> (for plain text) or <see cref="M:EtiLogger.Logging.LogMessage.MessageComponent.ToVTString"/> (for rich text).
+            </remarks>
+            <param name="addNewlines">Whether or not to use a larger (but easier to read) variant of this string that adds lines between each property.</param>
+            <param name="withoutColoring">If <see langword="true"/>, no colors will be put into this message.</param>
+            <returns></returns>
+        </member>
+        <member name="T:EtiLogger.Logging.Util.Defaults.ConsoleOutputRelay">
+            <summary>
+            An implementation of <see cref="T:EtiLogger.Logging.Util.OutputRelay"/> that references <see cref="T:System.Console"/>.<para/>
+            If the console supports VT sequences, it will make use of them. If not, it will find the closest <see cref="T:System.ConsoleColor"/> that represents a given color and use that.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.Defaults.ConsoleOutputRelay.OnBeep(System.Boolean,EtiLogger.Logging.Logger)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.Defaults.ConsoleOutputRelay.OnLogWritten(EtiLogger.Logging.LogMessage,EtiLogger.Logging.LogLevel,System.Boolean,EtiLogger.Logging.Logger)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EtiLogger.Logging.Util.ExceptionFormatter">
+            <summary>
+            A utility that can format exception messages for the console.
+            </summary>
+        </member>
+        <member name="F:EtiLogger.Logging.Util.ExceptionFormatter.VT_SEPARATOR">
+            <summary>
+            Red text <c>"-----------------------------------------------"</c> that is colored via VT codes.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.ExceptionFormatter.GetExceptionMessage(System.Exception)">
+            <summary>
+            Returns a formatted <see cref="T:EtiLogger.Logging.LogMessage"/> for the given <see cref="T:System.Exception"/>. If it is an <see cref="T:System.AggregateException"/> it will return all children.
+            </summary>
+            <param name="exc"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.ExceptionFormatter.GetUnthrownExceptionMessage(System.Exception,System.Boolean)">
+            <summary>
+            Returns a formatted message fit for a generic exception, but where this exception is instantiated and not thrown. This omits the stack information, which will be missing.
+            </summary>
+            <param name="exc"></param>
+            <param name="sayThrown">Whether or not to add the text <c>Thrown!</c> after the exception name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.ExceptionFormatter.GetGenericThrowMessage(System.Exception,System.Boolean)">
+            <summary>
+            Returns a formatted message fit for a generic exception.
+            </summary>
+            <param name="exc"></param>
+            <param name="sayThrown">Whether or not to add the text <c>Thrown!</c> after the exception name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.ExceptionFormatter.GetAggregateThrowMessage(System.AggregateException)">
+            <summary>
+            Returns a formatted message fit for an aggregate exception.
+            </summary>
+            <param name="aggExc"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.ExceptionFormatter.GetTypeInitThrowMessage(System.TypeInitializationException)">
+            <summary>
+            Returns a formatted message fit for a type init exception.
+            </summary>
+            <param name="typeInitExc"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EtiLogger.Logging.Util.OutputRelay">
+            <summary>
+            A class that provides a method of relaying <see cref="T:EtiLogger.Logging.Logger"/> activity to any desired source.
+            </summary>
+        </member>
+        <member name="P:EtiLogger.Logging.Util.OutputRelay.ConsoleRelay">
+            <summary>
+            The default <see cref="T:EtiLogger.Logging.Util.OutputRelay"/>, which points to <see cref="T:System.Console"/>.
+            </summary>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.OutputRelay.OnLogWritten(EtiLogger.Logging.LogMessage,EtiLogger.Logging.LogLevel,System.Boolean,EtiLogger.Logging.Logger)">
+            <summary>
+            Executed when something is written to the <paramref name="source"/>. Whether or not this is expected to actually write the text is determined by <paramref name="shouldWrite"/>, which is set based on the log level of the logger vs. the log level of this message.<para/>
+            In usual cases, appending the log level or a timestamp is not required (it's part of the message that is sent). If you wish to perform this task manually, simply change <see cref="P:EtiLogger.Logging.Logger.NoLevel"/> and <see cref="P:EtiLogger.Logging.Logger.NoTimestamp"/>.
+            </summary>
+            <param name="message">The message to log.</param>
+            <param name="messageLevel">The <see cref="T:EtiLogger.Logging.LogLevel"/> associated with the message.</param>
+            <param name="shouldWrite">Whether or not <paramref name="messageLevel"/> is less than or equal to the <paramref name="source"/>'s <see cref="P:EtiLogger.Logging.Logger.LoggingLevel"/> (meaning that this message should be written, by extension).</param>
+            <param name="source">The <see cref="T:EtiLogger.Logging.Logger"/> that sent this message.</param>
+        </member>
+        <member name="M:EtiLogger.Logging.Util.OutputRelay.OnBeep(System.Boolean,EtiLogger.Logging.Logger)">
+            <summary>
+            Executed when a request to play a sound is sent by the <paramref name="source"/>. Whether or not the sound should actually be played is defined by <paramref name="shouldBeep"/>. This sound should be a brief alert sound.
+            </summary>
+            <param name="shouldBeep">Whether or not this beep call should actually do anything. This will be false if its associated message sent in <see cref="M:EtiLogger.Logging.Util.OutputRelay.OnLogWritten(EtiLogger.Logging.LogMessage,EtiLogger.Logging.LogLevel,System.Boolean,EtiLogger.Logging.Logger)"/> has its <c>shouldWrite</c> parameter set to false.</param>
+            <param name="source">The <see cref="T:EtiLogger.Logging.Logger"/> that sent this request.</param>
+        </member>
+    </members>
+</doc>

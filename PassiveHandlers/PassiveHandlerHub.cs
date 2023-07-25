@@ -33,6 +33,7 @@ namespace OriBot.PassiveHandlers
                 RunPassiveHandlers(client, message, EventType.MessageSent);
             };
             
+            
             return true;
         }
 

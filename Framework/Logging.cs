@@ -69,6 +69,7 @@ namespace OriBot.Framework
             if (!Directory.Exists(logFolderPath))
             {
                 Directory.CreateDirectory(logFolderPath);
+                
             }
 
             this._filePath = Path.Combine(logFolderPath, "latest.log");
