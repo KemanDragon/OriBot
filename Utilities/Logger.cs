@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
-namespace Oribot.Utilities
+namespace OriBot.Utilities
 {
     #region Logger
     /// <summary>
