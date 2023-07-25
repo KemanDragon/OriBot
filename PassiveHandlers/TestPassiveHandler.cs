@@ -2,8 +2,6 @@ using Discord.WebSocket;
 using Oribot.Utilities;
 using OriBot.Framework;
 
-
-
 namespace OriBot.PassiveHandlers
 {
     public class TestPassiveHandler : OricordPassiveHandler
@@ -13,7 +11,8 @@ namespace OriBot.PassiveHandlers
         }
 
         [PassiveHandler]
-        public void Test() {
+        public void Test()
+        {
             Logger.Info("YES");
         }
     }

@@ -14,7 +14,6 @@ namespace Oribot.Utilities
         ** ********** */
         public static JObject properties;
 
-
         /* ************ **
         ** CONSTRUCTORS **
         ** ************ */
@@ -25,7 +24,6 @@ namespace Oribot.Utilities
 
         // Private contructor to avoid external instantiation
         private Config() { }
-
 
         /* ******* **
         ** METHODS **
