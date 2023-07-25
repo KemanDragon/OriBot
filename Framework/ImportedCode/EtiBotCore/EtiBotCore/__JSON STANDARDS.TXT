@@ -1,0 +1,15 @@
+﻿The rule of thumb is this. Discord has two nullable components.
+
+#1: Field
+#2: Type
+
+If the *field* is nullable, that means that the object flat out might not be sent in json.
+	> The C# field should be nullable and use NullValueHandling = NullValueHandling.Ignore
+
+If the *type* is nullable, that means the object is sent, but explicitly as null.
+	> The C# field should be nullable, and nothing more.
+	> REMEMBER TO SET THE DEFAULT VALUE OF THESE PROPERTIES IF NEEDED!!! 
+	> ^ Will it be read anyway and be easier if it already had a value e.g. a bool value of false instead of null?
+	> ^ **Is it contextually ambiguous?** Does "false" carry a different meaning than it not existing, for instance?
+
+If the field *and* type are nullable, it should use the same style as field

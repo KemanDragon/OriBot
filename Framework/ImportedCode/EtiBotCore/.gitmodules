@@ -1,0 +1,6 @@
+[submodule "Eti-s-Logger"]
+	path = Eti-s-Logger
+	url = https://github.com/EtiTheSpirit/Eti-s-Logger
+[submodule "SaltyPiss"]
+	path = SaltyPiss
+	url = https://github.com/EtiTheSpirit/SaltyPiss
