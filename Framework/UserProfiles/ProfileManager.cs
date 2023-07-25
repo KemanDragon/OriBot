@@ -31,6 +31,12 @@ namespace OriBot.Framework.UserProfiles
             AutoSaveQueue.Clear();
         }
 
+        public static void StopTimers() { timer.Stop(); }
+
+        public static void SaveAllNow() {
+            RunAutosave(null,null);
+        }
+
         public static UserProfile GetUserProfile(SocketUser user)
         {
             if (ProfileCache.ContainsKey(user.Id)) return ProfileCache[user.Id];
