@@ -16,7 +16,7 @@ using OriBot.Framework;
 using OriBot.PassiveHandlers;
 using OriBot.Storage;
 using OriBot.Framework.UserProfiles;
-using OriBot;
+using OriBot.EventHandlers;
 
 namespace main
 {
@@ -54,7 +54,6 @@ namespace main
 
             while (!cancellationToken.IsCancellationRequested)
             {
-
                 // Asynchronously read the next line from the console
                 var input = await Task.Run(Console.ReadLine);
 
@@ -75,10 +74,12 @@ namespace main
                         sel = 0;
                         await Cleanup();
                         break;
+
                     case 2:
                         Logger.Info("define help here please lol");
                         sel = 0;
                         break;
+
                     default:
                         Logger.Info("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
                         sel = 0;
@@ -97,6 +98,7 @@ namespace main
                 RegisterSlashCommands();
                 PassiveHandlerHub.RegisterPassiveHandlers(_client);
                 ProfileManager.StartTimers();
+                EventHandlerHub.RegisterEventHandlers(_client);
 
                 //  You can assign your bot token to a string, and pass that in to connect.
                 //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.

@@ -6,13 +6,13 @@ namespace OriBot.PassiveHandlers
 {
     public class Requirements
     {
-        private List<Func<DiscordSocketClient, SocketMessage, EventType, bool>> _requirement = new();
+        private List<Func<DiscordSocketClient, SocketMessage, bool>> _requirement = new();
 
-        public bool CheckRequirements(DiscordSocketClient client, SocketMessage message, EventType type)
+        public bool CheckRequirements(DiscordSocketClient client, SocketMessage message)
         {
             foreach (var requirement in _requirement)
             {
-                if (!requirement(client, message, type))
+                if (!requirement(client, message))
                 {
                     return false;
                 }
@@ -20,7 +20,7 @@ namespace OriBot.PassiveHandlers
             return true;
         }
 
-        public void AddRequirement(Func<DiscordSocketClient, SocketMessage, EventType, bool> requirement)
+        public void AddRequirement(Func<DiscordSocketClient, SocketMessage, bool> requirement)
         {
             _requirement.Add(requirement);
         }
@@ -30,12 +30,12 @@ namespace OriBot.PassiveHandlers
             _requirement.Clear();
         }
 
-        public void RemoveRequirement(Func<DiscordSocketClient, SocketMessage, EventType, bool> requirement)
+        public void RemoveRequirement(Func<DiscordSocketClient, SocketMessage, bool> requirement)
         {
             _requirement.Remove(requirement);
         }
 
-        public Requirements(params Func<DiscordSocketClient, SocketMessage, EventType, bool>[] requirements)
+        public Requirements(params Func<DiscordSocketClient, SocketMessage, bool>[] requirements)
         {
             foreach (var requirement in requirements)
             {
