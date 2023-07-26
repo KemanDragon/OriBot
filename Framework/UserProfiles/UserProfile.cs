@@ -605,7 +605,7 @@ namespace OriBot.Framework.UserProfiles
                     var description = item.Description;
                     var spliced = description.Split($"I suggested something for the bot that ended up getting added as a full feature!\n\n**Feature:** ");
                     var idea = spliced[1];
-                    tempprofile.GrantBadge(BadgeRegistry.GetBadgeFromPredefinedRegistry(idea));
+                    tempprofile.GrantBadge(BadgeRegistry.GetBadgeFromPredefinedRegistry(item.Name, idea));
                 }
                 else
                 {

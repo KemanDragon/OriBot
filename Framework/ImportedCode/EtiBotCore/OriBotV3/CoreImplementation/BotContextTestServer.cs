@@ -73,7 +73,6 @@ namespace OldOriBot.CoreImplementation {
 			};
 			Handlers = new PassiveHandler[] {
 				new HandlerArtPinSystem(Server, this), // Has no interceptions
-				new HandlerProfanityFilter(this),
 				new HandlerAntiSpamSystem(this),
 				new HandlerAntiCopypasta(this),
 

@@ -135,8 +135,6 @@ namespace OldOriBot.CoreImplementation {
 				new CommandBan(this),
 			};
 			Handlers = new PassiveHandler[] {
-				// Below: intercepts
-				new HandlerProfanityFilter(this),
 				new HandlerGenericFilter(this),
 				new HandlerAntiSpamSystem(this),
 				new HandlerAntiCopypasta(this),
