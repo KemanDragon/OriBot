@@ -8,6 +8,6 @@ namespace OriBot
 {
     public static class Constants
     {
-
+        public static readonly string OriBotVersion = "5.0.0";
     }
 }
