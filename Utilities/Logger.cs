@@ -234,6 +234,7 @@ namespace Oribot.Utilities
             CheckCreateDirectory();
 
             String fileName = normalLogFile + "_" + CreateInstanceIdentifier() + ".log";
+
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
             String text = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}\n";
@@ -251,6 +252,7 @@ namespace Oribot.Utilities
             CheckCreateDirectory();
 
             String fileName = debugLogFile + "_" + CreateInstanceIdentifier() + ".log";
+
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
             String text = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}\n";

@@ -4,7 +4,7 @@
         "debugLogFile": "Debug_Log", // Debug File name (base)
         "crashLogFile": "Crash_Log", // Crash dump file name (base)
         "normalLogFile": "Run", // Normal log file name (base)
-        "fileDateTimeFormat": "HH", // TODO: Fix special chars error, i.e :, /, ...
+        "fileDateTimeFormat": "yyyy-MM-dd_HH-mm-ss", // Adds date time data to file
         "debugMode": true, // Whether to print debug logs
         "clumpLevelsTogether": false, // Writes a \n char when levels change
         "crashLogBufferSize": 100 // How many logs will be stored in crash dump
