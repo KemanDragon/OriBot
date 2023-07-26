@@ -30,19 +30,19 @@ namespace OriBot.PassiveHandlers
             }
             client.MessageReceived += async (message) =>
             {
-                RunPassiveHandlers(client, message, EventType.MessageSent);
+                RunPassiveHandlers(client, message);
             };
 
             return true;
         }
 
-        private static void RunPassiveHandlers(DiscordSocketClient client, SocketMessage message, EventType type)
+        private static void RunPassiveHandlers(DiscordSocketClient client, SocketMessage message)
         {
             foreach (var item in _passiveHandlersToMethods)
             {
                 // First, we run the RequirementEngine
-                var instantiated = (BasePassiveHandler)Activator.CreateInstance(item.Key, args: new object[] { client, message, type });
-                var result = instantiated.Requirements.CheckRequirements(client, message, type);
+                var instantiated = (BasePassiveHandler)Activator.CreateInstance(item.Key, args: new object[] { client, message });
+                var result = instantiated.Requirements.CheckRequirements(client, message);
                 if (!result) continue;
                 foreach (var method in item.Value)
                 {

@@ -6,7 +6,7 @@ namespace OriBot.PassiveHandlers
 {
     public class TestPassiveHandler : OricordPassiveHandler
     {
-        public TestPassiveHandler(DiscordSocketClient client, SocketMessage message, EventType type) : base(client, message, type)
+        public TestPassiveHandler(DiscordSocketClient client, SocketMessage message) : base(client, message)
         {
         }
 
