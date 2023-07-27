@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+
 namespace Oribot.Utilities
 {
     /// <summary>
@@ -17,8 +18,7 @@ namespace Oribot.Utilities
             INFO,
             WARN,
             ERROR,
-            FATAL,
-            NONE
+            FATAL
         }
 
         /* ********** **
@@ -47,8 +47,8 @@ namespace Oribot.Utilities
         // Printing
         private const int MAX_CAT_SPACE = 7; 
 
-        private static LogLevel previousLogLevel = LogLevel.NONE;
-        private static LogLevel currentLogLevel = LogLevel.NONE;
+        private static LogLevel previousLogLevel = LogLevel.DEBUG;
+        private static LogLevel currentLogLevel = LogLevel.DEBUG;
 
         private static CircularBuffer<String> crashDumpBuffer = new CircularBuffer<String>(crashLogBufferSize); 
 
