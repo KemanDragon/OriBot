@@ -18,7 +18,7 @@ namespace OriBot.PassiveHandlers
     /// Inside of a passive handler there is a <see cref="client"/> field and a <see cref="message"/> field, Which you read in your method(s) in order to determine the message.
     /// </para>
     /// <para>
-    /// Passive handlers also have a <see cref="GetRequirements"/> method in order to determine whether the passive handlers run based on the current circumstances.
+    /// Passive handlers also have a <see cref="GetRequirements"/> method in order to determine whether the passive handlers should run based on the current circumstances.
     /// When any message in any server is sent, if <see cref="Requirements.CheckRequirements(DiscordSocketClient, SocketMessage)"/> returns true, then all methods in this class that are marked with the <see cref="PassiveHandler"/> attribute will be executed.
     /// </para>
     /// </summary>
@@ -40,7 +40,7 @@ namespace OriBot.PassiveHandlers
         }
 
         /// <summary>
-        /// This method will return a new <see cref="Requirements"/> instance for this passive
+        /// This method will return a new <see cref="Requirements"/> instance for this passive handler
         /// </summary>
         /// <returns></returns>
         public abstract Requirements GetRequirements();

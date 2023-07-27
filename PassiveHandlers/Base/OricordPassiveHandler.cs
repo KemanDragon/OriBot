@@ -12,7 +12,7 @@ namespace OriBot.PassiveHandlers
     /// </summary>
     public abstract class OricordPassiveHandler : BasePassiveHandler
     {
-        internal OricordPassiveHandler(DiscordSocketClient client, SocketMessage message) : base(client, message)
+        public OricordPassiveHandler(DiscordSocketClient client, SocketMessage message) : base(client, message)
         {
         }
 
@@ -28,7 +28,7 @@ namespace OriBot.PassiveHandlers
         }
 
         /// <summary>
-        /// <see cref="BasePassiveHandler.GetRequirements"/> Is overridden here, because <see cref="OricordPassiveHandler"/> (and implementers) is designed to run on messages that come only from the Oricord servers 
+        /// <see cref="BasePassiveHandler.GetRequirements"/> Is overridden here, because <see cref="OricordPassiveHandler"/> implementations are designed to run on messages that come only from the Oricord servers 
         /// <para>You may override this method by adding the <see langword="override"/> keyword , but please make sure that you still check that the messages only comes from Oricord servers to ensure that the context of the messages are what you think they are. </para>
         /// </summary>
         /// <returns></returns>

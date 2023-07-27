@@ -17,6 +17,7 @@ using OriBot.PassiveHandlers;
 using OriBot.Storage;
 using OriBot.Framework.UserProfiles;
 using OriBot.EventHandlers;
+using OriBot;
 
 namespace main
 {
