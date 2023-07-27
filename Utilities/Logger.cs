@@ -4,6 +4,8 @@ using System.Text;
 
 namespace Oribot.Utilities
 {
+    // TODO: Add archiving
+
     /// <summary>
     /// A basic logger with support for colors and logs including crash logs.
     /// </summary>
