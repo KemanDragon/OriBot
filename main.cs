@@ -47,7 +47,7 @@ namespace main
 
         private async Task ReadConsoleInputAsync(CancellationToken cancellationToken)
         {
-            // may wanna fix this
+            // FIXME: may wanna fix this
             var exit = "exit";
             var help = "help";
             var sel = 0;
@@ -70,7 +70,7 @@ namespace main
                 switch (sel)
                 {
                     case 1:
-                        Logger.Info("Be gone");
+                        Logger.Info("Gracefully shutting down...");
                         sel = 0;
                         await Cleanup();
                         break;
@@ -113,7 +113,7 @@ namespace main
                 await _client.StartAsync();
 
                 // FIXME: perhaps.. remove this? xd
-                Logger.Info("##### Login Successful! #####");
+                Logger.Info($"Starting Oribot v{Constants.OriBotVersion}...");
 
                 // Block this task until the program is closed.
                 await Task.Delay(-1);
@@ -152,6 +152,7 @@ namespace main
         {
             // FIXME: readd the logging cleanup operation
             //Logging.Cleanup();
+            Environment.Exit(0);
             await Task.CompletedTask;
         }
 
