@@ -6,7 +6,7 @@ using Discord.WebSocket;
 namespace OriBot.PassiveHandlers.RequirementEngine
 {
     /// <summary>
-    /// <see cref="Requirements"/> Is a class that is used in the commands and passive handler system, to check whether the requirements for the commands / passive handler is meant in order to run.
+    /// <see cref="Requirements"/> Is a class that is used in the passive handler system, to check whether the requirements for the passive handler is met in order to run.
     /// <para>The way that <see cref="Requirements"/> works is By checking all of the functions that is stored in <see cref="_requirement"/> and running them all to make sure that all of them results in true, If all functions return true then the requirement is met but if one function returns false and the entire requirement is considered not met.</para>
     /// </summary>
     public class Requirements
@@ -33,7 +33,7 @@ namespace OriBot.PassiveHandlers.RequirementEngine
 
         /// <summary>
         /// Use this function to add another condition to the current <see cref="Requirements"/> object.
-        /// If you're not planning to add anymore conditions after instantiation / construction in your command / passive handler , then please add conditions using the constructor instead.
+        /// If you're not planning to add anymore conditions after instantiation / construction in your passive handler , then please add conditions using the constructor instead.
         /// </summary>
         /// <param name="requirement"></param>
         public void AddRequirement(Func<DiscordSocketClient, SocketMessage, bool> requirement)
