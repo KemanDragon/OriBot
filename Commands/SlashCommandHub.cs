@@ -4,30 +4,36 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using OriBot.Commands.RequirementEngine;
 using OriBot.Framework;
+using OriBot.Utilities;
 
 namespace OriBot.Commands
 {
-    public class RequireCorrectServerAttribute : PreconditionAttribute
+    public class RequirementsAttribute : PreconditionAttribute
     {
-        private ulong[] ID = { };
+        public Type classtarget;
 
-        public RequireCorrectServerAttribute(params ulong[] id)
+        public RequirementsAttribute(Type requirementsengine)
         {
-            ID = id;
+            classtarget = requirementsengine;
         }
 
         public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services)
         {
-
-            if (ID.Contains(context.Guild.Id))
+            var tmp = Activator.CreateInstance(classtarget);
+            if (!(tmp is IRequirementCheck engine))
             {
-                return Task.FromResult(PreconditionResult.FromSuccess());
+                Logger.Error($"PLEASE FIX: {tmp.GetType().Name} does not implement IPermissionCheck.");
+                return Task.FromResult(PreconditionResult.FromError("PLEASE FIX: " + tmp.GetType().Name + " does not implement IPermissionCheck."));
+            } else {
+                if (engine.GetRequirements().CheckRequirements(context,commandInfo,services)) {
+                    return Task.FromResult(PreconditionResult.FromSuccess());
+                } else {
+                    return Task.FromResult(PreconditionResult.FromError("You do not meet the requirements"));
+                }
             }
-            else
-            {
-                return Task.FromResult(PreconditionResult.FromError("You are not in the correct server"));
-            }
+            
         }
     }
 }
