@@ -10,6 +10,7 @@ using Discord.WebSocket;
 
 using OriBot.Commands.RequirementEngine;
 using OriBot.Framework;
+using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Commands
 {
@@ -44,6 +45,13 @@ namespace OriBot.Commands
             {
                 ulong[] servers = { 1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776 };
                 return servers.Contains(context.Guild.Id);
+            }, (context, commandinfo, services) =>
+            {
+                if (ProfileManager.GetUserProfile(context.User as SocketUser).GetPermissionLevel(context.Guild.Id) >= PermissionLevel.Moderator)
+                {
+                    return true;
+                }
+                return false;
             });
         }
     }
