@@ -64,7 +64,7 @@ namespace OriBot.Framework.UserBehaviour
 
         public override string Save()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, Formatting.None);
         }
 
         public override string Format()

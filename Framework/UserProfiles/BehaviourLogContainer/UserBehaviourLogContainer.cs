@@ -60,7 +60,7 @@ namespace OriBot.Framework.UserProfiles.BehaviourLogContainer
                 {
                     tmp.Add(entry.Save());
                 }
-                return JsonConvert.SerializeObject(tmp);
+                return JsonConvert.SerializeObject(tmp, Formatting.None);
             }
         }
     }

@@ -310,7 +310,7 @@ namespace OriBot.Framework.UserProfiles
                 {
                     strings.Add(badge.Save());
                 }
-                return JsonConvert.SerializeObject(strings);
+                return JsonConvert.SerializeObject(strings, Formatting.None);
             }
 
             set
@@ -334,7 +334,7 @@ namespace OriBot.Framework.UserProfiles
         {
             get
             {
-                return JsonConvert.SerializeObject(ProfileConfig.Config);
+                return JsonConvert.SerializeObject(ProfileConfig.Config, Formatting.None);
             }
 
             set
