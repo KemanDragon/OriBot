@@ -21,6 +21,10 @@ namespace OriBot.Commands
 
         public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services)
         {
+            if (classtarget.IsAbstract)
+            {
+                return Task.FromResult(PreconditionResult.FromError("Abstract. "));
+            }
             var tmp = Activator.CreateInstance(classtarget);
             if (!(tmp is IRequirementCheck engine))
             {

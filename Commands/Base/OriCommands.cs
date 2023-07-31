@@ -21,7 +21,7 @@ namespace OriBot.Commands
     /// <see cref="OricordCommand"/> implementations also contain a <see cref="DataContext"/> property to lets you access the global shared <see cref="OricordContext"/> across all <see cref="OricordCommand"/> implementations and all <see cref="OriBot.PassiveHandlers.OricordPassiveHandler"/> implementations.
     /// </summary>
     [Requirements(typeof(OricordCommand))]
-    public abstract class OricordCommand : BaseCommand
+    public class OricordCommand : BaseCommand
     {
         /// <summary>
         /// This property returns a singleton instance of <see cref="OricordContext"/> that is shared across implementations of <see cref="OriBot.PassiveHandlers.OricordPassiveHandler"/> and all <see cref="OriBot.Commands.OricordCommand"/> implemenations
@@ -45,13 +45,6 @@ namespace OriBot.Commands
             {
                 ulong[] servers = { 1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776 };
                 return servers.Contains(context.Guild.Id);
-            }, (context, commandinfo, services) =>
-            {
-                if (ProfileManager.GetUserProfile(context.User as SocketUser).GetPermissionLevel(context.Guild.Id) >= PermissionLevel.Moderator)
-                {
-                    return true;
-                }
-                return false;
             });
         }
     }

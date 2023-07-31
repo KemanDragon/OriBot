@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace OriBot.Framework.UserProfiles.Badges
@@ -75,7 +75,7 @@ namespace OriBot.Framework.UserProfiles.Badges
         /// <summary>
         /// Every badge offered by the system.
         /// </summary>
-        public static List<Badge> AllBadges
+        public static IReadOnlyList<Badge> AllBadges
         {
             get
             {

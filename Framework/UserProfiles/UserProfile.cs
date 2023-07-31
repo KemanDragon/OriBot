@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-
 using Discord.WebSocket;
-
 using Newtonsoft.Json;
-
 using OldOriBot.Data.MemberInformation;
+using OriBot.Framework.UserBehaviour;
 using OriBot.Framework.UserProfiles;
-using OriBot.Framework.UserProfiles.PerGuildData;
-
 using OriBot.Framework.UserProfiles.Badges;
+using OriBot.Framework.UserProfiles.BehaviourLogContainer;
+using OriBot.Framework.UserProfiles.PerGuildData;
 using OriBot.Framework.UserProfiles.ProfileConfig;
 
 namespace OriBot.Framework.UserProfiles
@@ -87,28 +85,31 @@ namespace OriBot.Framework.UserProfiles
         }
 
         [JsonProperty]
-        internal long _MessagesSent = 0;
+        private long _MessagesSent = 0;
 
         [JsonProperty]
-        internal string _Title = "";
+        private string _Title = "";
 
         [JsonProperty]
         private double _BaseExperience = 0;
 
         [JsonProperty]
-        internal string _Description = "";
+        private string _Description = "";
 
         [JsonProperty]
-        internal int? _Color = null;
+        private int? _Color = null;
 
 
         [JsonIgnore]
-        internal ProfileConfigs _ProfileConfig = ProfileConfigs.Load(null, () =>
+        private ProfileConfigs _ProfileConfig = ProfileConfigs.Load(null, () =>
         {
         });
 
         [JsonIgnore]
-        internal PerGuildDataContainer _PerGuildDataContainer = null;
+        private PerGuildDataContainer _PerGuildDataContainer = null;
+
+        [JsonIgnore]
+        private UserBehaviourLogContainer _BehaviourLogs = null;
 
         /// <summary>
         /// This is the profile config for this user.
@@ -156,6 +157,28 @@ namespace OriBot.Framework.UserProfiles
             private set
             {
                 _PerGuildDataContainer = value;
+            }
+        }
+
+        [JsonIgnore]
+        public UserBehaviourLogContainer BehaviourLogs
+        {
+            get
+            {
+                if (_BehaviourLogs == null)
+                {
+                    _BehaviourLogs = UserBehaviourLogContainer.Load(null, () =>
+                    {
+                        Save();
+                    });
+                    Save();
+                }
+                return _BehaviourLogs;
+            }
+
+            private set
+            {
+                _BehaviourLogs = value;
             }
         }
 
@@ -334,6 +357,20 @@ namespace OriBot.Framework.UserProfiles
             set
             {
                 PerGuildData = PerGuildDataContainer.Load(value, () => { Save(); });
+            }
+        }
+
+        [JsonProperty]
+        public string SerializedUserBehaviourLogs
+        {
+            get
+            {
+                return BehaviourLogs.Serialized;
+            }
+
+            set
+            {
+                BehaviourLogs = UserBehaviourLogContainer.Load(value, () => { Save(); });
             }
         }
 
