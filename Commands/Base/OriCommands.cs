@@ -10,6 +10,7 @@ using Discord.WebSocket;
 
 using OriBot.Commands.RequirementEngine;
 using OriBot.Framework;
+using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Commands
 {
@@ -20,7 +21,7 @@ namespace OriBot.Commands
     /// <see cref="OricordCommand"/> implementations also contain a <see cref="DataContext"/> property to lets you access the global shared <see cref="OricordContext"/> across all <see cref="OricordCommand"/> implementations and all <see cref="OriBot.PassiveHandlers.OricordPassiveHandler"/> implementations.
     /// </summary>
     [Requirements(typeof(OricordCommand))]
-    public abstract class OricordCommand : BaseCommand
+    public class OricordCommand : BaseCommand
     {
         /// <summary>
         /// This property returns a singleton instance of <see cref="OricordContext"/> that is shared across implementations of <see cref="OriBot.PassiveHandlers.OricordPassiveHandler"/> and all <see cref="OriBot.Commands.OricordCommand"/> implemenations

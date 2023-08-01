@@ -81,9 +81,9 @@ namespace OriBot.Framework.UserProfiles.PerGuildData
                 Dictionary<ulong, string> serialized = new();
                 foreach (var item in _Config)
                 {
-                    serialized[item.Key] = JsonConvert.SerializeObject(item.Value.Config);
+                    serialized[item.Key] = JsonConvert.SerializeObject(item.Value.Config, Formatting.None);
                 }
-                return JsonConvert.SerializeObject(serialized);
+                return JsonConvert.SerializeObject(serialized, Formatting.None);
             }
         }
     }
