@@ -1,13 +1,15 @@
-
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using OriBot.Commands.RequirementEngine;
 using OriBot.Framework;
 
 namespace OriBot.Commands
 {
-    
+    [Requirements(typeof(MiscModule))]
     public class MiscModule : OricordCommand {
 
         
@@ -18,6 +20,5 @@ namespace OriBot.Commands
             await RespondAsync(Context.Channel.Name);
             await RespondAsync(input);
         }
-
     }
 }

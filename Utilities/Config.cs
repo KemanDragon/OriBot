@@ -2,7 +2,7 @@
 using System.IO;
 using OriBot.Storage;
 
-namespace Oribot.Utilities
+namespace OriBot.Utilities
 {
     /// <summary>
     /// Contains the project configuration.
@@ -14,7 +14,6 @@ namespace Oribot.Utilities
         ** ********** */
         public static JObject properties;
 
-
         /* ************ **
         ** CONSTRUCTORS **
         ** ************ */
@@ -25,7 +24,6 @@ namespace Oribot.Utilities
 
         // Private contructor to avoid external instantiation
         private Config() { }
-
 
         /* ******* **
         ** METHODS **

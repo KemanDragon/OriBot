@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Oribot.Utilities
+namespace OriBot.Utilities
 {
     /// <summary>
     /// RGB Colors for terminals that support 24-bit colors
@@ -14,10 +14,10 @@ namespace Oribot.Utilities
         private static String ansiCodeReset = "\u001b[0m";
         private String ansiCode;
 
-
         /* *********** **
         ** CONSTRUCTOR **
         ** *********** */
+
         public Color(int r, int g, int b)
         {
             if (SupportsColor())
@@ -25,7 +25,6 @@ namespace Oribot.Utilities
             else
                 ansiCode = "";
         }
-
 
         /* ******* **
         ** METHODS **

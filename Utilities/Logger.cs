@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Oribot.Utilities
+namespace OriBot.Utilities
 {
     // TODO: Add archiving
 
@@ -31,7 +31,7 @@ namespace Oribot.Utilities
         private static readonly Color normalColor = new Color(248, 246, 246);
         private static readonly Color warningColor = new Color(245, 208, 97);
         private static readonly Color errorColor = new Color(207, 70, 71);
-        private static readonly Color fatalColor = new Color(233, 179, 132); 
+        private static readonly Color fatalColor = new Color(233, 179, 132);
 
         // Config
         private static readonly bool debug = Config.properties["logger"]["debugMode"];
@@ -47,12 +47,12 @@ namespace Oribot.Utilities
         private static readonly bool clumpLogs = Config.properties["logger"]["clumpLevelsTogether"];
 
         // Printing
-        private const int MAX_CAT_SPACE = 7; 
+        private const int MAX_CAT_SPACE = 7;
 
         private static LogLevel previousLogLevel = LogLevel.DEBUG;
         private static LogLevel currentLogLevel = LogLevel.DEBUG;
 
-        private static CircularBuffer<String> crashDumpBuffer = new CircularBuffer<String>(crashLogBufferSize); 
+        private static CircularBuffer<String> crashDumpBuffer = new CircularBuffer<String>(crashLogBufferSize);
 
         // Writing
         private static String instanceFileIdentifier = null;
@@ -69,7 +69,8 @@ namespace Oribot.Utilities
         /// <summary>
         /// Sets up the crash handling.
         /// </summary>
-        static Logger() {
+        static Logger()
+        {
             // Important for crash logs
             AppDomain.CurrentDomain.UnhandledException += Logger.DumpCrashLog;
         }
@@ -85,7 +86,7 @@ namespace Oribot.Utilities
         /// <param name="category"></param>
         /// <param name="message"></param>
         private static void _Log(Color color, LogLevel logLevel, String message)
-        { 
+        {
             String category = null;
             switch (logLevel)
             {
@@ -222,7 +223,8 @@ namespace Oribot.Utilities
         /// <param name="message"></param>
         /// <param name="times"></param>
         /// <returns>String result</returns>
-        private static String RepeatString(String message, int times) {
+        private static String RepeatString(String message, int times)
+        {
             return new StringBuilder(message.Length * times).Insert(0, message, times).ToString();
         }
 

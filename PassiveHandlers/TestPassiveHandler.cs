@@ -1,5 +1,8 @@
+using System;
 using Discord.WebSocket;
 using OriBot.Framework;
+using OriBot.PassiveHandlers.RequirementEngine;
+using OriBot.Utilities;
 
 namespace OriBot.PassiveHandlers
 {
@@ -10,8 +13,10 @@ namespace OriBot.PassiveHandlers
         }
 
         [PassiveHandler]
-        public void Test() {
-            Logging.Debug("YES");
+        public void Test()
+        {
+            // FIXME: implement a debug channel in Logging util
+            // Logger.Info("YES");
         }
     }
 }

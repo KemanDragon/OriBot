@@ -4,17 +4,17 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-
+using OriBot;
 using OriBot.Commands;
+using OriBot.EventHandlers;
 using OriBot.Framework;
-using Oribot.Utilities;
-
+using OriBot.Framework.UserProfiles;
 using OriBot.PassiveHandlers;
 using OriBot.Storage;
+using OriBot.Utilities;
 
 namespace main
 {
@@ -29,7 +29,7 @@ namespace main
 
         private DiscordSocketClient _client;
 
-       // private PassiveHandlerHub _passiveHandlerHub;
+        // private PassiveHandlerHub _passiveHandlerHub;
 
         public async Task MainAsync()
         {
@@ -45,14 +45,13 @@ namespace main
 
         private async Task ReadConsoleInputAsync(CancellationToken cancellationToken)
         {
-            // may wanna fix this
+            // FIXME: may wanna fix this
             var exit = "exit";
             var help = "help";
             var sel = 0;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-
                 // Asynchronously read the next line from the console
                 var input = await Task.Run(Console.ReadLine);
 
@@ -66,18 +65,19 @@ namespace main
                     sel = 2;
                 }
 
-
                 switch (sel)
                 {
                     case 1:
-                        Logger.Log("Be gone");
+                        Logger.Log("Gracefully shutting down...");
                         sel = 0;
                         await Cleanup();
                         break;
+
                     case 2:
                         Logger.Log("define help here please lol");
                         sel = 0;
                         break;
+
                     default:
                         Logger.Log("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
                         sel = 0;
@@ -95,6 +95,8 @@ namespace main
                 AddAllContexts();
                 RegisterSlashCommands();
                 PassiveHandlerHub.RegisterPassiveHandlers(_client);
+                ProfileManager.StartTimers();
+                EventHandlerHub.RegisterEventHandlers(_client);
 
                 //  You can assign your bot token to a string, and pass that in to connect.
                 //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.
@@ -109,7 +111,7 @@ namespace main
                 await _client.StartAsync();
 
                 // FIXME: perhaps.. remove this? xd
-                Logger.Log("##### Login Successful! #####");
+                Logger.Log($"Starting Oribot v{Constants.OriBotVersion}...");
 
                 // Block this task until the program is closed.
                 await Task.Delay(-1);
@@ -130,7 +132,7 @@ namespace main
                                                 services: null);
 
                 await _interactionService.RegisterCommandsGloballyAsync(false);
-
+                
                 _client.InteractionCreated += async (x) =>
                 {
                     var ctx = new SocketInteractionContext(_client, x);
@@ -146,7 +148,9 @@ namespace main
 
         private async Task Cleanup()
         {
+            // FIXME: readd the logging cleanup operation
             //Logging.Cleanup();
+            Environment.Exit(0);
             await Task.CompletedTask;
         }
 
@@ -155,5 +159,19 @@ namespace main
             Logger.Log(msg.ToString());
             return Task.CompletedTask;
         }
+
+        //   private Task BotReady()
+        //   {
+        //       logger.Log("Bot is ready");
+
+        //       return Task.CompletedTask;
+        //   }
+
+        //   private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
+        //{
+        // // If the message was not in the cache, downloading it will result in getting a copy of `after`.
+        // var message = await before.GetOrDownloadAsync();
+        // Console.WriteLine($"{message} -> {after}");
+        //}
     }
 }
