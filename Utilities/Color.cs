@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace OriBot.Utilities
 {
@@ -20,8 +20,10 @@ namespace OriBot.Utilities
 
         public Color(int r, int g, int b)
         {
-            // TODO: check if terminal supports true color
-            ansiCode = ansiCodeTemplate.Replace("r", r.ToString()).Replace("g", g.ToString()).Replace("b", b.ToString());
+            if (SupportsColor())
+                ansiCode = ansiCodeTemplate.Replace("r", r.ToString()).Replace("g", g.ToString()).Replace("b", b.ToString());
+            else
+                ansiCode = "";
         }
 
         /* ******* **
@@ -35,6 +37,28 @@ namespace OriBot.Utilities
         public static String Reset()
         {
             return ansiCodeReset;
+        }
+
+        /// <summary>
+        /// Checks whether the terminal supports color
+        /// </summary>
+        /// <returns>bool: Whether color is supported</returns>
+        private static bool SupportsColor()
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                return true; // Windows supports color by default
+            }
+            else
+            {
+                string term = Environment.GetEnvironmentVariable("TERM");
+                if (!string.IsNullOrEmpty(term) && term.Contains("color", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public override String ToString()
