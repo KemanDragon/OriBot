@@ -30,7 +30,8 @@ namespace OriBot.Framework.UserBehaviour {
         public static void InitializeBehaviourRegistry()
         {
             _logEntries = new List<UserBehaviourLogEntry>() {
-                new ModeratorWarnLogEntry(0)
+                new ModeratorWarnLogEntry(0),
+                new ModeratorNoteLogEntry(0)
             };
         }
 
