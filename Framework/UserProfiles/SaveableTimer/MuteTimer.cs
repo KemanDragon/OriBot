@@ -75,20 +75,22 @@ namespace OriBot.Framework.UserProfiles.SaveableTimer
         public override void OnTarget()
         {
             var guild = main.Program.Client.GetGuild(GuildID);
+            
             var mutedrole = guild.Roles.Where(x => x.Name == ModerationModule.MutedRoleName).FirstOrDefault();
             var normalrole = guild.Roles.Where(x => x.Name == ModerationModule.NormalRoleName).FirstOrDefault();
             
             if (guild.GetUser(UserID) is null) {
                 return;
             }
-            guild.GetUser(UserID).RemoveRoleAsync(mutedrole);
-            guild.GetUser(UserID).AddRoleAsync(normalrole);
+            guild.GetUser(UserID).RemoveRoleAsync(mutedrole).Wait();
+            guild.GetUser(UserID).AddRoleAsync(normalrole).Wait();
+            var userprofile = UserProfile.GetOrCreateUserProfile(guild.GetUser(UserID));
             try {
-                guild.GetUser(UserID).SendMessageAsync("You have been unmuted.");
-            } catch (Exception) {
-                
-            }
+                guild.GetUser(UserID).SendMessageAsync("You have been unmuted.").Wait();
+            } catch (Exception) {}
+            userprofile.MutedTimerID = "";
             GlobalTimerStorage.GetTimerByID(InstanceUID, true).Stop();
+            
         }
     }
 }

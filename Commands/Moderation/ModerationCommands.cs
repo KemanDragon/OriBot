@@ -70,7 +70,14 @@ namespace OriBot.Commands
         [SlashCommand("mute", "Mutes a user for a certain time with a reason.")]
         public async Task Mute(SocketGuildUser user, string reason, TimeSpan duration)
         {
+            
             var userprofile = ProfileManager.GetUserProfile(user);
+            if (userprofile.IsMuted)
+            {
+                await RespondAsync($"{user.Mention} is already muted.", ephemeral: true);
+                return;
+            }
+
             var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorMuteLogEntry>();
             logentry.ID = (ulong)(userprofile.BehaviourLogs.Logs.Count + 1);
             logentry.Reason = reason;
@@ -94,14 +101,26 @@ namespace OriBot.Commands
             await user.AddRoleAsync(mutedrole);
             var timer = SaveableTimerRegistry.CreateTimer<MuteTimer>(DateTime.UtcNow.Add(duration));
             timer.SetData(Context.Guild.Id, user.Id);
+            userprofile.MutedTimerID = timer.InstanceUID;
             GlobalTimerStorage.AddTimer(timer);
         }
 
         [SlashCommand("unmute", "Unmutes a user.")]
         public async Task Unmute(SocketGuildUser user, bool removefromrecord = false)
         {
-
+            var userprofile = ProfileManager.GetUserProfile(user);
+            if (!userprofile.IsMuted)
+            {
+                await RespondAsync($"{user.Mention} is already unmuted.", ephemeral: true);
+                return;
+            }
+            GlobalTimerStorage.GetTimerByID(userprofile.MutedTimerID).OnTarget();
+            if (removefromrecord) {
+                userprofile.BehaviourLogs.RemoveByID(userprofile.BehaviourLogs.Logs.Where(x => x is ModeratorMuteLogEntry).Select(x => x.ID).Last());
+            }
+            await RespondAsync($"Unmuted {user.Mention}.", ephemeral: true);
         }
+
 
         [SlashCommand("logs", "Review a users logs.")]
         public async Task ViewLogs(LogType log, SocketGuildUser user, int page)
@@ -120,16 +139,22 @@ namespace OriBot.Commands
                     var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorNoteLogEntry select x;
                     var count = listof.Count();
                     var paginated = PaginateArray(listof.ToArray(), ItemsPerPage, page);
-                    
+                    var truncatedduetolength = false;
                     foreach (var item in paginated)
                     {
-                        builtstring = builtstring + item.Format() + "\n";
+                        var added = builtstring + item.Format() + "\n";
+                        if (added.Length > 1024)
+                        {
+                            truncatedduetolength = true;
+                            break;
+                        }
+                        builtstring = added;
                     }
                     if (builtstring.Length < 1)
                     {
                         builtstring += "This user has no Notes.";
                     }
-                    embed.AddField($"Notes (showing from {Math.Max(Math.Min(pageend, count) - ItemsPerPage, 0)}-{Math.Min(pageend, count)})", builtstring);
+                    embed.AddField($"Notes (showing from {Math.Max(Math.Min(pageend, count) - ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
                 }
                 {
                     // Warnings
@@ -137,16 +162,23 @@ namespace OriBot.Commands
                     var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorWarnLogEntry select x;
                     var count = listof.Count();
                     var paginated = PaginateArray(listof.ToArray(), ItemsPerPage, page);
+                    var truncatedduetolength = false;
                     foreach (var item in paginated)
                     {
-                        builtstring = builtstring + item.Format() + "\n";
+                        var added = builtstring + item.Format() + "\n";
+                        if (added.Length > 1024)
+                        {
+                            truncatedduetolength = true;
+                            break;
+                        }
+                        builtstring = added;
                     }
                     if (builtstring.Length < 1)
                     {
                         builtstring += "This user has no Warnings.";
                     }
 
-                    embed.AddField($"Warnings (showing from {Math.Max(Math.Min(pageend, count) - ItemsPerPage, 0)}-{Math.Min(pageend, count)})", builtstring);
+                    embed.AddField($"Warnings (showing from {Math.Max(Math.Min(pageend, count) - ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
                 }
                 {
                     // Mutes
@@ -155,16 +187,23 @@ namespace OriBot.Commands
                     var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorMuteLogEntry select x;
                     var count = listof.Count();
                     var paginated = PaginateArray(listof.ToArray(), ItemsPerPage, page);
+                    var truncatedduetolength = false;
                     foreach (var item in paginated)
                     {
-                        builtstring = builtstring + item.Format() + "\n";
+                        var added = builtstring + item.Format() + "\n";
+                        if (added.Length > 1024)
+                        {
+                            truncatedduetolength = true;
+                            break;
+                        }
+                        builtstring = added;
                     }
                     if (builtstring.Length < 1)
                     {
                         builtstring += "This user has no Mutes.";
                     }
 
-                    embed.AddField($"Mutes (showing from {Math.Max(Math.Min(pageend, count) - ItemsPerPage, 0)}-{Math.Min(pageend, count)})", builtstring);
+                    embed.AddField($"Mutes (showing from {Math.Max(Math.Min(pageend, count) - ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
                 }
             }
             else

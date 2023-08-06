@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-
+using Discord;
 using Discord.WebSocket;
 
 using Newtonsoft.Json;
@@ -89,6 +89,18 @@ namespace OriBot.Framework.UserProfiles
             }
         }
 
+        [JsonIgnore]
+        public bool IsMuted => _MutedTimerID != "";
+
+        [JsonIgnore]
+        public string MutedTimerID {
+            get => _MutedTimerID;
+            set {
+                _MutedTimerID = value;
+                Save();
+            }
+        }
+
         [JsonProperty]
         private long _MessagesSent = 0;
 
@@ -103,6 +115,9 @@ namespace OriBot.Framework.UserProfiles
 
         [JsonProperty]
         private int? _Color = null;
+
+        [JsonProperty]
+        private string _MutedTimerID = "";
 
         [JsonIgnore]
         private ProfileConfigs _ProfileConfig = ProfileConfigs.Load(null, () =>
@@ -450,7 +465,7 @@ namespace OriBot.Framework.UserProfiles
         /// For now this field is only used to determine where your user profile should be saved.
         /// </summary>
         [JsonIgnore]
-        public SocketUser Member { get; private set; }
+        public IUser Member { get; private set; }
 
         /// <summary>
         /// This is a static constructor that is used to initialize the <see cref="LevelToExperience"/> array and also sets <see cref="MAX_EXPERIENCE"/>
@@ -473,7 +488,7 @@ namespace OriBot.Framework.UserProfiles
         /// All user profiles are stored under $CWD/Data/<see cref="StorageFolderName"/>
         /// </summary>
         /// <param name="user"></param>
-        private UserProfile(SocketUser user)
+        private UserProfile(IUser user)
         {
             Member = user;
         }
@@ -581,6 +596,7 @@ namespace OriBot.Framework.UserProfiles
         public void Save()
         {
             var serialized = JsonConvert.SerializeObject(this, Formatting.None);
+            ProfileManager.RemoveFrom(Member);
             File.WriteAllText(CurrentFileName, serialized);
         }
 
@@ -594,7 +610,7 @@ namespace OriBot.Framework.UserProfiles
         /// <returns></returns>
         ///
 
-        public static UserProfile GetOrCreateUserProfile(SocketUser user)
+        public static UserProfile GetOrCreateUserProfile(IUser user)
         {
             var userid = user.Id;
             var tempprofile = new UserProfile(user);

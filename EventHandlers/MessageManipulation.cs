@@ -39,10 +39,12 @@ namespace OriBot.EventHandlers
             var arg = await arg1.GetOrDownloadAsync();
             if (!arg1.HasValue)
             {
+                var uncapped = "Message content limited to 1024 chars: \"" + arg2.Content + "\"";
+                var capped = uncapped.Substring(0, Math.Min(uncapped.Length, 1024));
                 var embedbuilder2 = new EmbedBuilder()
                     .WithAuthor(arg2.Author)
                     .AddField($"Edited message https://discord.com/channels/{(arg3 as SocketTextChannel).Guild.Id}/{(arg3 as SocketTextChannel).Id}/{arg1.Id} in: https://discord.com/channels/{(arg3 as SocketTextChannel).Guild.Id}/{(arg3 as SocketTextChannel).Id}","Previous message cannot be found.")
-                    .AddField($"New message contents ", $"Content: {arg2.Content}")
+                    .AddField($"New message contents ", $"{capped}")
                     .AddField($"Edited Time: <t:{ DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>", "Original message Time and Date: none")
                     .WithFooter($"Author ID: {arg2.Author.Id} | Message ID: {arg1.Id}");
                 await (arg2.Channel as SocketTextChannel).Guild.SystemChannel.SendMessageAsync(embed: embedbuilder2.Build());
@@ -53,11 +55,14 @@ namespace OriBot.EventHandlers
                 return;
             }
             var RemovedAttachments = arg.Attachments.Where(x => !arg2.Attachments.Any(y => y.Id == x.Id)).ToList();
-
+            var uncapped1 = "Message content limited to 1024 chars: \"" + arg1.Value.Content + "\"";
+            var capped1 = uncapped1.Substring(0, Math.Min(uncapped1.Length, 1024));
+            var uncapped2 = "Message content limited to 1024 chars: \"" + arg2.Content + "\"";
+            var capped2 = uncapped2.Substring(0, Math.Min(uncapped2.Length, 1024));
             var embedbuilder = new EmbedBuilder()
                     .WithAuthor(arg2.Author)
-                    .AddField($"Edited message https://discord.com/channels/{(arg3 as SocketTextChannel).Guild.Id}/{(arg3 as SocketTextChannel).Id}/{arg1.Id} in: https://discord.com/channels/{(arg3 as SocketTextChannel).Guild.Id}/{(arg3 as SocketTextChannel).Id}", $"Previous message content \"{arg1.Value.Content}\"")
-                    .AddField($"New message contents ", $"Content: \"{arg2.Content}\"")
+                    .AddField($"Edited message https://discord.com/channels/{(arg3 as SocketTextChannel).Guild.Id}/{(arg3 as SocketTextChannel).Id}/{arg1.Id} in: https://discord.com/channels/{(arg3 as SocketTextChannel).Guild.Id}/{(arg3 as SocketTextChannel).Id}", $"{capped1}")
+                    .AddField($"New message contents ", $"{capped2}")
                     .AddField($"Edited Time: <t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>", $"Original message Time and Date: <t:{arg1.Value.Timestamp.ToUnixTimeSeconds()}>")
                     .AddField($"Removed / changed attachments: ", RemovedAttachments.Count > 0 ? RemovedAttachments.Count : "None")
                     .WithFooter($"Author ID: {arg.Author.Id} | Message ID: {arg1.Id}");
@@ -122,9 +127,11 @@ namespace OriBot.EventHandlers
             {
                 return;
             }
+            var uncapped1 = "Message content limited to 1024 chars: \"" + arg.Content + "\"";
+            var capped1 = uncapped1.Substring(0, Math.Min(uncapped1.Length, 1024));
             var embedbuilder = new EmbedBuilder()
                 .WithFooter($"Author ID: {arg.Author.Id} | Message ID: {arg.Id}")
-                .AddField($"Deleted message in: https://discord.com/channels/{(arg.Channel as SocketTextChannel).Guild.Id}/{(arg.Channel as SocketTextChannel).Id}", "Message content: " + arg.Content)
+                .AddField($"Deleted message in: https://discord.com/channels/{(arg.Channel as SocketTextChannel).Guild.Id}/{(arg.Channel as SocketTextChannel).Id}", capped1)
                 .AddField($"Message Time and Date:  <t:{arg.Timestamp.ToUnixTimeSeconds()}>", $"Event Time: <t:{ DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>")
                 .WithAuthor(arg.Author);
             if (!Directory.Exists("tempcache"))
