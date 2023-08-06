@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+
 using Discord.WebSocket;
+
 using Newtonsoft.Json;
+
 using OldOriBot.Data.MemberInformation;
+
 using OriBot.Framework.UserBehaviour;
 using OriBot.Framework.UserProfiles;
 using OriBot.Framework.UserProfiles.Badges;
 using OriBot.Framework.UserProfiles.BehaviourLogContainer;
 using OriBot.Framework.UserProfiles.PerGuildData;
 using OriBot.Framework.UserProfiles.ProfileConfig;
+using OriBot.Utilities;
 
 namespace OriBot.Framework.UserProfiles
 {
@@ -64,7 +69,7 @@ namespace OriBot.Framework.UserProfiles
         /// This field is used by <see cref="BaseStorageDir"/>, to determine after $CWD/Data/ what the folder name will be.
         /// </summary>
         [JsonIgnore]
-        private const string StorageFolderName = "UserProfiles";
+        private string StorageFolderName = Config.properties["userProfileFolderName"];
 
         #endregion Constants
 
@@ -98,7 +103,6 @@ namespace OriBot.Framework.UserProfiles
 
         [JsonProperty]
         private int? _Color = null;
-
 
         [JsonIgnore]
         private ProfileConfigs _ProfileConfig = ProfileConfigs.Load(null, () =>
@@ -427,9 +431,9 @@ namespace OriBot.Framework.UserProfiles
             if (PerGuildData[serverid]["PermissionLevel"] is PermissionLevel)
             {
                 return (PermissionLevel)PerGuildData[serverid]["PermissionLevel"];
-            } else
+            }
+            else
             {
-
                 return (PermissionLevel)Convert.ToInt32((long)PerGuildData[serverid]["PermissionLevel"]);
             }
         }
@@ -439,7 +443,7 @@ namespace OriBot.Framework.UserProfiles
             PerGuildData[serverid]["PermissionLevel"] = level;
         }
 
-        #endregion
+        #endregion Permission Level
 
         /// <summary>
         /// This is an instance <see cref="SocketGuildUser"/> that is passed in the constructor

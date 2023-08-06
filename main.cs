@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+
 using OriBot;
 using OriBot.Commands;
 using OriBot.EventHandlers;
@@ -27,7 +30,7 @@ namespace main
     {
         public static Task Main(string[] args) => new Program().MainAsync();
 
-        private DiscordSocketClient _client;
+        private static DiscordSocketClient _client;
 
         // private PassiveHandlerHub _passiveHandlerHub;
 
@@ -90,7 +93,12 @@ namespace main
         {
             try
             {
-                _client = new DiscordSocketClient();
+                var config = new DiscordSocketConfig();
+                config.MessageCacheSize = 2048;
+                config.AlwaysDownloadUsers = true;
+                config.GatewayIntents = GatewayIntents.All;
+                _client = new DiscordSocketClient(config);
+
                 _client.Log += Log;
                 AddAllContexts();
                 RegisterSlashCommands();
@@ -132,12 +140,13 @@ namespace main
                                                 services: null);
 
                 await _interactionService.RegisterCommandsGloballyAsync(false);
-                
                 _client.InteractionCreated += async (x) =>
                 {
                     var ctx = new SocketInteractionContext(_client, x);
                     await _interactionService.ExecuteCommandAsync(ctx, null);
                 };
+
+                GlobalTimerStorage.Load();
             };
         }
 
@@ -173,5 +182,7 @@ namespace main
         // var message = await before.GetOrDownloadAsync();
         // Console.WriteLine($"{message} -> {after}");
         //}
+
+        public static DiscordSocketClient Client => _client;
     }
 }

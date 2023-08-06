@@ -9,11 +9,11 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 
 using OldOriBot.Data.MemberInformation;
+
 using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Framework.UserBehaviour
 {
-
     public class ModeratorNoteLogEntry : MajorLog
     {
         [JsonProperty]
@@ -22,7 +22,7 @@ namespace OriBot.Framework.UserBehaviour
         [JsonProperty]
         public ulong ModeratorId = 0;
 
-        public ModeratorNoteLogEntry(ulong id = 0, string note = "", ulong moderatorid = 0) : base(id)
+        public ModeratorNoteLogEntry(ulong id = 0, ulong timestamp = 0, string note = "", ulong moderatorid = 0) : base(id, timestamp)
         {
             Note = note;
             ModeratorId = moderatorid;
@@ -38,7 +38,7 @@ namespace OriBot.Framework.UserBehaviour
 
         public override UserBehaviourLogEntry Instantiate()
         {
-            var tmp = new ModeratorNoteLogEntry((ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Note,ModeratorId);
+            var tmp = new ModeratorNoteLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Note,ModeratorId);
             tmp._template = false;
             return tmp;
         }
@@ -61,7 +61,7 @@ namespace OriBot.Framework.UserBehaviour
 
         public override string Format()
         {
-            return $"{UnixTimeStampToDateTime(ID).ToUniversalTime().ToString()} UTC: Moderator <@{ModeratorId}> made a private note: \"{Note}\" for this user.";
+            return $"Entry #{ID}: <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>: Moderator <@{ModeratorId}> made a private note: \"{Note}\" for this user.";
         }
 
         public static DateTime UnixTimeStampToDateTime(ulong unixTimeStamp)

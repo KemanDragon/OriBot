@@ -9,11 +9,13 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 
 using OldOriBot.Data.MemberInformation;
+
 using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Framework.UserBehaviour
 {
-    public enum WarnType {
+    public enum WarnType
+    {
         Harsh,
         Minor
     }
@@ -29,7 +31,7 @@ namespace OriBot.Framework.UserBehaviour
         [JsonProperty]
         public ulong ModeratorId = 0;
 
-        public ModeratorWarnLogEntry(ulong id = 0, string reason = "", WarnType type = WarnType.Minor, ulong moderatorid = 0) : base(id)
+        public ModeratorWarnLogEntry(ulong id = 0, ulong timestamp = 0, string reason = "", WarnType type = WarnType.Minor, ulong moderatorid = 0) : base(id, timestamp)
         {
             Reason = reason;
             WarningType = type;
@@ -41,12 +43,12 @@ namespace OriBot.Framework.UserBehaviour
         {
         }
 
-        [JsonProperty] 
+        [JsonProperty]
         public override string Name { get; protected set; } = "modwarn";
 
         public override UserBehaviourLogEntry Instantiate()
         {
-            var tmp = new ModeratorWarnLogEntry((ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason, WarningType,ModeratorId);
+            var tmp = new ModeratorWarnLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason, WarningType,ModeratorId);
             tmp._template = false;
             return tmp;
         }
@@ -69,7 +71,7 @@ namespace OriBot.Framework.UserBehaviour
 
         public override string Format()
         {
-            return $"{UnixTimeStampToDateTime(ID).ToUniversalTime().ToString()} UTC: Moderator <@{ModeratorId}> issued a {WarningType} warning for this user with reason: {Reason}";
+            return $"Entry #{ID}: <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>: Moderator <@{ModeratorId}> issued a {WarningType} warning for this user with reason: {Reason}";
         }
 
         public static DateTime UnixTimeStampToDateTime(ulong unixTimeStamp)
