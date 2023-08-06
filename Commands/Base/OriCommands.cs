@@ -44,8 +44,8 @@ namespace OriBot.Commands
         {
             return new Requirements((context, commandinfo, services) =>
             {
-                
-                return Config.properties["oricordServers"].Contains(context.Guild.Id);
+                var res = ((List<long>)Config.properties["oricordServers"].ToObject<List<long>>()).Contains((long)context.Guild.Id);
+                return res;
             });
         }
     }
