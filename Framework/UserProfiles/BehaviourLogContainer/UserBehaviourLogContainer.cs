@@ -14,7 +14,16 @@ namespace OriBot.Framework.UserProfiles.BehaviourLogContainer
     {
         private List<UserBehaviourLogEntry> _logs = new List<UserBehaviourLogEntry>();
 
-        public IReadOnlyList<UserBehaviourLogEntry> Logs => _logs;
+        public IReadOnlyList<UserBehaviourLogEntry> Logs {
+            get
+            {
+                return _logs;
+            }
+            set {
+                _logs = value.ToList();
+                saveAction();
+            }
+        }
 
         private Action saveAction { get; set; }
 
@@ -28,10 +37,11 @@ namespace OriBot.Framework.UserProfiles.BehaviourLogContainer
             saveAction();
         }
 
-        public void RemoveByID(ulong eventid)
+        public int RemoveByID(ulong eventid)
         {
-            _logs.RemoveAll(x => x.ID == eventid);
+            var tmp = _logs.RemoveAll(x => x.ID == eventid);
             saveAction();
+            return tmp;
         }
 
         public UserBehaviourLogEntry GetByID(ulong eventid)

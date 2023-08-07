@@ -25,8 +25,19 @@ namespace OriBot.EventHandlers
         {
             if (File.Exists("reset.txt"))
             {
-                var commands = await Client.GetGlobalApplicationCommandsAsync();
-                commands.ToList().ForEach(async x => await x.DeleteAsync());
+                var commands = (await Client.GetGlobalApplicationCommandsAsync()).ToList();
+                for (int i = 0; i < commands.Count; )
+                {
+                    try
+                    {
+                        await commands[i].DeleteAsync();
+                        i++;
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
+                }
                 File.Delete("reset.txt");
             }
         }

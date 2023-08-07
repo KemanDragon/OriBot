@@ -13,11 +13,13 @@
     },
     "userProfileFolderName": "UserProfiles",
     "timersFolderName": "Timers",
-    "normalRoleName": "Spirits",
-    "mutedRoleName": "Muted",
     "rolenames": {
         "normal": "Spirits",
         "muted": "Muted"
+    },
+    "moderation": {
+        "itemsPerPage": 15,
+        "enableConfirmations": true
     },
     "cachingServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776], // Servers where when a user deletes a message, the attachments are reuploaded
     "oricordServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776] // Servers considered "oricord"

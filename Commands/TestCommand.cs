@@ -20,7 +20,7 @@ namespace OriBot.Commands
         public async Task Echo(string input)
         {
             await RespondAsync(Context.Channel.Name);
-            await RespondAsync(input);
+            //await RespondAsync(input);
         }
 
         [SlashCommand("duration", "TestIntervals")]
@@ -48,6 +48,18 @@ namespace OriBot.Commands
             var tmp = SaveableTimerRegistry.CreateTimer<ExampleTimer>(DateTime.Now.AddSeconds(10), true);
             var serialized = tmp.Instantiate(true).Save();
             var reopen = SaveableTimerRegistry.LoadTimerFromString(serialized);
+        }
+
+        [SlashCommand("testbuttons", "Test button")]
+        public async Task TestButton()
+        {
+            var confirmationid = Guid.NewGuid().ToString();
+            await RespondAsync("Test button", components: new ComponentBuilder().WithButton("OOOO SHINY!", $"testbutton_{confirmationid}", ButtonStyle.Primary).Build());
+        }
+
+        [ComponentInteraction("testbutton_*", true)]
+        public async Task EchoButton(string input) {
+            await RespondAsync("Button confirmed with confirmation id: " + input);
         }
     }
 }
