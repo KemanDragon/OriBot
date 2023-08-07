@@ -11,6 +11,7 @@ using Discord.WebSocket;
 using OriBot.Commands.RequirementEngine;
 using OriBot.Framework;
 using OriBot.Framework.UserProfiles;
+using OriBot.Utilities;
 
 namespace OriBot.Commands
 {
@@ -43,8 +44,8 @@ namespace OriBot.Commands
         {
             return new Requirements((context, commandinfo, services) =>
             {
-                ulong[] servers = { 1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776 };
-                return servers.Contains(context.Guild.Id);
+                var res = ((List<long>)Config.properties["oricordServers"].ToObject<List<long>>()).Contains((long)context.Guild.Id);
+                return res;
             });
         }
     }

@@ -1,23 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Discord;
-using OriBot.Utilities;
 using Discord.Interactions;
 using Discord.WebSocket;
 
+using OriBot;
 using OriBot.Commands;
+using OriBot.EventHandlers;
 using OriBot.Framework;
-
+using OriBot.Framework.UserProfiles;
 using OriBot.PassiveHandlers;
 using OriBot.Storage;
-using OriBot.Framework.UserProfiles;
-using OriBot.EventHandlers;
-using OriBot;
+using OriBot.Utilities;
 
 namespace main
 {
@@ -30,7 +30,7 @@ namespace main
     {
         public static Task Main(string[] args) => new Program().MainAsync();
 
-        private DiscordSocketClient _client;
+        private static DiscordSocketClient _client;
 
         // private PassiveHandlerHub _passiveHandlerHub;
 
@@ -71,18 +71,18 @@ namespace main
                 switch (sel)
                 {
                     case 1:
-                        Logger.Info("Gracefully shutting down...");
+                        Logger.Log("Gracefully shutting down...");
                         sel = 0;
                         await Cleanup();
                         break;
 
                     case 2:
-                        Logger.Info("define help here please lol");
+                        Logger.Log("define help here please lol");
                         sel = 0;
                         break;
 
                     default:
-                        Logger.Info("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
+                        Logger.Log("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
                         sel = 0;
                         break;
                 }
@@ -93,7 +93,12 @@ namespace main
         {
             try
             {
-                _client = new DiscordSocketClient();
+                var config = new DiscordSocketConfig();
+                config.MessageCacheSize = 2048;
+                config.AlwaysDownloadUsers = true;
+                config.GatewayIntents = GatewayIntents.All;
+                _client = new DiscordSocketClient(config);
+
                 _client.Log += Log;
                 AddAllContexts();
                 RegisterSlashCommands();
@@ -114,7 +119,7 @@ namespace main
                 await _client.StartAsync();
 
                 // FIXME: perhaps.. remove this? xd
-                Logger.Info($"Starting Oribot v{Constants.OriBotVersion}...");
+                Logger.Log($"Starting Oribot v{Constants.OriBotVersion}...");
 
                 // Block this task until the program is closed.
                 await Task.Delay(-1);
@@ -135,12 +140,13 @@ namespace main
                                                 services: null);
 
                 await _interactionService.RegisterCommandsGloballyAsync(false);
-
                 _client.InteractionCreated += async (x) =>
                 {
                     var ctx = new SocketInteractionContext(_client, x);
                     await _interactionService.ExecuteCommandAsync(ctx, null);
                 };
+
+                GlobalTimerStorage.Load();
             };
         }
 
@@ -159,7 +165,7 @@ namespace main
 
         private Task Log(LogMessage msg)
         {
-            Logger.Info(msg.ToString());
+            Logger.Log(msg.ToString());
             return Task.CompletedTask;
         }
 
@@ -176,5 +182,7 @@ namespace main
         // var message = await before.GetOrDownloadAsync();
         // Console.WriteLine($"{message} -> {after}");
         //}
+
+        public static DiscordSocketClient Client => _client;
     }
 }

@@ -14,48 +14,38 @@ using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Framework.UserBehaviour
 {
-    public enum WarnType
-    {
-        Harsh,
-        Minor
-    }
-
-    public class ModeratorWarnLogEntry : MajorLog
+    public class ModeratorNoteLogEntry : MajorLog
     {
         [JsonProperty]
-        public string Reason = "";
-
-        [JsonProperty]
-        public WarnType WarningType = WarnType.Minor;
+        public string Note = "";
 
         [JsonProperty]
         public ulong ModeratorId = 0;
 
-        public ModeratorWarnLogEntry(ulong id = 0, ulong timestamp = 0, string reason = "", WarnType type = WarnType.Minor, ulong moderatorid = 0) : base(id, timestamp)
+        public ModeratorNoteLogEntry(ulong id = 0, ulong timestamp = 0, string note = "", ulong moderatorid = 0) : base(id, timestamp)
         {
-            Reason = reason;
-            WarningType = type;
+            Note = note;
             ModeratorId = moderatorid;
         }
 
         [JsonConstructor]
-        public ModeratorWarnLogEntry() : base()
+        public ModeratorNoteLogEntry() : base()
         {
         }
 
         [JsonProperty]
-        public override string Name { get; protected set; } = "modwarn";
+        public override string Name { get; protected set; } = "modnote";
 
         public override UserBehaviourLogEntry Instantiate()
         {
-            var tmp = new ModeratorWarnLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason, WarningType,ModeratorId);
+            var tmp = new ModeratorNoteLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Note,ModeratorId);
             tmp._template = false;
             return tmp;
         }
 
         public override UserBehaviourLogEntry Load(string jsonstring)
         {
-            var loaded = JsonConvert.DeserializeObject<ModeratorWarnLogEntry>(jsonstring);
+            var loaded = JsonConvert.DeserializeObject<ModeratorNoteLogEntry>(jsonstring);
             if (loaded != null)
             {
                 loaded._template = false;
@@ -71,7 +61,7 @@ namespace OriBot.Framework.UserBehaviour
 
         public override string Format()
         {
-            return $"Entry #{ID}: <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>: Moderator <@{ModeratorId}> issued a {WarningType} warning for this user with reason: {Reason}";
+            return $"Entry #{ID}: <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>: Moderator <@{ModeratorId}> made a private note: \"{Note}\" for this user.";
         }
 
         public static DateTime UnixTimeStampToDateTime(ulong unixTimeStamp)

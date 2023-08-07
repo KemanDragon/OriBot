@@ -9,14 +9,17 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 
 using OldOriBot.Data.MemberInformation;
+
 using OriBot.Framework.UserProfiles;
 
-namespace OriBot.Framework.UserBehaviour {
-
-    public class UserBehaviourLogRegistry {
+namespace OriBot.Framework.UserBehaviour
+{
+    public class UserBehaviourLogRegistry
+    {
         private static List<UserBehaviourLogEntry> _logEntries;
 
-        public static IReadOnlyList<UserBehaviourLogEntry> LogEntries {
+        public static IReadOnlyList<UserBehaviourLogEntry> LogEntries
+        {
             get
             {
                 if (_logEntries == null)
@@ -30,11 +33,14 @@ namespace OriBot.Framework.UserBehaviour {
         public static void InitializeBehaviourRegistry()
         {
             _logEntries = new List<UserBehaviourLogEntry>() {
-                new ModeratorWarnLogEntry(0)
+                new ModeratorWarnLogEntry(),
+                new ModeratorNoteLogEntry(),
+                new ModeratorMuteLogEntry(),
             };
         }
 
-        public static T CreateLogEntry<T>() where T : UserBehaviourLogEntry {
+        public static T CreateLogEntry<T>() where T : UserBehaviourLogEntry
+        {
             var tmp = Activator.CreateInstance<T>();
             foreach (UserBehaviourLogEntry log in LogEntries)
             {
@@ -60,50 +66,62 @@ namespace OriBot.Framework.UserBehaviour {
         }
     }
 
-    public class UserBehaviourLogEntry {
+    public class UserBehaviourLogEntry
+    {
+        [JsonProperty]
+        public ulong ID { get; set; }
 
         [JsonProperty]
-        public ulong ID { get; private set; }
+        public ulong TimestampUTC { get; private set; }
+
         [JsonProperty] public virtual string Name { get; protected set; } = "default";
 
-        public virtual UserBehaviourLogEntry Instantiate() { 
+        public virtual UserBehaviourLogEntry Instantiate()
+        {
             throw new NotImplementedException();
         }
 
-        public virtual UserBehaviourLogEntry Load(string jsonstring) {
+        public virtual UserBehaviourLogEntry Load(string jsonstring)
+        {
             throw new NotImplementedException();
         }
 
-        public virtual string Save() {
+        public virtual string Save()
+        {
             throw new NotImplementedException();
         }
 
-        public virtual string Format() {
+        public virtual string Format()
+        {
             throw new NotImplementedException();
         }
 
-        public bool IsTemplate {
+        public bool IsTemplate
+        {
             get { return _template; }
         }
 
         [JsonIgnore]
         protected bool _template = true;
 
-        protected UserBehaviourLogEntry(ulong id = 0) { 
+        protected UserBehaviourLogEntry(ulong id = 0, ulong timestamp = 0)
+        {
             ID = id;
+            TimestampUTC = timestamp;
         }
 
         [JsonConstructor]
         protected UserBehaviourLogEntry()
         {
             ID = 0;
+            TimestampUTC = 0;
         }
     }
 
-    public abstract class MinorLog : UserBehaviourLogEntry {
-        protected MinorLog(ulong id) : base(id)
+    public abstract class MinorLog : UserBehaviourLogEntry
+    {
+        protected MinorLog(ulong id, ulong timestamp) : base(id, timestamp)
         {
-
         }
 
         protected MinorLog() : base()
@@ -113,9 +131,8 @@ namespace OriBot.Framework.UserBehaviour {
 
     public abstract class MajorLog : UserBehaviourLogEntry
     {
-        protected MajorLog(ulong id) : base(id)
+        protected MajorLog(ulong id, ulong timestamp) : base(id, timestamp)
         {
-
         }
 
         protected MajorLog() : base()

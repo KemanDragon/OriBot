@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
-
+using Discord;
 using Discord.WebSocket;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace OriBot.Framework.UserProfiles
 {
@@ -37,7 +38,7 @@ namespace OriBot.Framework.UserProfiles
             RunAutosave(null,null);
         }
 
-        public static UserProfile GetUserProfile(SocketUser user)
+        public static UserProfile GetUserProfile(IUser user)
         {
             if (ProfileCache.ContainsKey(user.Id)) return ProfileCache[user.Id];
             var result = UserProfile.GetOrCreateUserProfile(user);
@@ -47,6 +48,10 @@ namespace OriBot.Framework.UserProfiles
                 return result;
             }
             return null;
+        }
+
+        public static void RemoveFrom(IUser user) {
+            if (ProfileCache.ContainsKey(user.Id)) ProfileCache.Remove(user.Id);
         }
 
         public static void QueueAutosave(UserProfile profile)

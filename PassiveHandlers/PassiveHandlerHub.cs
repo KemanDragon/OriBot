@@ -34,11 +34,11 @@ namespace OriBot.PassiveHandlers
                     _passiveHandlersToMethods.Add(type, methods);
                 }
             }
+
             client.MessageReceived += async (message) =>
             {
                 RunPassiveHandlers(client, message);
             };
-
             return true;
         }
 

@@ -1,13 +1,25 @@
 {
     "logger": {
         "logFolder": "Logs",
-        "debugLogFile": "Debug_Log",
-        "crashLogFile": "Crash_Log",
-        "normalLogFile": "Run",
-        "fileDateTimeFormat": "HH", // TODO: Fix special chars error, i.e :, /, ...
-        "debugMode": true,
-        "clumpLevelsTogether": false,
-        "crashLogBufferSize": 100
-    }
+        "debugLogFile": "Debug", // Debug File name (base)
+        "crashLogFile": "Crash_Log", // Crash dump file name (base)
+        "normalLogFile": "", // Normal log file name (base)
+        "fileDateTimeFormat": "yyyy-MM-dd_HH-mm-ss", // Adds date time data to file
+        "debugMode": true, // Whether to print debug logs
+        "clumpLevelsTogether": false, // Writes a \n char when levels change
+        "crashLogBufferSize": 100 // How many logs will be stored in crash dump
+
+
+    },
+    "userProfileFolderName": "UserProfiles",
+    "timersFolderName": "Timers",
+    "normalRoleName": "Spirits",
+    "mutedRoleName": "Muted",
+    "rolenames": {
+        "normal": "Spirits",
+        "muted": "Muted"
+    },
+    "cachingServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776], // Servers where when a user deletes a message, the attachments are reuploaded
+    "oricordServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776] // Servers considered "oricord"
 }
 
