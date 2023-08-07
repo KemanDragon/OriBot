@@ -18,7 +18,7 @@ namespace OriBot.Commands
         [SlashCommand("profile", "Gets your current user profile")]
         public async Task Profile()
         {
-            var tmp = UserProfile.GetOrCreateUserProfile(this.Context.User as SocketUser);
+            var tmp = UserProfile.GetOrCreateUserProfile(Context.User.Id);
 
             var embed = new EmbedBuilder
             {

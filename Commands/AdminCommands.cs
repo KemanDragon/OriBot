@@ -31,7 +31,7 @@ namespace OriBot.Commands
                 return servers.Contains(context.Guild.Id);
             }, (context, commandinfo, services) =>
             {
-                if (ProfileManager.GetUserProfile(context.User as SocketUser).GetPermissionLevel(context.Guild.Id) >= PermissionLevel.Moderator)
+                if (ProfileManager.GetUserProfile(context.User.Id).GetPermissionLevel(context.Guild.Id) >= PermissionLevel.Moderator)
                 {
                     return true;
                 }

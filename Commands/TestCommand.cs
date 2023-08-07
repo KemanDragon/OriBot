@@ -16,20 +16,20 @@ namespace OriBot.Commands
     [Requirements(typeof(MiscModule))]
     public class MiscModule : OricordCommand
     {
-        [SlashCommand("echo", "Echo an input")]
+      //  [SlashCommand("echo", "Echo an input")]
         public async Task Echo(string input)
         {
             await RespondAsync(Context.Channel.Name);
             //await RespondAsync(input);
         }
 
-        [SlashCommand("duration", "TestIntervals")]
+      //  [SlashCommand("duration", "TestIntervals")]
         public async Task Durtesting(TimeSpan duration)
         {
             await RespondAsync(duration.ToString());
         }
 
-        [SlashCommand("testwarn", "Warns a user")]
+     //   [SlashCommand("testwarn", "Warns a user")]
         public async Task Warn(string reason)
         {
             
@@ -42,7 +42,7 @@ namespace OriBot.Commands
             await ReplyAsync($"RELOADED FROM STRING: NAME: {tmplog.Name}, ID: {tmplog.ID}, REASON: {tmplog.Reason}, SERIALIZED: {serialized}");
         }
 
-        [SlashCommand("testtimer", "Timer testing")]
+      //  [SlashCommand("testtimer", "Timer testing")]
         public async Task TimerTest()
         {
             var tmp = SaveableTimerRegistry.CreateTimer<ExampleTimer>(DateTime.Now.AddSeconds(10), true);
@@ -50,7 +50,7 @@ namespace OriBot.Commands
             var reopen = SaveableTimerRegistry.LoadTimerFromString(serialized);
         }
 
-        [SlashCommand("testbuttons", "Test button")]
+      //  [SlashCommand("testbuttons", "Test button")]
         public async Task TestButton()
         {
             var confirmationid = Guid.NewGuid().ToString();

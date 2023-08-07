@@ -36,6 +36,7 @@ namespace OriBot.Framework.UserBehaviour
                 new ModeratorWarnLogEntry(),
                 new ModeratorNoteLogEntry(),
                 new ModeratorMuteLogEntry(),
+                new ModeratorBanLogEntry(),
             };
         }
 
