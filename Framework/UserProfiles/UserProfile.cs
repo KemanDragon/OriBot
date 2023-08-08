@@ -681,6 +681,7 @@ namespace OriBot.Framework.UserProfiles
                     tempprofile.GrantBadge(BadgeRegistry.GetBadgeFromPredefinedRegistry(item.Name));
                 };
             }
+            
 
             foreach (var item in oldprofile.UserData.Keys)
             {
