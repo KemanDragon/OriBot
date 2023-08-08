@@ -8,8 +8,12 @@
         "debugMode": true, // Whether to print debug logs
         "clumpLevelsTogether": false, // Writes a \n char when levels change
         "crashLogBufferSize": 100 // How many logs will be stored in crash dump
-
-
+    },
+    "auditing": {
+        "voiceactivity": "voice-activity",
+        "messageactivity": "message-activity",
+        "moderationlogs": "moderation-logs",
+        "boteventlogs": "bot-event-logs"
     },
     "userProfileFolderName": "UserProfiles",
     "timersFolderName": "Timers",

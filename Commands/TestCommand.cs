@@ -9,6 +9,7 @@ using Discord.WebSocket;
 using OriBot.Commands.RequirementEngine;
 using OriBot.Framework;
 using OriBot.Framework.UserBehaviour;
+using OriBot.Framework.UserProfiles;
 using OriBot.Framework.UserProfiles.SaveableTimer;
 
 namespace OriBot.Commands
@@ -55,6 +56,20 @@ namespace OriBot.Commands
         {
             var confirmationid = Guid.NewGuid().ToString();
             await RespondAsync("Test button", components: new ComponentBuilder().WithButton("OOOO SHINY!", $"testbutton_{confirmationid}", ButtonStyle.Primary).Build());
+        }
+
+
+        [SlashCommand("error", "This command is intentionally badly written")]
+        public async Task Error()
+        {
+            try {
+                throw new Exception("This command is intentionally badly written");
+            } catch (Exception e)
+            {
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "error", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                );
+            }
         }
 
         [ComponentInteraction("testbutton_*", true)]

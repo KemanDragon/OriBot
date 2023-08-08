@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,11 +23,20 @@ namespace OriBot.EventHandlers
         public List<string> images = new List<string>();
     }
 
+    public static class Channels {
+        public static SocketGuildChannel GetLoggingChannel(SocketGuild guild)
+        {
+            return guild.Channels.Where(x => x.Name == Config.properties["auditing"]["messageactivity"].ToObject<string>()).FirstOrDefault() as SocketGuildChannel;
+        }
+    }
+
     public class MessageEditHandler : BaseEventHandler
     {
         private List<long> cachingServers = Config.properties["cachingServers"].ToObject<List<long>>();
 
         public DiscordSocketClient Client { get; private set; }
+
+        
 
         public override void RegisterEventHandler(DiscordSocketClient client)
         {
@@ -37,6 +47,9 @@ namespace OriBot.EventHandlers
         private async Task Client_MessageUpdated(Cacheable<IMessage, ulong> arg1, SocketMessage arg2, ISocketMessageChannel arg3)
         {
             var arg = await arg1.GetOrDownloadAsync();
+            if (arg2.Channel.Id == arg2.Author.Id) {
+                return;
+            }
             if (!arg1.HasValue)
             {
                 var uncapped = "Message content limited to 1024 chars: \"" + arg2.Content + "\"";
@@ -47,7 +60,7 @@ namespace OriBot.EventHandlers
                     .AddField($"New message contents ", $"{capped}")
                     .AddField($"Edited Time: <t:{ DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>", "Original message Time and Date: none")
                     .WithFooter($"Author ID: {arg2.Author.Id} | Message ID: {arg1.Id}");
-                await (arg2.Channel as SocketTextChannel).Guild.SystemChannel.SendMessageAsync(embed: embedbuilder2.Build());
+                await (Channels.GetLoggingChannel((arg3 as SocketTextChannel).Guild) as SocketTextChannel).SendMessageAsync(embed: embedbuilder2.Build());
                 return;
             }
             if (arg2.Author.IsBot)
@@ -73,10 +86,10 @@ namespace OriBot.EventHandlers
                 if (!cachingServers.Contains((long)(arg.Channel as SocketTextChannel).Guild.Id) || attachments.Count == 0)
                 {
 
-                    await (arg.Channel as SocketTextChannel).Guild.SystemChannel.SendMessageAsync(embed: embedbuilder.Build());
+                    await (Channels.GetLoggingChannel((arg3 as SocketTextChannel).Guild) as SocketTextChannel).SendMessageAsync(embed: embedbuilder.Build());
                     return;
                 }
-                await (arg.Channel as SocketTextChannel).Guild.SystemChannel.SendFilesAsync(attachments, embed: embedbuilder.Build());
+                await (Channels.GetLoggingChannel((arg3 as SocketTextChannel).Guild) as SocketTextChannel).SendFilesAsync(attachments, embed: embedbuilder.Build());
                 foreach (var item in attachments)
                 {
                     item.Dispose();
@@ -88,12 +101,14 @@ namespace OriBot.EventHandlers
                 return;
             }
 
-            await (arg2.Channel as SocketTextChannel).Guild.SystemChannel.SendMessageAsync(embed: embedbuilder.Build());
+            await (Channels.GetLoggingChannel((arg3 as SocketTextChannel).Guild) as SocketTextChannel).SendMessageAsync(embed: embedbuilder.Build());
         }
     }
 
     public class MessageDeleteHandler : BaseEventHandler
     {
+        
+
         private List<long> cachingServers = Config.properties["cachingServers"].ToObject<List<long>>();
 
         public DiscordSocketClient Client { get; private set; }
@@ -113,13 +128,17 @@ namespace OriBot.EventHandlers
         private async Task Client_MessageDeleted(Cacheable<IMessage, ulong> arg1, Cacheable<IMessageChannel, ulong> arg2)
         {
             var arg = await arg1.GetOrDownloadAsync();
+            if (!arg2.HasValue) {
+                return;
+            }
             if (!arg1.HasValue)
             {
                 var embedbuilder2 = new EmbedBuilder()
                 .AddField($"Deleted message in: https://discord.com/channels/{(arg2.Value as SocketTextChannel).Guild.Id}/{(arg2.Value as SocketTextChannel).Id}", "Cannot be recovered.")
                 .AddField($"Event Time: <t:{ DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>", "Message Time and Date: none")
                 .WithFooter($"Message ID: {arg1.Id}");
-                await (arg2.Value as SocketTextChannel).Guild.SystemChannel.SendMessageAsync(embed: embedbuilder2.Build());
+             //   (arg2.Value as SocketTextChannel).Guild.Channels.Where(x => x.Name == )
+                await (Channels.GetLoggingChannel((arg2.Value as SocketTextChannel).Guild) as SocketTextChannel).SendMessageAsync(embed: embedbuilder2.Build());
                 return;
             }
 
@@ -143,10 +162,10 @@ namespace OriBot.EventHandlers
             var attachments = savedimages.Select(x => new FileAttachment(x, Path.GetFileName(x))).ToList();
             if (!cachingServers.Contains((long)(arg.Channel as SocketTextChannel).Guild.Id) || attachments.Count == 0) {
 
-                await (arg.Channel as SocketTextChannel).Guild.SystemChannel.SendMessageAsync(embed: embedbuilder.Build());
+                await (Channels.GetLoggingChannel((arg2.Value as SocketTextChannel).Guild) as SocketTextChannel).SendMessageAsync(embed: embedbuilder.Build());
                 return;
             }
-            await (arg.Channel as SocketTextChannel).Guild.SystemChannel.SendFilesAsync(attachments, embed: embedbuilder.Build());
+            await (Channels.GetLoggingChannel((arg2.Value as SocketTextChannel).Guild) as SocketTextChannel).SendFilesAsync(attachments, embed: embedbuilder.Build());
             foreach (var item in attachments)
             {
                 item.Dispose();
