@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 
 using OriBot.EventHandlers.Base;
+using OriBot.Utilities;
 
 namespace OriBot.EventHandlers
 {
@@ -25,20 +26,29 @@ namespace OriBot.EventHandlers
         {
             if (File.Exists("reset.txt"))
             {
+                Logger.Debug("Reset Triggered, unregistering and registering commands.");
+                Logger.Warning("Reset Detected, This might take a while...");
                 var commands = (await Client.GetGlobalApplicationCommandsAsync()).ToList();
                 for (int i = 0; i < commands.Count; )
                 {
                     try
                     {
+                        Logger.Debug($"Deleting {commands[i]}");
                         await commands[i].DeleteAsync();
                         i++;
                     }
                     catch (Exception e)
                     {
+                        Logger.Warning($"{e}");
                         continue;
                     }
                 }
                 File.Delete("reset.txt");
+                Logger.Debug("Reset Complete - Deleted 'reset.txt'");
+                Logger.Debug("The bot must be restarted in order to complete the process.");
+                Logger.Info("Reset Complete - Shutting down...");
+                Logger.Cleanup();
+                Environment.Exit(0);
             }
         }
     }

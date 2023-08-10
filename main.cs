@@ -36,6 +36,7 @@ namespace main
 
         public async Task MainAsync()
         {
+            Logger.Cleanup(); // just in case the bot crashes or is forcefully shut off, this gets triggered
             using var ct = new CancellationTokenSource();
             var task = Login(ct.Token);
             var inputTask = ReadConsoleInputAsync(ct.Token);
@@ -69,18 +70,17 @@ namespace main
                 switch (sel)
                 {
                     case 1:
-                        Logger.Log("Gracefully shutting down...");
                         sel = 0;
-                        await Cleanup();
+                        await Cleanup(0);
                         break;
 
                     case 2:
-                        Logger.Log("define help here please lol");
+                        Logger.Info("define help here please lol");
                         sel = 0;
                         break;
 
                     default:
-                        Logger.Log("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
+                        Logger.Info("'" + input + "' is not reconized as an internal command. Try 'help' for more information.");
                         sel = 0;
                         break;
                 }
@@ -106,18 +106,27 @@ namespace main
 
                 //  You can assign your bot token to a string, and pass that in to connect.
                 //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.
-                var token = File.ReadAllText("token.txt");
+                try
+                {
+                    var token = File.ReadAllText("token.txt");
+                    // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
+                    // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
+                    // var token = File.ReadAllText("token.txt");
+                    // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
+                    // // Console.WriteLine(JObject.Load(File.ReadAllText("test.json")).ToString());
+                    await _client.LoginAsync(TokenType.Bot, token);
+                    await _client.StartAsync();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("Please check if the token is registered...");
+                    Logger.Error($"{e}");
+                    await Cleanup(-1);
+                }
 
-                // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
-                // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
-                // var token = File.ReadAllText("token.txt");
-                // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
-                // // Console.WriteLine(JObject.Load(File.ReadAllText("test.json")).ToString());
-                await _client.LoginAsync(TokenType.Bot, token);
-                await _client.StartAsync();
 
                 // FIXME: perhaps.. remove this? xd
-                Logger.Log($"Starting Oribot v{Constants.OriBotVersion}...");
+                Logger.Info($"Starting Oribot v{Constants.OriBotVersion}...");
 
                 // Block this task until the program is closed.
                 await Task.Delay(-1);
@@ -153,17 +162,17 @@ namespace main
             Memory.ContextStorage.Add("oricord", new OricordContext());
         }
 
-        private async Task Cleanup()
+        private async Task Cleanup(int exitCode)
         {
-            // FIXME: readd the logging cleanup operation
-            //Logging.Cleanup();
-            Environment.Exit(0);
+            Logger.Info($"Shutting down with exit code {exitCode}");
+            Logger.Cleanup();
+            Environment.Exit(exitCode);
             await Task.CompletedTask;
         }
 
         private Task Log(LogMessage msg)
         {
-            Logger.Log(msg.ToString()[9..]);
+            Logger.Info(msg.ToString()[9..]);
             return Task.CompletedTask;
         }
 
