@@ -79,8 +79,6 @@ namespace OriBot.Utilities
         ** METHODS **
         ** ******* */
 
-        // TODO: ADD VERBOSE INFO LOGGING
-
         /// <summary>
         /// Writes a log to the screen.
         /// </summary>
@@ -111,7 +109,7 @@ namespace OriBot.Utilities
                     break;
             }
 
-            String unformattedLog = $"{category}\x1b[0m - {message}";
+            String unformattedLog = $"{category}\x1b[0m {DateTime.Now:yyyy-MM-dd} - {message}";
             crashDumpBuffer.Add(unformattedLog);
 
             // String log = $"{((previousLogLevel != currentLogLevel) && clumpLogs ? "\n" : "")}{color}{unformattedLog}{Color.Reset()}";
@@ -126,7 +124,7 @@ namespace OriBot.Utilities
                 currentLogLevel = LogLevel.DEBUG;
 
                 _Log(normalColor, LogLevel.DEBUG, message);
-                WriteLogsDebug("[DEBUG]", message);
+                WriteLogsDebug("[DEBUG] {DateTime.Now:yyyyMMdd}", message);
 
                 previousLogLevel = currentLogLevel;
             }
