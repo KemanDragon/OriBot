@@ -20,6 +20,10 @@ namespace OriBot.Framework.UserProfiles.PerGuildData
         public IReadOnlyDictionary<ulong, PerGuildData> Config
         {
             get { return new Dictionary<ulong, PerGuildData>(_Config); }
+            set { 
+                _Config = new Dictionary<ulong, PerGuildData>(value); 
+                saveAction();
+            }
         }
 
         private PerGuildDataContainer()

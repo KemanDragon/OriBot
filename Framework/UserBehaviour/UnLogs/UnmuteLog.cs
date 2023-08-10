@@ -14,49 +14,38 @@ using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Framework.UserBehaviour
 {
-    public enum WarnType
-    {
-        Harsh,
-        Minor,
-        Normal,
-    }
-
-    public class ModeratorWarnLogEntry : MajorLog
+    public class ModeratorUnmuteLogEntry : PardonLog
     {
         [JsonProperty]
         public string Reason = "";
 
         [JsonProperty]
-        public WarnType WarningType = WarnType.Minor;
-
-        [JsonProperty]
         public ulong ModeratorId = 0;
 
-        public ModeratorWarnLogEntry(ulong id = 0, ulong timestamp = 0, string reason = "", WarnType type = WarnType.Minor, ulong moderatorid = 0) : base(id, timestamp)
+        public ModeratorUnmuteLogEntry(ulong id = 0, ulong timestamp = 0, string reason = "", ulong moderatorid = 0) : base(id, timestamp)
         {
             Reason = reason;
-            WarningType = type;
             ModeratorId = moderatorid;
         }
 
         [JsonConstructor]
-        public ModeratorWarnLogEntry() : base()
+        public ModeratorUnmuteLogEntry() : base()
         {
         }
 
         [JsonProperty]
-        public override string Name { get; protected set; } = "modwarn";
+        public override string Name { get; protected set; } = "modunmute";
 
         public override UserBehaviourLogEntry Instantiate()
         {
-            var tmp = new ModeratorWarnLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason, WarningType,ModeratorId);
+            var tmp = new ModeratorUnmuteLogEntry(0, (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason, ModeratorId);
             tmp._template = false;
             return tmp;
         }
 
         public override UserBehaviourLogEntry Load(string jsonstring)
         {
-            var loaded = JsonConvert.DeserializeObject<ModeratorWarnLogEntry>(jsonstring);
+            var loaded = JsonConvert.DeserializeObject<ModeratorUnmuteLogEntry>(jsonstring);
             if (loaded != null)
             {
                 loaded._template = false;
@@ -72,19 +61,18 @@ namespace OriBot.Framework.UserBehaviour
 
         public override string FormatSimple()
         {
-            return $"- {ID}: <@{ModeratorId}> issued a Warning at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user.";
+            return $"- {ID}: <@{ModeratorId}> unmuted this user at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>.";
         }
 
         public override EmbedBuilder FormatDetailed()
         {
             var embed = new EmbedBuilder();
-            embed.WithTitle($"Warning issued at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user")
-                .WithDescription($"<@{ModeratorId}> issued a Warning for this user.")
+            embed.WithTitle($"Unmute issued at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user")
+                .WithDescription($"<@{ModeratorId}> unmuted this user.")
                 .AddField("Reason", Reason)
-                .AddField("Type", WarningType.ToString())
-                .AddField("Case ID", ID)
+                .AddField("Event ID", ID)
                 .WithColor(Color.Orange)
-                .WithFooter($"Entry ID: {ID} | Moderator ID: {ModeratorId} | Event timestamp: {Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}");
+                .WithFooter($"Event ID: {ID} | Moderator ID: {ModeratorId} | Event timestamp: {Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}");
             return embed;
         }
 

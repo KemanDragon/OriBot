@@ -347,7 +347,7 @@ namespace OriBot.Framework.UserProfiles.Badges
         {
             if (ReferenceEquals(obj, this)) return true;
             if (obj is null) return false;
-            if (obj is Badge badge) return Equals(badge);
+            if (obj is Badge badge) return base.Equals(badge);
             return false;
         }
     }

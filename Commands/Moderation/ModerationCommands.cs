@@ -14,6 +14,7 @@ using OriBot.Commands.RequirementEngine;
 using OriBot.Framework;
 using OriBot.Framework.UserBehaviour;
 using OriBot.Framework.UserProfiles;
+using OriBot.Framework.UserProfiles.Badges;
 using OriBot.Framework.UserProfiles.SaveableTimer;
 using OriBot.Transactions;
 using OriBot.Utilities;
@@ -29,16 +30,22 @@ namespace OriBot.Commands
     public class PurgeInfractionTransaction : TransactionData
     {
         public UserProfile user;
+
+        public string reason;
     }
 
     public class PurgeNoteTransaction : TransactionData
     {
         public UserProfile user;
+
+        public string reason;
     }
 
     public class UnbanTransaction : TransactionData
     {
         public UserProfile user;
+
+        public string reason;
     }
 
     public static class Channels
@@ -59,13 +66,13 @@ namespace OriBot.Commands
 
         public static bool IsInfractionPresent(UserProfile user, ulong entryid)
         {
-            var searched = user.BehaviourLogs.Logs.FirstOrDefault(x => x.ID == entryid && x is not ModeratorNoteLogEntry);
+            var searched = user.BehaviourLogs.Logs.FirstOrDefault(x => x.ID == entryid && x is MajorLog);
             return searched != null;
         }
 
         public static bool RemoveNote(UserProfile user, ulong entryid)
         {
-            if (!IsNotePresent(user, entryid) || !(user.BehaviourLogs.GetByID(entryid) is ModeratorNoteLogEntry))
+            if (!IsNotePresent(user, entryid) || (user.BehaviourLogs.GetByID(entryid) is not ModeratorNoteLogEntry))
             {
                 return false;
             }
@@ -75,7 +82,7 @@ namespace OriBot.Commands
 
         public static bool RemoveInfraction(UserProfile user, ulong entryid)
         {
-            if (!IsInfractionPresent(user, entryid) || !(user.BehaviourLogs.GetByID(entryid) is not ModeratorNoteLogEntry))
+            if (!IsInfractionPresent(user, entryid) || (user.BehaviourLogs.GetByID(entryid) is not MajorLog))
             {
                 return false;
             }
@@ -86,16 +93,18 @@ namespace OriBot.Commands
         public static bool DeleteAllNotes(UserProfile user)
         {
             var prevlength = user.BehaviourLogs.Logs.Count;
-            var removed = user.BehaviourLogs.Logs.Where(x => x is not ModeratorNoteLogEntry);
-            user.BehaviourLogs.Logs = removed.ToList();
+            var removed = user.BehaviourLogs.Logs.ToList();
+            removed.RemoveAll(x => x is ModeratorNoteLogEntry);
+            user.BehaviourLogs.Logs = removed;
             return removed.Count() < prevlength;
         }
 
         public static bool DeleteAllInfractions(UserProfile user)
         {
             var prevlength = user.BehaviourLogs.Logs.Count;
-            var removed = user.BehaviourLogs.Logs.Where(x => x is ModeratorNoteLogEntry);
-            user.BehaviourLogs.Logs = removed.ToList();
+            var removed = user.BehaviourLogs.Logs.ToList();
+            removed.RemoveAll(x => x is MajorLog);
+            user.BehaviourLogs.Logs = removed;
             return removed.Count() < prevlength;
         }
     }
@@ -120,12 +129,85 @@ namespace OriBot.Commands
     }
 
     [Requirements(typeof(NoteModule))]
-    [Group("note", "Note commands")]
+    
     public class NoteModule : OricordCommand
     {
         private static TransactionContainer transactions = new();
 
-        [SlashCommand("create", "Creates moderator only private note for this user.")]
+       
+
+        [SlashCommand("notes", "View details for an individual note, or a list of all notes for ths user.")]
+        public async Task ViewNote(SocketGuildUser user, int page = 1, ulong? noteid = null)
+        {
+            try
+            {
+                var userprofile = ProfileManager.GetUserProfile(user.Id);
+                var embed = new EmbedBuilder().WithAuthor(user);
+                var pagestart = ModerationModule.ItemsPerPage * (page - 1);
+                var pageend = ModerationModule.ItemsPerPage * page;
+                if (noteid == null)
+                {
+                    {
+                        // Notes
+                        var builtstring = "";
+                        var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorNoteLogEntry select x;
+                        var count = listof.Count();
+                        var paginated = ModerationModule.PaginateArray(listof.ToArray(), ModerationModule.ItemsPerPage, page);
+                        var truncatedduetolength = false;
+                        foreach (var item in paginated)
+                        {
+                            var added = builtstring + item.FormatSimple() + "\n";
+                            if (added.Length > 1024)
+                            {
+                                truncatedduetolength = true;
+                                break;
+                            }
+                            builtstring = added;
+                        }
+                        if (builtstring.Length < 1)
+                        {
+                            builtstring += "This user has no Notes.";
+                        }
+                        embed.AddField($"Notes (showing from {Math.Max(Math.Min(pageend, count) - ModerationModule.ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
+
+                    }
+                }
+                else
+                {
+                    var logentry = userprofile.BehaviourLogs.GetByID(noteid.Value);
+                    if (logentry == null)
+                    {
+                        await RespondAsync($"No such note ID: {noteid.Value}", ephemeral: true);
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                            new CommandWarningLogEntry(Context.User.Id, "note", DateTime.UtcNow, Context.Guild as SocketGuild, $"No such note ID: {noteid}")
+                            .WithAdditonalField("User", $"{user.Mention}")
+                            .WithAdditonalField("Page", $"{page}")
+                            .WithAdditonalField("Infraction ID", $"{noteid.Value}")
+                        );
+                        return;
+                    }
+                    embed = logentry.FormatDetailed();
+                    embed = embed.WithAuthor(user);
+                    embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+
+                }
+                await RespondAsync("", embed: embed.Build());
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandSuccessLogEntry(Context.User.Id, "note", DateTime.UtcNow, Context.Guild as SocketGuild)
+                );
+            }
+            catch (Exception e)
+            {
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "note", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    .WithAdditonalField("User", $"{user.Mention}")
+                    .WithAdditonalField("Page", $"{page}")
+                    .WithAdditonalField("Note ID", $"#{noteid}")
+                );
+            }
+        }
+
+        [SlashCommand("createnote", "Creates moderator only private note for this user.")]
         public async Task SetNote(SocketGuildUser user, string note)
         {
             try
@@ -145,146 +227,139 @@ namespace OriBot.Commands
                 logentry.ModeratorId = Context.User.Id;
                 userprofile.BehaviourLogs.AddLogEntry(logentry);
                 {
-                    var embed = new EmbedBuilder().WithAuthor(user);
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) created a note for this user";
-                    embed.AddField("Note", note);
-                    embed.AddField("Note ID", logentry.ID);
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {user.Id} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+                    var embed = logentry.FormatDetailed();
+                    embed = embed.WithAuthor(user);
+                    embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
                     await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
                 }
 
                 await RespondAsync($"Made a private note for {user.Mention}, contents: {note}. Entry ID: {logentry.ID}", ephemeral: true);
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "note create", DateTime.UtcNow, Context.Guild as SocketGuild)
+                    new CommandSuccessLogEntry(Context.User.Id, "createnote", DateTime.UtcNow, Context.Guild as SocketGuild)
                 );
             }
             catch (Exception e)
             {
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "note create", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "createnote", DateTime.UtcNow, Context.Guild as SocketGuild, e)
                     .WithAdditonalField("Parameter 'user'", $"{user.Mention}")
                     .WithAdditonalField("Parameter 'note'", $"{note}")
                 );
             }
         }
 
-        [SlashCommand("get", "Notes for this user page by page.")]
-        public async Task GetNote(SocketGuildUser user, int page)
+        [SlashCommand("delnote", "Deletes a note.")]
+        public async Task DeleteNote(SocketGuildUser user, ulong? entryid = null, string reason = "No reason was given.")
         {
+
             try
             {
-
-                var userprofile = ProfileManager.GetUserProfile(user.Id);
-                var embed = new EmbedBuilder().WithAuthor(user);
-                var pagestart = ModerationModule.ItemsPerPage * (page - 1);
-                var pageend = ModerationModule.ItemsPerPage * page;
-                await DeferAsync();
-                {
-                    // Notes
-                    var builtstring = "";
-                    var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorNoteLogEntry select x;
-                    var count = listof.Count();
-                    var paginated = ModerationModule.PaginateArray(listof.ToArray(), ModerationModule.ItemsPerPage, page);
-                    var truncatedduetolength = false;
-                    foreach (var item in paginated)
-                    {
-                        var added = builtstring + item.Format() + "\n";
-                        if (added.Length > 1024)
+                if (!entryid.HasValue) {
+                    if (ModerationModule.EnableConfirmations) {
+                        var userprofile = ProfileManager.GetUserProfile(user.Id);
+                        var maxconfirm = DateTime.UtcNow.AddMinutes(1);
+                        var transactiondata = new PurgeNoteTransaction
                         {
-                            truncatedduetolength = true;
-                            break;
+                            reason = reason,
+                            user = userprofile
+                        };
+                        var transaction = transactions.StartTransaction(maxconfirm, transactiondata);
+                        await RespondAsync($"Please confirm deletion of all notes for this user. (<t:{Math.Floor(maxconfirm.Subtract(DateTime.UnixEpoch).TotalSeconds)}:R>) ||(Transaction ID: {transaction})||", components:
+                        new ComponentBuilder().WithButton("Confirm", $"confirmpurgenote_{transaction}")
+                        .WithButton("Cancel", $"cancelpurgenote_{transaction}")
+                        .Build()
+                        , ephemeral: true);
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                            new CommandSuccessLogEntry(Context.User.Id, "delnote", DateTime.UtcNow, Context.Guild as SocketGuild)
+                        );
+                    } else {
+                        var userprofile = ProfileManager.GetUserProfile(user.Id);
+                        var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorPurgeNoteLogEntry>();
+                        logentry.AmountDeleted = (ulong)userprofile.BehaviourLogs.Logs.Where(x => x is ModeratorNoteLogEntry).Count();
+                        logentry.TransactionID = "";
+                        var checknote = ModerationFunctions.DeleteAllNotes(userprofile);
+                        if (userprofile.BehaviourLogs.Logs.Count == 0)
+                        {
+                            logentry.ID = 1;
                         }
-                        builtstring = added;
+                        else
+                        {
+                            logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                        }
+                        if (!checknote)
+                        {
+
+                            await RespondAsync($"No notes found for this user. ||(Transaction ID: \"Transactions are disabled, due to config flag\")||", ephemeral: true);
+                            await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                                new CommandSuccessLogEntry(Context.User.Id, "delnote", DateTime.UtcNow, Context.Guild as SocketGuild)
+                                .WithAdditonalField("Additional remarks: ", $"No notes are present for this user.")
+                                .WithAdditonalField("Transaction ID", $"Transactions are disabled, due to config flag")
+                            );
+                            return;
+                        }
+                        logentry.Reason = reason;
+                        logentry.ModeratorId = Context.User.Id;
+                        {
+                            var embed = logentry.FormatDetailed();
+                            embed = embed.WithAuthor(user);
+                            embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+                            await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                        }
+                        userprofile.BehaviourLogs.AddLogEntry(logentry);
+                        await RespondAsync($"Deleted all notes for <@{userprofile.UserID}>. ||(Transaction ID: \"Transactions are disabled, due to config flag\")||");
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                            new CommandSuccessLogEntry(Context.User.Id, "delnote", DateTime.UtcNow, Context.Guild as SocketGuild)
+                            .WithAdditonalField("Transaction ID", $"Transactions are disabled, due to config flag")
+                        );
                     }
-                    if (builtstring.Length < 1)
+                } else {
+                    var userprofile = ProfileManager.GetUserProfile(user.Id);
+                    var checknote = ModerationFunctions.IsNotePresent(userprofile, entryid.Value);
+                    if (!checknote)
                     {
-                        builtstring += "This user has no Notes.";
+
+                        await RespondAsync($"No note found with ID {entryid.Value}.", ephemeral: true);
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                            new CommandSuccessLogEntry(Context.User.Id, "delnote", DateTime.UtcNow, Context.Guild as SocketGuild)
+                            .WithAdditonalField("Additional remarks: ", $"No note found with ID {entryid.Value}.")
+                        );
+                        return;
                     }
-                    embed.AddField($"Notes (showing from {Math.Max(Math.Min(pageend, count) - ModerationModule.ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
-                }
-                await FollowupAsync(embed: embed.Build(), ephemeral: true);
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "note get", DateTime.UtcNow, Context.Guild as SocketGuild)
-                );
-            }
-            catch (Exception e)
-            {
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "note get", DateTime.UtcNow, Context.Guild as SocketGuild, e)
-                    .WithAdditonalField("Parameter 'user'", $"{user.Mention}")
-                    .WithAdditonalField("Parameter 'page'", $"{page}")
-                );
-            }
-        }
-
-        [SlashCommand("delete", "Deletes a note.")]
-        public async Task DeleteNote(SocketGuildUser user, ulong entryid)
-        {
-
-            try
-            {
-                var userprofile = ProfileManager.GetUserProfile(user.Id);
-                var checknote = ModerationFunctions.IsNotePresent(userprofile, entryid);
-                if (!checknote)
-                {
-
-                    await RespondAsync($"No note found with ID {entryid}.", ephemeral: true);
+                    var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorDeleteNoteLogEntry>();
+                    if (userprofile.BehaviourLogs.Logs.Count == 0)
+                    {
+                        logentry.ID = 1;
+                    }
+                    else
+                    {
+                        logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                    }
+                    ModeratorNoteLogEntry note = (ModeratorNoteLogEntry)userprofile.BehaviourLogs.GetByID(entryid.Value);
+                    logentry.ModeratorId = Context.User.Id;
+                    logentry.NoteID = entryid.Value;
+                    logentry.NoteContent = note.Note;
+                    logentry.Reason = reason;
+                    userprofile.BehaviourLogs.AddLogEntry(logentry);
+                    {
+                        var embed = logentry.FormatDetailed();
+                        embed = embed.WithAuthor(user);
+                        embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+                        await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                    }
+                    ModerationFunctions.RemoveNote(userprofile, entryid.Value);
+                    await RespondAsync($"Deleted note");
                     await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                        new CommandSuccessLogEntry(Context.User.Id, "note delete", DateTime.UtcNow, Context.Guild as SocketGuild)
-                        .WithAdditonalField("Additional remarks: ", $"No note found with ID {entryid}.")
+                        new CommandSuccessLogEntry(Context.User.Id, "delnote", DateTime.UtcNow, Context.Guild as SocketGuild)
                     );
-                    return;
                 }
-                {
-                    var embed = new EmbedBuilder().WithAuthor(user);
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) deleted a note for this user";
-                    embed.AddField("Note ID", entryid);
-                    embed.AddField("Note contents", userprofile.BehaviourLogs.GetByID(entryid).Format());
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {user.Id} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                    await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
-                }
-                ModerationFunctions.RemoveNote(userprofile, entryid);
-                await RespondAsync($"Deleted notes ");
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "note delete", DateTime.UtcNow, Context.Guild as SocketGuild)
-                );
             }
             catch (Exception e)
             {
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
                     new CommandUnhandledExceptionLogEntry(Context.User.Id, "note delete", DateTime.UtcNow, Context.Guild as SocketGuild, e)
                     .WithAdditonalField("Parameter 'user'", $"{user.Mention}")
-                    .WithAdditonalField("Parameter 'entryid'", $"{entryid}")
-                );
-            }
-        }
-
-        [SlashCommand("purge", "Deletes all notes for this user.")]
-        public async Task PurgeNotes(SocketGuildUser user)
-        {
-            try
-            {
-                var userprofile = ProfileManager.GetUserProfile(user.Id);
-                var maxconfirm = DateTime.UtcNow.AddMinutes(1);
-                var transactiondata = new PurgeNoteTransaction();
-                transactiondata.user = userprofile;
-                var transaction = transactions.StartTransaction(maxconfirm, transactiondata);
-                await RespondAsync($"Please confirm deletion of all notes for this user. (<t:{Math.Floor(maxconfirm.Subtract(DateTime.UnixEpoch).TotalSeconds)}:R>) ||(Transaction ID: {transaction})||", components:
-                new ComponentBuilder().WithButton("Confirm", $"confirmpurgenote_{transaction}")
-                .WithButton("Cancel", $"cancelpurgenote_{transaction}")
-                .Build()
-                , ephemeral: true);
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "note purge", DateTime.UtcNow, Context.Guild as SocketGuild)
-                );
-            }
-            catch (Exception e)
-            {
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "note purge", DateTime.UtcNow, Context.Guild as SocketGuild, e)
-                    .WithAdditonalField("Parameter 'user'", $"{user.Mention}")
+                    .WithAdditonalField("Parameter 'entryid'", $"{(entryid.HasValue ? entryid.Value : "no value")}")
+                    .WithAdditonalField("Parameter 'reason'", $"{reason}")
                 );
             }
         }
@@ -303,9 +378,13 @@ namespace OriBot.Commands
                     await RespondAsync("Transaction expired.", ephemeral: true);
                     return;
                 }
-                var transdata = transactions.GetTransactionById(transactionid, true).TransactionData;
-                var userprofile = ((PurgeNoteTransaction)transdata).user;
+                var transdata = (PurgeNoteTransaction)transactions.GetTransactionById(transactionid, true).TransactionData;
+                var userprofile = transdata.user;
+                var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorPurgeNoteLogEntry>();
+                logentry.AmountDeleted = (ulong)userprofile.BehaviourLogs.Logs.Where(x => x is ModeratorNoteLogEntry).Count();
+                logentry.TransactionID = transactionid;
                 var checknote = ModerationFunctions.DeleteAllNotes(userprofile);
+
                 if (!checknote)
                 {
 
@@ -317,19 +396,26 @@ namespace OriBot.Commands
                     );
                     return;
                 }
+                logentry.Reason = transdata.reason;
+                logentry.ModeratorId = Context.User.Id;
+                if (userprofile.BehaviourLogs.Logs.Count == 0)
                 {
-                    var embed = new EmbedBuilder();
-                    var user = await Context.Guild.GetUserAsync(userprofile.UserID);
-                    if (user != null)
-                    {
-                        embed.WithAuthor(user);
-                    }
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) deleted all notes for this user";
-                    embed.AddField("Transaction ID", transactionid);
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {userprofile.UserID} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                    await (Channels.GetModerationChannel(Context.Guild as SocketGuild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                    logentry.ID = 1;
                 }
+                else
+                {
+                    logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                }
+                {
+                    var user = await Context.Guild.GetUserAsync(userprofile.UserID);
+                    var embed = logentry.FormatDetailed();
+                    if (user != null) {
+                        embed = embed.WithAuthor(user);
+                    }
+                    embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+                    await (Channels.GetModerationChannel((SocketGuild)Context.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                }
+                userprofile.BehaviourLogs.AddLogEntry(logentry);
                 await RespondAsync($"Deleted all notes for <@{userprofile.UserID}>. ||(Transaction ID: {transactionid})||");
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
                     new CommandSuccessLogEntry(Context.User.Id, "[note purge button]", DateTime.UtcNow, Context.Guild as SocketGuild)
@@ -408,7 +494,7 @@ namespace OriBot.Commands
                     var truncatedduetolength = false;
                     foreach (var item in paginated)
                     {
-                        var added = builtstring + item.Format() + "\n";
+                        var added = builtstring + item.FormatSimple() + "\n";
                         if (added.Length > 1024)
                         {
                             truncatedduetolength = true;
@@ -431,7 +517,7 @@ namespace OriBot.Commands
                     var truncatedduetolength = false;
                     foreach (var item in paginated)
                     {
-                        var added = builtstring + item.Format() + "\n";
+                        var added = builtstring + item.FormatSimple() + "\n";
                         if (added.Length > 1024)
                         {
                             truncatedduetolength = true;
@@ -445,6 +531,29 @@ namespace OriBot.Commands
                     }
                     embed.AddField($"Mutes (showing from {Math.Max(Math.Min(pageend, count) - ModerationModule.ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
                 }
+                {
+                    // Bans
+                    var builtstring = "";
+                    var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorBanLogEntry select x;
+                    var count = listof.Count();
+                    var paginated = ModerationModule.PaginateArray(listof.ToArray(), ModerationModule.ItemsPerPage, page);
+                    var truncatedduetolength = false;
+                    foreach (var item in paginated)
+                    {
+                        var added = builtstring + item.FormatSimple() + "\n";
+                        if (added.Length > 1024)
+                        {
+                            truncatedduetolength = true;
+                            break;
+                        }
+                        builtstring = added;
+                    }
+                    if (builtstring.Length < 1)
+                    {
+                        builtstring += "This user has no Bans.";
+                    }
+                    embed.AddField($"Bans (showing from {Math.Max(Math.Min(pageend, count) - ModerationModule.ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
+                }
                 await FollowupAsync(embed: embed.Build(), ephemeral: true);
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
                     new CommandSuccessLogEntry(Context.User.Id, "infraction get", DateTime.UtcNow, Context.Guild as SocketGuild)
@@ -457,161 +566,6 @@ namespace OriBot.Commands
                     .WithAdditonalField("User", $"{user.Mention}")
                     .WithAdditonalField("Page", $"{page}")
 
-                );
-            }
-        }
-
-        [SlashCommand("delete", "Deletes an infraction")]
-        public async Task DeleteInfraction(SocketGuildUser user, ulong entryid)
-        {
-            try
-            {
-                var userprofile = ProfileManager.GetUserProfile(user.Id);
-                var checknote = ModerationFunctions.IsInfractionPresent(userprofile, entryid);
-                if (!checknote)
-                {
-                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                        new CommandSuccessLogEntry(Context.User.Id, "infraction delete", DateTime.UtcNow, Context.Guild as SocketGuild)
-                        .WithAdditonalField("Additional remarks", $"No infraction found with ID {entryid}.")
-                    );
-                    await RespondAsync($"No infraction found with ID {entryid}.", ephemeral: true);
-                    return;
-                }
-                {
-                    var embed = new EmbedBuilder().WithAuthor(user);
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) deleted an infraction for this user";
-                    embed.AddField("Infraction ID", entryid);
-                    embed.AddField("Infraction contents", userprofile.BehaviourLogs.GetByID(entryid).Format());
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {user.Id} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                    await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
-                }
-                ModerationFunctions.RemoveInfraction(userprofile, entryid);
-                await RespondAsync($"Deleted infraction.");
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "infraction delete", DateTime.UtcNow, Context.Guild as SocketGuild)
-                );
-            }
-            catch (Exception e)
-            {
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "infraction delete", DateTime.UtcNow, Context.Guild as SocketGuild, e)
-                    .WithAdditonalField("User", $"{user.Mention}")
-                    .WithAdditonalField("Entry ID", $"{entryid}")
-                );
-            }
-
-
-        }
-
-        [SlashCommand("purge", "Deletes all infractions for this user.")]
-        public async Task PurgeInfractions(SocketGuildUser user)
-        {
-            try
-            {
-                var userprofile = ProfileManager.GetUserProfile(user.Id);
-                var maxconfirm = DateTime.UtcNow.AddMinutes(1);
-                var transactiondata = new PurgeInfractionTransaction();
-                transactiondata.user = userprofile;
-                var transaction = transactions.StartTransaction(maxconfirm, transactiondata);
-                await RespondAsync($"Please confirm deletion of all infractions for this user. (<t:{Math.Floor(maxconfirm.Subtract(DateTime.UnixEpoch).TotalSeconds)}:R>) ||(Transaction ID: {transaction})||", components:
-                new ComponentBuilder().WithButton("Confirm", $"confirmpurgeinfractions_{transaction}")
-                .WithButton("Cancel", $"cancelpurgeinfractions_{transaction}")
-                .Build()
-                , ephemeral: true);
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "infraction purge", DateTime.UtcNow, Context.Guild as SocketGuild)
-                );
-            }
-            catch (Exception e)
-            {
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "infraction purge", DateTime.UtcNow, Context.Guild as SocketGuild, e)
-                    .WithAdditonalField("Parameter 'user'", $"{user.Mention}")
-                );
-            }
-        }
-
-        [ComponentInteraction("confirmpurgeinfractions_*", true)]
-        public async Task PurgeButton(string transactionid)
-        {
-            try
-            {
-                if (!transactions.CheckTransaction(transactionid, false))
-                {
-                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                            new CommandWarningLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild, "Transaction expired.")
-                            .WithAdditonalField("Transaction ID", $"{transactionid}")
-                        );
-                    await RespondAsync("Transaction expired.", ephemeral: true);
-                    return;
-                }
-                var transdata = transactions.GetTransactionById(transactionid, true).TransactionData;
-                var userprofile = ((PurgeInfractionTransaction)transdata).user;
-                var checknote = ModerationFunctions.DeleteAllInfractions(userprofile);
-                if (!checknote)
-                {
-                    await RespondAsync($"No infractions found for this user. ||(Transaction ID: {transactionid})||", ephemeral: true);
-                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                        new CommandSuccessLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild)
-                        .WithAdditonalField("Additional remarks: ", $"No infractions are present for this user.")
-                        .WithAdditonalField("Transaction ID", $"{transactionid}")
-                    );
-                    return;
-                }
-                {
-                    var embed = new EmbedBuilder();
-                    var user = await Context.Guild.GetUserAsync(userprofile.UserID);
-                    if (user != null)
-                    {
-                        embed.WithAuthor(user);
-                    }
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) deleted all infractions for this user";
-                    embed.AddField("Transaction ID", transactionid);
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {userprofile.UserID} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                    await (Channels.GetModerationChannel(Context.Guild as SocketGuild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
-                }
-                await RespondAsync($"Deleted all infractions for <@{userprofile.UserID}> ||(Transaction ID: {transactionid})||");
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild)
-                    .WithAdditonalField("Transaction ID", $"{transactionid}")
-                );
-            }
-            catch (Exception e)
-            {
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild, e)
-                    .WithAdditonalField("Transaction ID", $"{transactionid}")
-                );
-            }
-        }
-
-        [ComponentInteraction("cancelpurgeinfractions_*", true)]
-        public async Task CancelButton(string transactionid)
-        {
-            try
-            {
-                if (!transactions.CheckTransaction(transactionid, true))
-                {
-                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                        new CommandWarningLogEntry(Context.User.Id, "[infraction purge cancel button]", DateTime.UtcNow, Context.Guild as SocketGuild, "Transaction expired.")
-                        .WithAdditonalField("Transaction ID", $"{transactionid}")
-                    );
-                    await RespondAsync("Transaction expired.", ephemeral: true);
-                    return;
-                }
-                await RespondAsync($"Transaction cancelled. ||(Transaction ID: {transactionid})||", ephemeral: true);
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "[infraction purge cancel button]", DateTime.UtcNow, Context.Guild as SocketGuild)
-                    .WithAdditonalField("Transaction ID", $"{transactionid}")
-                );
-            }
-            catch (Exception e)
-            {
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "[infraction purge cancel button]", DateTime.UtcNow, Context.Guild as SocketGuild, e)
-                    .WithAdditonalField("Transaction ID", $"{transactionid}")
                 );
             }
         }
@@ -658,13 +612,9 @@ namespace OriBot.Commands
                 try
                 {
                     {
-                        var embed = new EmbedBuilder().WithAuthor(user);
-                        embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) issued a {warntype} for this user";
-                        embed.AddField("Warning ID", logentry.ID);
-                        embed.AddField("Formatted warning: ", logentry.Format());
-                        embed.AddField("Reason: ", reason);
-                        embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                        embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {user.Id} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+                        var embed = logentry.FormatDetailed();
+                        embed = embed.WithAuthor(user);
+                        embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
                         await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
                     }
                     _ = user.SendMessageAsync($"You have been warned by {Context.User.Mention} for {reason}.");
@@ -692,7 +642,7 @@ namespace OriBot.Commands
         }
 
         [SlashCommand("unban", "Unbans a user")]
-        public async Task Unban(string useridentifier)
+        public async Task Unban(string useridentifier, string reason = "No reason was given.")
         {
             try
             {
@@ -725,6 +675,7 @@ namespace OriBot.Commands
                 var maxconfirm = DateTime.UtcNow.AddMinutes(1);
                 var transactiondata = new UnbanTransaction();
                 transactiondata.user = userprofile;
+                transactiondata.reason = reason;
                 var transaction = transactions.StartTransaction(maxconfirm, transactiondata);
                 await RespondAsync($"Please confirm unbanning this user. (<t:{Math.Floor(maxconfirm.Subtract(DateTime.UnixEpoch).TotalSeconds)}:R>) ||(Transaction ID: {transaction})||", components:
                 new ComponentBuilder().WithButton("Confirm", $"confirmunban_{transaction}")
@@ -760,21 +711,25 @@ namespace OriBot.Commands
                 }
                 var transdata = transactions.GetTransactionById(transactionid, true).TransactionData;
                 var userprofile = ((UnbanTransaction)transdata).user;
+                var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorUnbanLogEntry>();
+                if (userprofile.BehaviourLogs.Logs.Count == 0)
+                {
+                    logentry.ID = 1;
+                }
+                else
+                {
+                    logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                }
+                logentry.ModeratorId = Context.User.Id;
+                logentry.Reason = ((UnbanTransaction)transdata).reason;
                 await Context.Guild.RemoveBanAsync(userprofile.UserID);
                 userprofile.IsBanned = false;
                 {
-                    var embed = new EmbedBuilder();
-                    var user = await Context.Guild.GetUserAsync(userprofile.UserID);
-                    if (user != null)
-                    {
-                        embed.WithAuthor(user);
-                    }
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) unbanned this user";
-                    embed.AddField("Transaction ID", transactionid);
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {userprofile.UserID} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                    await (Channels.GetModerationChannel(Context.Guild as SocketGuild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                    var embed = logentry.FormatDetailed();
+                    embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {userprofile.UserID}");
+                    await (Channels.GetModerationChannel((SocketGuild)Context.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
                 }
+                userprofile.BehaviourLogs.AddLogEntry(logentry);
                 await RespondAsync($"Unbanned {userprofile.UserID}. ||(Transaction ID: {transactionid})||");
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
                     new CommandSuccessLogEntry(Context.User.Id, "[unban button]", DateTime.UtcNow, Context.Guild as SocketGuild)
@@ -819,6 +774,64 @@ namespace OriBot.Commands
             }
         }
 
+        [SlashCommand("infractions", "View infractions for this user, or one particular one")]
+        public async Task ViewInfractions(SocketGuildUser user, int page = 1, ulong? infractionid = null)
+        {
+            var userprofile = ProfileManager.GetUserProfile(user.Id);
+            var embed = new EmbedBuilder().WithAuthor(user);
+            var pagestart = ItemsPerPage * (page - 1);
+            var pageend = ItemsPerPage * page;
+            if (infractionid == null)
+            {
+                {
+                    // Notes
+                    var builtstring = "";
+                    var listof = from x in userprofile.BehaviourLogs.Logs where x is MajorLog select x;
+                    var count = listof.Count();
+                    var paginated = PaginateArray(listof.ToArray(), ItemsPerPage, page);
+                    var truncatedduetolength = false;
+                    foreach (var item in paginated)
+                    {
+                        var added = builtstring + item.FormatSimple() + "\n";
+                        if (added.Length > 1024)
+                        {
+                            truncatedduetolength = true;
+                            break;
+                        }
+                        builtstring = added;
+                    }
+                    if (builtstring.Length < 1)
+                    {
+                        builtstring += "This user has no Infractions.";
+                    }
+                    embed.AddField($"Infractions (showing from {Math.Max(Math.Min(pageend, count) - ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
+
+                }
+            } else
+            {
+                var logentry = userprofile.BehaviourLogs.GetByID(infractionid.Value);
+                if (logentry == null)
+                {
+                    await RespondAsync($"No such infraction ID: {infractionid.Value}", ephemeral: true);
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandWarningLogEntry(Context.User.Id, "infractions", DateTime.UtcNow, Context.Guild as SocketGuild, $"No such infraction ID: {infractionid}")
+                        .WithAdditonalField("User", $"{user.Mention}")
+                        .WithAdditonalField("Page", $"{page}")
+                        .WithAdditonalField("Infraction ID", $"{infractionid}")
+                    );
+                    return;
+                }
+                embed = logentry.FormatDetailed();
+                embed = embed.WithAuthor(user);
+                embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+
+            }
+            await RespondAsync("", embed: embed.Build());
+            await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                new CommandSuccessLogEntry(Context.User.Id, "infractions", DateTime.UtcNow, Context.Guild as SocketGuild)
+            );
+        }
+
         [SlashCommand("ban", "Warns a user")]
         public async Task Ban(SocketGuildUser user, string reason, int messageprunedays)
         {
@@ -849,18 +862,13 @@ namespace OriBot.Commands
 
                 logentry.Reason = reason;
                 logentry.ModeratorId = Context.User.Id;
-                userprofile.BehaviourLogs.AddLogEntry(logentry);
+                logentry.MessagePruneDays = (ulong)messageprunedays;
                 try
                 {
                     {
-                        var embed = new EmbedBuilder().WithAuthor(user);
-                        embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) banned this user";
-                        embed.AddField("Ban Entry ID", logentry.ID);
-                        embed.AddField("Formatted ban: ", logentry.Format());
-                        embed.AddField("Message Prune days: ", messageprunedays);
-                        embed.AddField("Reason: ", reason);
-                        embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                        embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {user.Id} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+                        var embed = logentry.FormatDetailed();
+                        embed = embed.WithAuthor(user);
+                        embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
                         await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
                     }
                     _ = user.SendMessageAsync($"You have been banned by {Context.User.Mention} for {reason}.");
@@ -870,7 +878,7 @@ namespace OriBot.Commands
                     Console.WriteLine(e);
                     await RespondAsync("Could not send message to user.", ephemeral: true);
                 }
-
+                userprofile.BehaviourLogs.AddLogEntry(logentry);
                 await user.Guild.AddBanAsync(user, messageprunedays, reason);
                 await RespondAsync($"Banned {user.Mention} for {reason}.", ephemeral: true);
                 userprofile.IsBanned = true;
@@ -919,7 +927,8 @@ namespace OriBot.Commands
                 logentry.Reason = reason;
                 logentry.ModeratorId = Context.User.Id;
                 logentry.MuteEndUTC = DateTime.UtcNow.Add(duration);
-                userprofile.BehaviourLogs.AddLogEntry(logentry);
+                
+                
                 try
                 {
                     _ = user.SendMessageAsync($"You have been muted by {Context.User.Mention} for {reason}, and you will be unmuted <t:{Math.Floor(DateTime.UtcNow.Add(duration).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}:R>");
@@ -939,17 +948,13 @@ namespace OriBot.Commands
                 var timer = SaveableTimerRegistry.CreateTimer<MuteTimer>(DateTime.UtcNow.Add(duration));
                 timer.SetData(Context.Guild.Id, user.Id);
                 userprofile.MutedTimerID = timer.InstanceUID;
+                logentry.MuteTimerID = timer.InstanceUID;
+                userprofile.BehaviourLogs.AddLogEntry(logentry);
                 GlobalTimerStorage.AddTimer(timer);
                 {
-                    var embed = new EmbedBuilder().WithAuthor(user);
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) muted for this user";
-                    embed.AddField("Mute ID:", logentry.ID);
-                    embed.AddField("Formatted mute: ", logentry.Format());
-                    embed.AddField("Reason: ", reason);
-                    embed.AddField("Mute expiry: ", $"<t:{Math.Floor(logentry.MuteEndUTC.Subtract(DateTime.UnixEpoch).TotalSeconds)}:R> (<t:{Math.Floor(logentry.MuteEndUTC.Subtract(DateTime.UnixEpoch).TotalSeconds)}>)");
-                    embed.AddField("Mute timer ID: ", $"{timer.InstanceUID}");
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {user.Id} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+                    var embed = logentry.FormatDetailed();
+                    embed = embed.WithAuthor(user);
+                    embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
                     await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
                 }
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
@@ -966,7 +971,7 @@ namespace OriBot.Commands
         }
 
         [SlashCommand("unmute", "Unmutes a user.")]
-        public async Task Unmute(SocketGuildUser user, bool removefromrecord = false)
+        public async Task Unmute(SocketGuildUser user, string reason = "")
         {
             try {
                 var userprofile = ProfileManager.GetUserProfile(user.Id);
@@ -976,22 +981,27 @@ namespace OriBot.Commands
                     await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
                         new CommandWarningLogEntry(Context.User.Id, "unmute", DateTime.UtcNow, Context.Guild as SocketGuild, "User is already unmuted.")
                         .WithAdditonalField("User", $"{user.Mention}")
-                        .WithAdditonalField("Remove from record", $"{removefromrecord}")
+                        .WithAdditonalField("Reason", $"{reason}")
                     );
                     return;
                 }
                 GlobalTimerStorage.GetTimerByID(userprofile.MutedTimerID).OnTarget();
-                if (removefromrecord)
+                var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorUnmuteLogEntry>();
+                if (userprofile.BehaviourLogs.Logs.Count == 0)
                 {
-                    userprofile.BehaviourLogs.RemoveByID(userprofile.BehaviourLogs.Logs.Where(x => x is ModeratorMuteLogEntry).Select(x => x.ID).Last());
+                    logentry.ID = 1;
                 }
+                else
+                {
+                    logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                }
+                logentry.ModeratorId = Context.User.Id;
+                logentry.Reason = reason;
                 await RespondAsync($"Unmuted {user.Mention}.", ephemeral: true);
                 {
-                    var embed = new EmbedBuilder().WithAuthor(user);
-                    embed.Title = $"Moderator {Context.User.Mention} ({Context.User.GlobalName}) unmuted for this user";
-                    embed.AddField("Mute timer ID: ", $"{userprofile.MutedTimerID}");
-                    embed.AddField("Event Time: ", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}>");
-                    embed.WithFooter($"Moderator ID: {Context.User.Id} | Person ID: {user.Id} | Unix Timestamp: {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+                    var embed = logentry.FormatDetailed();
+                    embed = embed.WithAuthor(user);
+                    embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
                     await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
                 }
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
@@ -1001,11 +1011,255 @@ namespace OriBot.Commands
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
                     new CommandUnhandledExceptionLogEntry(Context.User.Id, "unmute", DateTime.UtcNow, Context.Guild as SocketGuild, e)
                     .WithAdditonalField("User", $"{user.Mention}")
-                    .WithAdditonalField("Remove from record", $"{removefromrecord}")
+                    .WithAdditonalField("Reason", reason)
                 );
             }
             
         }
+
+        #region Delete Infraction
+        [SlashCommand("delinfraction", "Deletes an infraction")]
+        public async Task DeleteInfraction(SocketGuildUser user, ulong? entryid = null, string reason = "No reason was given.")
+        {
+
+            try
+            {
+                if (!entryid.HasValue)
+                {
+                    if (EnableConfirmations)
+                    {
+                        var userprofile = ProfileManager.GetUserProfile(user.Id);
+                        var maxconfirm = DateTime.UtcNow.AddMinutes(1);
+                        var transactiondata = new PurgeInfractionTransaction
+                        {
+                            reason = reason,
+                            user = userprofile
+                        };
+                        var transaction = transactions.StartTransaction(maxconfirm, transactiondata);
+                        await RespondAsync($"Please confirm deletion of all infractions for this user. (<t:{Math.Floor(maxconfirm.Subtract(DateTime.UnixEpoch).TotalSeconds)}:R>) ||(Transaction ID: {transaction})||", components:
+                        new ComponentBuilder().WithButton("Confirm", $"confirmpurgeinfraction_{transaction}")
+                        .WithButton("Cancel", $"cancelpurgeinfraction_{transaction}")
+                        .Build()
+                        , ephemeral: true);
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                            new CommandSuccessLogEntry(Context.User.Id, "delinfraction", DateTime.UtcNow, Context.Guild as SocketGuild)
+                        );
+                    }
+                    else
+                    {
+                        var userprofile = ProfileManager.GetUserProfile(user.Id);
+                        var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorPurgeInfractionLogEntry>();
+                        logentry.AmountDeleted = (ulong)userprofile.BehaviourLogs.Logs.Where(x => x is MajorLog).Count();
+                        logentry.TransactionID = "";
+                        var checknote = ModerationFunctions.DeleteAllInfractions(userprofile);
+                        if (userprofile.BehaviourLogs.Logs.Count == 0)
+                        {
+                            logentry.ID = 1;
+                        }
+                        else
+                        {
+                            logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                        }
+                        if (!checknote)
+                        {
+
+                            await RespondAsync($"No infractions found for this user. ||(Transaction ID: \"Transactions are disabled, due to config flag\")||", ephemeral: true);
+                            await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                                new CommandSuccessLogEntry(Context.User.Id, "delinfraction", DateTime.UtcNow, Context.Guild as SocketGuild)
+                                .WithAdditonalField("Additional remarks: ", $"No infractions are present for this user.")
+                                .WithAdditonalField("Transaction ID", $"Transactions are disabled, due to config flag")
+                            );
+                            return;
+                        }
+                        logentry.Reason = reason;
+                        logentry.ModeratorId = Context.User.Id;
+                        {
+                            var embed = logentry.FormatDetailed();
+                            embed = embed.WithAuthor(user);
+                            embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+                            await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                        }
+                        userprofile.BehaviourLogs.AddLogEntry(logentry);
+                        await RespondAsync($"Deleted all infractions for <@{userprofile.UserID}>. ||(Transaction ID: \"Transactions are disabled, due to config flag\")||");
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                            new CommandSuccessLogEntry(Context.User.Id, "delinfraction", DateTime.UtcNow, Context.Guild as SocketGuild)
+                            .WithAdditonalField("Transaction ID", $"Transactions are disabled, due to config flag")
+                        );
+                    }
+                }
+                else
+                {
+                    var userprofile = ProfileManager.GetUserProfile(user.Id);
+                    var checknote = ModerationFunctions.IsInfractionPresent(userprofile, entryid.Value);
+                    if (!checknote)
+                    {
+
+                        await RespondAsync($"No infraction found with ID {entryid.Value}.", ephemeral: true);
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                            new CommandSuccessLogEntry(Context.User.Id, "delinfraction", DateTime.UtcNow, Context.Guild as SocketGuild)
+                            .WithAdditonalField("Additional remarks: ", $"No infraction found with ID {entryid.Value}.")
+                        );
+                        return;
+                    }
+                    var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorDeleteInfractionLogEntry>();
+                    if (userprofile.BehaviourLogs.Logs.Count == 0)
+                    {
+                        logentry.ID = 1;
+                    }
+                    else
+                    {
+                        logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                    }
+                    MajorLog infraction = (MajorLog)userprofile.BehaviourLogs.GetByID(entryid.Value);
+                    logentry.ModeratorId = Context.User.Id;
+                    logentry.InfractionFormatted = infraction.FormatSimple();
+                    logentry.Reason = reason;
+                    userprofile.BehaviourLogs.AddLogEntry(logentry);
+                    {
+                        var embed = logentry.FormatDetailed();
+                        embed = embed.WithAuthor(user);
+                        embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+                        await (Channels.GetModerationChannel(user.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                    }
+                    ModerationFunctions.RemoveInfraction(userprofile, entryid.Value);
+                    await RespondAsync($"Deleted infraction");
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandSuccessLogEntry(Context.User.Id, "delinfraction", DateTime.UtcNow, Context.Guild as SocketGuild)
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "note delete", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    .WithAdditonalField("Parameter 'user'", $"{user.Mention}")
+                    .WithAdditonalField("Parameter 'entryid'", $"{(entryid.HasValue ? entryid.Value : "no value")}")
+                    .WithAdditonalField("Parameter 'reason'", $"{reason}")
+                );
+            }
+        }
+
+        [ComponentInteraction("confirmpurgeinfraction_*", true)]
+        public async Task PurgeButton(string transactionid)
+        {
+            try
+            {
+                if (!transactions.CheckTransaction(transactionid, false))
+                {
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandWarningLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild, "Transaction expired.")
+                        .WithAdditonalField("Transaction ID", $"{transactionid}")
+                    );
+                    await RespondAsync("Transaction expired.", ephemeral: true);
+                    return;
+                }
+                var transdata = (PurgeInfractionTransaction)transactions.GetTransactionById(transactionid, true).TransactionData;
+                var userprofile = transdata.user;
+                var logentry = UserBehaviourLogRegistry.CreateLogEntry<ModeratorPurgeInfractionLogEntry>();
+                logentry.AmountDeleted = (ulong)userprofile.BehaviourLogs.Logs.Where(x => x is MajorLog).Count();
+                logentry.TransactionID = transactionid;
+                var checknote = ModerationFunctions.DeleteAllInfractions(userprofile);
+
+                if (!checknote)
+                {
+
+                    await RespondAsync($"No infractions found for this user. ||(Transaction ID: {transactionid})||", ephemeral: true);
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandSuccessLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild)
+                        .WithAdditonalField("Additional remarks: ", $"No infractions are present for this user.")
+                        .WithAdditonalField("Transaction ID", $"{transactionid}")
+                    );
+                    return;
+                }
+                logentry.ModeratorId = Context.User.Id;
+                logentry.Reason = transdata.reason;
+                if (userprofile.BehaviourLogs.Logs.Count == 0)
+                {
+                    logentry.ID = 1;
+                }
+                else
+                {
+                    logentry.ID = userprofile.BehaviourLogs.Logs.Select(x => x.ID).Max() + 1;
+                }
+                {
+                    var user = await Context.Guild.GetUserAsync(userprofile.UserID);
+                    var embed = logentry.FormatDetailed();
+                    if (user != null)
+                    {
+                        embed = embed.WithAuthor(user);
+                    }
+                    embed = embed.WithFooter(embed.Footer.Text + $" | Person ID: {user.Id}");
+                    await (Channels.GetModerationChannel((SocketGuild)Context.Guild) as SocketTextChannel).SendMessageAsync("", embed: embed.Build());
+                }
+                userprofile.BehaviourLogs.AddLogEntry(logentry);
+                await RespondAsync($"Deleted all infractions for <@{userprofile.UserID}>. ||(Transaction ID: {transactionid})||");
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandSuccessLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild)
+                    .WithAdditonalField("Transaction ID", $"{transactionid}")
+                );
+            }
+            catch (Exception e)
+            {
+
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "[infraction purge button]", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    .WithAdditonalField("Transaction ID", $"{transactionid}")
+                );
+            }
+        }
+
+        [ComponentInteraction("cancelpurgeinfraction_*", true)]
+        public async Task CancelButton2(string transactionid)
+        {
+            try
+            {
+                if (!transactions.CheckTransaction(transactionid, true))
+                {
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandWarningLogEntry(Context.User.Id, "[infraction purge cancel button]", DateTime.UtcNow, Context.Guild as SocketGuild, "Transaction expired.")
+                        .WithAdditonalField("Transaction ID", $"{transactionid}")
+                    );
+                    await RespondAsync("Transaction expired.", ephemeral: true);
+                    return;
+                }
+                await RespondAsync($"Transaction cancelled. ||(Transaction ID: {transactionid})||", ephemeral: true);
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandSuccessLogEntry(Context.User.Id, "[infraction purge cancel button]", DateTime.UtcNow, Context.Guild as SocketGuild)
+                    .WithAdditonalField("Transaction ID", $"{transactionid}")
+                );
+            }
+            catch (Exception e)
+            {
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "[infraction purge cancel button]", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    .WithAdditonalField("Transaction ID", $"{transactionid}")
+                );
+            }
+        }
+        #endregion
+
+        [SlashCommand("addbadge", "Adds a badge for this user")]
+        public async Task AddBadge(SocketGuildUser user, string badgename)
+        {
+            try
+            {
+                var userprofile = ProfileManager.GetUserProfile(user.Id);
+                userprofile.GrantBadge(BadgeRegistry.GetBadgeFromPredefinedRegistry(badgename));
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandSuccessLogEntry(Context.User.Id, "mute", DateTime.UtcNow, Context.Guild as SocketGuild)
+                );
+                await RespondAsync($"{user.Mention} has been given the badge {badgename}.");
+            }
+            catch (Exception e)
+            {
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "addbadge", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    .WithAdditonalField("User", $"{user.Mention}")
+                    .WithAdditonalField("Badge", $"{badgename}")
+                );
+            }
+        }
+
 
         public override Requirements GetRequirements()
         {

@@ -22,8 +22,11 @@
         "muted": "Muted"
     },
     "moderation": {
-        "itemsPerPage": 15,
+        "itemsPerPage": 10,
         "enableConfirmations": true
+    },
+    "userprofile": {
+        "maxdiagnosticlogentries": 50
     },
     "cachingServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776], // Servers where when a user deletes a message, the attachments are reuploaded
     "oricordServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776] // Servers considered "oricord"

@@ -52,7 +52,6 @@ namespace main
             var exit = "exit";
             var help = "help";
             var sel = 0;
-
             while (!cancellationToken.IsCancellationRequested)
             {
                 // Asynchronously read the next line from the console

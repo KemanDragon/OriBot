@@ -24,11 +24,16 @@ namespace OriBot.Utilities
         private static readonly Color warningColor = new Color(224, 162, 16);
         private static readonly Color errorColor = new Color(250, 50, 50);
         private static readonly Color fatalColor = new Color(153, 8, 8);
+        private static readonly Color infoColor = new Color(19, 237, 88);
+        private static readonly Color warningColor = new Color(224, 162, 16);
+        private static readonly Color errorColor = new Color(250, 50, 50);
+        private static readonly Color fatalColor = new Color(153, 8, 8);
 
         // Config
         private static readonly bool debug = Config.properties["logger"]["debugMode"];
 
         private static readonly String logFolder = Config.properties["logger"]["logFolder"];
+        private static readonly String logFile = Config.properties["logger"]["normalLogFile"];
         private static readonly String logFile = Config.properties["logger"]["normalLogFile"];
         private static readonly String debugLogFile = Config.properties["logger"]["debugLogFile"];
         private static readonly String crashLogFile = Config.properties["logger"]["crashLogFile"];
@@ -79,17 +84,22 @@ namespace OriBot.Utilities
             {
                 case LogLevel.DEBUG:
                     category = "\x1b[94m[DEBUG]";
+                    category = "\x1b[94m[DEBUG]";
                     break;
                 case LogLevel.INFO:
+                    category = "\x1b[92m[INFO]";
                     category = "\x1b[92m[INFO]";
                     break;
                 case LogLevel.WARN:
                     category = "\x1b[38;5;208m[WARNING]";
+                    category = "\x1b[38;5;208m[WARNING]";
                     break;
                 case LogLevel.ERROR:
                     category = "\x1b[31m[ERROR]";
+                    category = "\x1b[31m[ERROR]";
                     break;
                 case LogLevel.FATAL:
+                    category = "\x1b[38;5;124m[FATAL]";
                     category = "\x1b[38;5;124m[FATAL]";
                     break;
                 default:
@@ -99,6 +109,9 @@ namespace OriBot.Utilities
             String unformattedLog = $"{category}\x1b[0m {DateTime.Now:yyyy-MM-dd HH:mm:ss} - {writeline}";
             crashDumpBuffer.Add(unformattedLog);
 
+            // String log = $"{((previousLogLevel != currentLogLevel) && clumpLogs ? "\n" : "")}{color}{unformattedLog}{Color.Reset()}";
+            // Console.WriteLine(log);
+            Console.WriteLine(unformattedLog);
             // String log = $"{((previousLogLevel != currentLogLevel) && clumpLogs ? "\n" : "")}{color}{unformattedLog}{Color.Reset()}";
             // Console.WriteLine(log);
             Console.WriteLine(unformattedLog);
@@ -216,6 +229,8 @@ namespace OriBot.Utilities
 
             // String fileName = logFile + "_" + CreateInstanceIdentifier() + ".log";
             String fileName = logFile + "latest" + ".log";
+            // String fileName = logFile + "_" + CreateInstanceIdentifier() + ".log";
+            String fileName = logFile + "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
@@ -233,6 +248,7 @@ namespace OriBot.Utilities
         {
             CheckCreateDirectory();
 
+            String fileName = "latest" + ".log";
             String fileName = "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);

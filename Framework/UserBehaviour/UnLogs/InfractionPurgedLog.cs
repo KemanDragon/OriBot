@@ -14,8 +14,7 @@ using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Framework.UserBehaviour
 {
-
-    public class ModeratorBanLogEntry : MajorLog
+    public class ModeratorPurgeInfractionLogEntry : PardonLog
     {
         [JsonProperty]
         public string Reason = "";
@@ -24,33 +23,37 @@ namespace OriBot.Framework.UserBehaviour
         public ulong ModeratorId = 0;
 
         [JsonProperty]
-        public ulong MessagePruneDays = 0;
+        public ulong AmountDeleted = 0;
 
-        public ModeratorBanLogEntry(ulong id = 0, ulong timestamp = 0, string reason = "", ulong moderatorid = 0, ulong MessagePruneDays2 = 0) : base(id, timestamp)
+        [JsonProperty]
+        public string TransactionID = "";
+
+        public ModeratorPurgeInfractionLogEntry(ulong id = 0, ulong timestamp = 0, ulong moderatorid = 0, ulong amountdeleted = 0, string reason = "", string transactionid = "") : base(id, timestamp)
         {
             Reason = reason;
             ModeratorId = moderatorid;
-            MessagePruneDays = MessagePruneDays2;
+            AmountDeleted = amountdeleted;
+            TransactionID = transactionid;
         }
 
         [JsonConstructor]
-        public ModeratorBanLogEntry() : base()
+        public ModeratorPurgeInfractionLogEntry() : base()
         {
         }
 
         [JsonProperty]
-        public override string Name { get; protected set; } = "modban";
+        public override string Name { get; protected set; } = "modpurgeinfraction";
 
         public override UserBehaviourLogEntry Instantiate()
         {
-            var tmp = new ModeratorBanLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason);
+            var tmp = new ModeratorPurgeInfractionLogEntry(0, (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),ModeratorId, AmountDeleted, Reason, TransactionID);
             tmp._template = false;
             return tmp;
         }
 
         public override UserBehaviourLogEntry Load(string jsonstring)
         {
-            var loaded = JsonConvert.DeserializeObject<ModeratorBanLogEntry>(jsonstring);
+            var loaded = JsonConvert.DeserializeObject<ModeratorPurgeInfractionLogEntry>(jsonstring);
             if (loaded != null)
             {
                 loaded._template = false;
@@ -66,20 +69,20 @@ namespace OriBot.Framework.UserBehaviour
 
         public override string FormatSimple()
         {
-            return $"- {ID}: <@{ModeratorId}> issued a Ban at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user.";
+            return $"- {ID}: <@{ModeratorId}> purged all infractions of this user at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>.";
         }
-
 
         public override EmbedBuilder FormatDetailed()
         {
             var embed = new EmbedBuilder();
-            embed.WithTitle($"Ban issued at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user")
-                .WithDescription($"<@{ModeratorId}> issued Warning for this user.")
+            embed.WithTitle($"<@{ModeratorId}> purged all infractions of this user at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>")
+                .WithDescription($"<@{ModeratorId}> purged all infractions of this user.")
                 .AddField("Reason", Reason)
-                .AddField("Case ID", ID)
-                .AddField("Message Prune Days", MessagePruneDays)
+                .AddField("Event ID", ID)
+                .AddField("Amount deleted", AmountDeleted)
+                .AddField("Transaction ID", TransactionID)
                 .WithColor(Color.Orange)
-                .WithFooter($"Case ID: {ID} | Moderator ID: {ModeratorId} | Event timestamp: {Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}");
+                .WithFooter($"Event ID: {ID} | Moderator ID: {ModeratorId} | Event timestamp: {Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}");
             return embed;
         }
 

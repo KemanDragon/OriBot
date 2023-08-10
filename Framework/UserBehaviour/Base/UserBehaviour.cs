@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-
+using Discord;
 using Discord.WebSocket;
 
 using Newtonsoft.Json;
@@ -37,6 +37,12 @@ namespace OriBot.Framework.UserBehaviour
                 new ModeratorNoteLogEntry(),
                 new ModeratorMuteLogEntry(),
                 new ModeratorBanLogEntry(),
+                new ModeratorUnmuteLogEntry(),
+                new ModeratorDeleteInfractionLogEntry(),
+                new ModeratorPurgeInfractionLogEntry(),
+                new ModeratorDeleteNoteLogEntry(),
+                new ModeratorPurgeNoteLogEntry(),
+                new ModeratorUnbanLogEntry(),
             };
         }
 
@@ -92,9 +98,15 @@ namespace OriBot.Framework.UserBehaviour
             throw new NotImplementedException();
         }
 
-        public virtual string Format()
+        public virtual string FormatSimple()
         {
             throw new NotImplementedException();
+        }
+
+        public virtual EmbedBuilder FormatDetailed()
+        {
+            throw new NotImplementedException();
+        
         }
 
         public bool IsTemplate
@@ -137,6 +149,17 @@ namespace OriBot.Framework.UserBehaviour
         }
 
         protected MajorLog() : base()
+        {
+        }
+    }
+
+    public abstract class PardonLog : UserBehaviourLogEntry
+    {
+        protected PardonLog(ulong id, ulong timestamp) : base(id, timestamp)
+        {
+        }
+
+        protected PardonLog() : base()
         {
         }
     }

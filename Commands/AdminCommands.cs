@@ -7,9 +7,9 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using OriBot.Commands.RequirementEngine;
 using OriBot.Utilities;
-
 // using OriBot.Framework;
 using OriBot.Framework.UserProfiles;
+using OriBot.Utilities;
 
 namespace OriBot.Commands
 {
@@ -21,6 +21,7 @@ namespace OriBot.Commands
             File.CreateText("reset.txt").Close();
             Logger.Info("Commands Reset Triggered, type 'exit' to confirm. (there's no going back)");
             await RespondAsync("Reset triggered, restart the bot from CLI or IDE to unregister all slash commands.");
+            Logger.Log("Commands Reset Triggered, type 'exit' to confirm. (there's no going back)");
         }
 
         public override Requirements GetRequirements()

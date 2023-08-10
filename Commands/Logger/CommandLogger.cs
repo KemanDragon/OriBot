@@ -180,6 +180,7 @@ namespace OriBot.Commands {
 
         public async static Task LogCommandAsync(ulong userid, SocketGuild guild, CommandLogEntry entry) {
             var user = ProfileManager.GetUserProfile(userid);
+            user.DiagnosticLogs.Add(entry.ToLogString());
             if (guild is null) return;
             var channel = GetLoggingChannel(guild) as SocketTextChannel;
             if (channel == null) return;
