@@ -40,7 +40,6 @@ namespace main
             var task = Login(ct.Token);
             var inputTask = ReadConsoleInputAsync(ct.Token);
             await Task.WhenAny(task, inputTask);
-
             ct.Cancel();
             await inputTask.ContinueWith(_ => { });
             await task;
@@ -52,7 +51,6 @@ namespace main
             var exit = "exit";
             var help = "help";
             var sel = 0;
-
             while (!cancellationToken.IsCancellationRequested)
             {
                 // Asynchronously read the next line from the console
@@ -165,7 +163,7 @@ namespace main
 
         private Task Log(LogMessage msg)
         {
-            Logger.Log(msg.ToString());
+            Logger.Log(msg.ToString()[9..]);
             return Task.CompletedTask;
         }
 

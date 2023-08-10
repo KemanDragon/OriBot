@@ -28,16 +28,16 @@ namespace OriBot.Utilities
         ** ********** */
 
         // Colors
-        private static readonly Color normalColor = new Color(248, 246, 246);
-        private static readonly Color warningColor = new Color(245, 208, 97);
-        private static readonly Color errorColor = new Color(207, 70, 71);
-        private static readonly Color fatalColor = new Color(233, 179, 132);
+        private static readonly Color infoColor = new Color(19, 237, 88);
+        private static readonly Color warningColor = new Color(224, 162, 16);
+        private static readonly Color errorColor = new Color(250, 50, 50);
+        private static readonly Color fatalColor = new Color(153, 8, 8);
 
         // Config
         private static readonly bool debug = Config.properties["logger"]["debugMode"];
 
         private static readonly String logFolder = Config.properties["logger"]["logFolder"];
-        private static readonly String normalLogFile = Config.properties["logger"]["normalLogFile"];
+        private static readonly String logFile = Config.properties["logger"]["normalLogFile"];
         private static readonly String debugLogFile = Config.properties["logger"]["debugLogFile"];
         private static readonly String crashLogFile = Config.properties["logger"]["crashLogFile"];
 
@@ -91,29 +91,30 @@ namespace OriBot.Utilities
             switch (logLevel)
             {
                 case LogLevel.DEBUG:
-                    category = "debug";
+                    category = "\x1b[94m[DEBUG]";
                     break;
                 case LogLevel.INFO:
-                    category = "info";
+                    category = "\x1b[92m[INFO]";
                     break;
                 case LogLevel.WARN:
-                    category = "warning";
+                    category = "\x1b[38;5;208m[WARNING]";
                     break;
                 case LogLevel.ERROR:
-                    category = "error";
+                    category = "\x1b[31m[ERROR]";
                     break;
                 case LogLevel.FATAL:
-                    category = "fatal";
+                    category = "\x1b[38;5;124m[FATAL]";
                     break;
                 default:
                     break;
             }
 
-            String unformattedLog = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}";
+            String unformattedLog = $"{category}\x1b[0m {DateTime.Now:yyyy-MM-dd} - {message}";
             crashDumpBuffer.Add(unformattedLog);
 
-            String log = $"{((previousLogLevel != currentLogLevel) && clumpLogs ? "\n" : "")}{color}{unformattedLog}{Color.Reset()}";
-            Console.WriteLine(log);
+            // String log = $"{((previousLogLevel != currentLogLevel) && clumpLogs ? "\n" : "")}{color}{unformattedLog}{Color.Reset()}";
+            // Console.WriteLine(log);
+            Console.WriteLine(unformattedLog);
         }
 
         public static void Debug(String message)
@@ -122,8 +123,8 @@ namespace OriBot.Utilities
             {
                 currentLogLevel = LogLevel.DEBUG;
 
-                _Log(normalColor, LogLevel.DEBUG, message);
-                WriteLogsDebug("debug", message);
+                _Log(infoColor, LogLevel.DEBUG, message);
+                WriteLogsDebug("[DEBUG] {DateTime.Now:yyyyMMdd}", message);
 
                 previousLogLevel = currentLogLevel;
             }
@@ -137,16 +138,16 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.INFO;
 
-            if (debug)
-            {
-                _Log(normalColor, LogLevel.INFO, message);
-                WriteLogsDebug("info", message);
-            }
-            else
-            {
-                _Log(normalColor, LogLevel.INFO, message);
-                WriteLogsNormal("info", message);
-            }
+            // if (debug)
+            // {
+            //     _Log(normalColor, LogLevel.INFO, message);
+            //     WriteLogsDebug("info", message);
+            // }
+            // else
+            // {
+            _Log(infoColor, LogLevel.INFO, message);
+            WriteLogsNormal("[INFO]", message);
+            // }
 
             previousLogLevel = currentLogLevel;
         }
@@ -159,16 +160,16 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.WARN;
 
-            if (debug)
-            {
-                _Log(warningColor, LogLevel.WARN, message);
-                WriteLogsDebug("warning", message);
-            }
-            else
-            {
-                _Log(warningColor, LogLevel.WARN, message);
-                WriteLogsNormal("warning", message);
-            }
+            // if (debug)
+            // {
+            //     _Log(warningColor, LogLevel.WARN, message);
+            //     WriteLogsDebug("warning", message);
+            // }
+            // else
+            // {
+            _Log(warningColor, LogLevel.WARN, message);
+            WriteLogsNormal("[WARNING]", message);
+            // }
 
             previousLogLevel = currentLogLevel;
         }
@@ -181,16 +182,16 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.ERROR;
 
-            if (debug)
-            {
-                _Log(errorColor, LogLevel.ERROR, message);
-                WriteLogsDebug("error", message);
-            }
-            else
-            {
-                _Log(errorColor, LogLevel.ERROR, message);
-                WriteLogsNormal("error", message);
-            }
+            // if (debug)
+            // {
+            //     _Log(errorColor, LogLevel.ERROR, message);
+            //     WriteLogsDebug("error", message);
+            // }
+            // else
+            // {
+            _Log(errorColor, LogLevel.ERROR, message);
+            WriteLogsNormal("[ERROR]", message);
+            // }
 
             previousLogLevel = currentLogLevel;
         }
@@ -203,16 +204,16 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.FATAL;
 
-            if (debug)
-            {
-                _Log(fatalColor, LogLevel.FATAL, message);
-                WriteLogsDebug("fatal", message);
-            }
-            else
-            {
-                _Log(fatalColor, LogLevel.FATAL, message);
-                WriteLogsNormal("fatal", message);
-            }
+            // if (debug)
+            // {
+            //     _Log(fatalColor, LogLevel.FATAL, message);
+            //     WriteLogsDebug("fatal", message);
+            // }
+            // else
+            // {
+            _Log(fatalColor, LogLevel.FATAL, message);
+            WriteLogsNormal("[FATAL]", message);
+            // }
 
             previousLogLevel = currentLogLevel;
         }
@@ -237,11 +238,12 @@ namespace OriBot.Utilities
         {
             CheckCreateDirectory();
 
-            String fileName = normalLogFile + "_" + CreateInstanceIdentifier() + ".log";
+            // String fileName = logFile + "_" + CreateInstanceIdentifier() + ".log";
+            String fileName = logFile + "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
-            String text = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}\n";
+            String text = $"{category} - {message}\n";
 
             File.AppendAllText(filePath, text);
         }
@@ -255,11 +257,11 @@ namespace OriBot.Utilities
         {
             CheckCreateDirectory();
 
-            String fileName = debugLogFile + "_" + CreateInstanceIdentifier() + ".log";
+            String fileName = "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
-            String text = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}\n";
+            String text = $"{category} - {message}\n";
 
             File.AppendAllText(filePath, text);
         }
@@ -309,6 +311,34 @@ namespace OriBot.Utilities
         {
             return DateTime.Now.ToString(dateTimeFormat);
         }
+
+        // TODO: Renames latest.log into the date
+
+        internal static void Cleanup()
+        {
+            CheckCreateDirectory();
+
+            String logFolder = "logs";
+            String oldLogFolder = Path.Combine(Config.GetRootDirectory(), logFolder, "old");
+
+            if (!Directory.Exists(oldLogFolder))
+            {
+                Directory.CreateDirectory(oldLogFolder);
+            }
+
+            String existingFileName = "latest.log";
+            String newFileName = $"{CreateInstanceIdentifier()}.log";
+
+            String existingFilePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), existingFileName);
+            String newFilePath = Path.Combine(oldLogFolder, newFileName);
+
+            if (File.Exists(existingFilePath))
+            {
+                // Move the existing log file to the "old" folder
+                File.Move(existingFilePath, newFilePath);
+            }
+        }
+
     }
 
     /// <summary>

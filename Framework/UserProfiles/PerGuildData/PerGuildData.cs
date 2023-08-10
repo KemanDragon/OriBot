@@ -22,7 +22,13 @@ namespace OriBot.Framework.UserProfiles.PerGuildData
 
         public IReadOnlyDictionary<string, object> Config
         {
-            get { return new Dictionary<string,object>(_Config); }
+            get { 
+                return new Dictionary<string,object>(_Config);
+            }
+            set {
+                _Config = new Dictionary<string, object>(value);
+                saveAction();
+            }
         }
 
         private PerGuildData()

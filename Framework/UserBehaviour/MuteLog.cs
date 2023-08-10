@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-
+using Discord;
 using Discord.WebSocket;
 
 using Newtonsoft.Json;
@@ -25,11 +25,15 @@ namespace OriBot.Framework.UserBehaviour
         [JsonProperty]
         public ulong ModeratorId = 0;
 
-        public ModeratorMuteLogEntry(ulong id = 0, ulong timestamp = 0, string reason = "", ulong moderatorid = 0, DateTime enddate = default) : base(id, timestamp)
+        [JsonProperty]
+        public string MuteTimerID = "";
+
+        public ModeratorMuteLogEntry(ulong id = 0, ulong timestamp = 0, string reason = "", ulong moderatorid = 0, string mutetimerid = "", DateTime enddate = default) : base(id, timestamp)
         {
             Reason = reason;
             ModeratorId = moderatorid;
             MuteEndUTC = enddate;
+            MuteTimerID = mutetimerid;
         }
 
         [JsonConstructor]
@@ -42,7 +46,7 @@ namespace OriBot.Framework.UserBehaviour
 
         public override UserBehaviourLogEntry Instantiate()
         {
-            var tmp = new ModeratorMuteLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason, ModeratorId, MuteEndUTC);
+            var tmp = new ModeratorMuteLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Reason, ModeratorId, MuteTimerID, MuteEndUTC);
             tmp._template = false;
             return tmp;
         }
@@ -63,9 +67,23 @@ namespace OriBot.Framework.UserBehaviour
             return JsonConvert.SerializeObject(this, Formatting.None);
         }
 
-        public override string Format()
+        public override string FormatSimple()
         {
-            return $"Entry #{ID}: <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}>: Moderator <@{ModeratorId}> muted this user until <t:{Math.Floor(MuteEndUTC.Subtract(DateTime.UnixEpoch).TotalSeconds)}> for reason: \"{Reason}\"";
+            return $"- {ID}: <@{ModeratorId}> issued a Mute at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user.";
+        }
+
+        public override EmbedBuilder FormatDetailed()
+        {
+            var embed = new EmbedBuilder();
+            embed.WithTitle($"Mute issued at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user")
+                .WithDescription($"<@{ModeratorId}> issued a Mute for this user.")
+                .AddField("Reason", Reason)
+                .AddField("Case ID", ID)
+                .AddField("Mute end date", $"<t:{Math.Floor(MuteEndUTC.Subtract(DateTime.UnixEpoch).TotalSeconds)}> / <t:{Math.Floor(MuteEndUTC.Subtract(DateTime.UnixEpoch).TotalSeconds)}:R>")
+                .AddField("Mute timer ID", MuteTimerID)
+                .WithColor(Color.Orange)
+                .WithFooter($"Case ID: {ID} | Moderator ID: {ModeratorId} | Event timestamp: {Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}");
+            return embed;
         }
 
         public static DateTime UnixTimeStampToDateTime(ulong unixTimeStamp)

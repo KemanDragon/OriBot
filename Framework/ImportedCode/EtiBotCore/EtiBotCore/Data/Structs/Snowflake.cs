@@ -286,6 +286,11 @@ namespace EtiBotCore.Data.Structs {
 			return ToDateTimeOffset().CompareTo(other);
 		}
 
-		#endregion
-	}
+        public static object Parse(ulong id)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+    }
 }

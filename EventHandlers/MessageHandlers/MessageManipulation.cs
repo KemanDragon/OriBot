@@ -215,5 +215,26 @@ namespace OriBot.EventHandlers
             }
             return savedimages;
         }
+
+        public static async Task<string> DownloadFile(string url)
+        {
+            try
+            {
+                var guid = Guid.NewGuid().ToString();
+                {
+                    using var filestream = new FileStream($"tempcache/{guid}.png", FileMode.Create);
+                    using var client = new HttpClient();
+                    using var s = await client.GetStreamAsync(url);
+                    await s.CopyToAsync(filestream);
+                    return $"tempcache/{guid}.png";
+                }
+
+            }
+            catch (Exception e)
+            {
+                Logger.Error("FAILED TO REPLICATE: " + url + " , with exception: " + e);
+                return "";
+            }
+        }
     }
 }
