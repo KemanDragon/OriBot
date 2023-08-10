@@ -110,9 +110,8 @@ namespace OriBot.Utilities
             {
                 currentLogLevel = LogLevel.DEBUG;
 
-                _Log(infoColor, LogLevel.DEBUG, writeline);
+                // _Log(infoColor, LogLevel.DEBUG, writeline);
                 WriteDebugLogs($"[DEBUG] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
-
                 previousLogLevel = currentLogLevel;
             }
         }
@@ -125,17 +124,8 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.INFO;
 
-            // if (debug)
-            // {
-            //     _Log(normalColor, LogLevel.INFO, writeline);
-            //     WriteLogsDebug("info", writeline);
-            // }
-            // else
-            // {
             _Log(infoColor, LogLevel.INFO, writeline);
             WriteLogs($"[INFO] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
-            // }
-
             previousLogLevel = currentLogLevel;
         }
 
@@ -147,17 +137,8 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.WARN;
 
-            // if (debug)
-            // {
-            //     _Log(warningColor, LogLevel.WARN, writeline);
-            //     WriteLogsDebug("warning", writeline);
-            // }
-            // else
-            // {
-            _Log(warningColor, LogLevel.WARN, writeline);
+            _Log(infoColor, LogLevel.WARN, writeline);
             WriteLogs("[WARNING]", writeline);
-            // }
-
             previousLogLevel = currentLogLevel;
         }
 
@@ -169,17 +150,8 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.ERROR;
 
-            // if (debug)
-            // {
-            //     _Log(errorColor, LogLevel.ERROR, writeline);
-            //     WriteLogsDebug("error", writeline);
-            // }
-            // else
-            // {
-            _Log(errorColor, LogLevel.ERROR, writeline);
+            _Log(infoColor, LogLevel.ERROR, writeline);
             WriteLogs("[ERROR]", writeline);
-            // }
-
             previousLogLevel = currentLogLevel;
         }
 
@@ -191,17 +163,8 @@ namespace OriBot.Utilities
         {
             currentLogLevel = LogLevel.FATAL;
 
-            // if (debug)
-            // {
-            //     _Log(fatalColor, LogLevel.FATAL, writeline);
-            //     WriteLogsDebug("fatal", writeline);
-            // }
-            // else
-            // {
-            _Log(fatalColor, LogLevel.FATAL, writeline);
+            _Log(infoColor, LogLevel.FATAL, writeline);
             WriteLogs("[FATAL]", writeline);
-            // }
-
             previousLogLevel = currentLogLevel;
         }
 

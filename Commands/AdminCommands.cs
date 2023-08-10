@@ -6,7 +6,6 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using OriBot.Commands.RequirementEngine;
-
 // using OriBot.Framework;
 using OriBot.Framework.UserProfiles;
 using OriBot.Utilities;
