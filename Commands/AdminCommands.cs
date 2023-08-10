@@ -21,7 +21,7 @@ namespace OriBot.Commands
             File.CreateText("reset.txt").Close();
             Logger.Info("Commands Reset Triggered, type 'exit' to confirm. (there's no going back)");
             await RespondAsync("Reset triggered, restart the bot from CLI or IDE to unregister all slash commands.");
-            Logger.Log("Commands Reset Triggered, type 'exit' to confirm. (there's no going back)");
+            Logger.Info("Commands Reset Triggered, type 'exit' to confirm. (there's no going back)");
         }
 
         public override Requirements GetRequirements()

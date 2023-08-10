@@ -24,16 +24,11 @@ namespace OriBot.Utilities
         private static readonly Color warningColor = new Color(224, 162, 16);
         private static readonly Color errorColor = new Color(250, 50, 50);
         private static readonly Color fatalColor = new Color(153, 8, 8);
-        private static readonly Color infoColor = new Color(19, 237, 88);
-        private static readonly Color warningColor = new Color(224, 162, 16);
-        private static readonly Color errorColor = new Color(250, 50, 50);
-        private static readonly Color fatalColor = new Color(153, 8, 8);
 
         // Config
         private static readonly bool debug = Config.properties["logger"]["debugMode"];
 
         private static readonly String logFolder = Config.properties["logger"]["logFolder"];
-        private static readonly String logFile = Config.properties["logger"]["normalLogFile"];
         private static readonly String logFile = Config.properties["logger"]["normalLogFile"];
         private static readonly String debugLogFile = Config.properties["logger"]["debugLogFile"];
         private static readonly String crashLogFile = Config.properties["logger"]["crashLogFile"];
@@ -229,8 +224,6 @@ namespace OriBot.Utilities
 
             // String fileName = logFile + "_" + CreateInstanceIdentifier() + ".log";
             String fileName = logFile + "latest" + ".log";
-            // String fileName = logFile + "_" + CreateInstanceIdentifier() + ".log";
-            String fileName = logFile + "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
@@ -248,7 +241,6 @@ namespace OriBot.Utilities
         {
             CheckCreateDirectory();
 
-            String fileName = "latest" + ".log";
             String fileName = "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
