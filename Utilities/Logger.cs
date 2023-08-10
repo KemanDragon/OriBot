@@ -200,7 +200,7 @@ namespace OriBot.Utilities
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
-            String text = $"{category} {DateTime.Now:yyyy-MM-dd HH:mm:ss} - {writeline}\n";
+            String text = $"{category} - {writeline}\n";
 
             File.AppendAllText(filePath, text);
         }
