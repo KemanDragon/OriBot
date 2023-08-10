@@ -166,6 +166,7 @@ namespace main
         {
             Logger.Info($"Shutting down with exit code {exitCode}");
             Logger.Cleanup();
+            ProfileManager.SaveAllNow();
             Environment.Exit(exitCode);
             await Task.CompletedTask;
         }
