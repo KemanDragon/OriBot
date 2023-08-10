@@ -2,12 +2,11 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-
 using OriBot.Commands.RequirementEngine;
+using OriBot.Utilities;
 
 // using OriBot.Framework;
 using OriBot.Framework.UserProfiles;
@@ -20,6 +19,7 @@ namespace OriBot.Commands
         public async Task ResetCommand()
         {
             File.CreateText("reset.txt").Close();
+            Logger.Log("Commands Reset Triggered, type 'exit' to confirm. (there's no going back)");
             await RespondAsync("Reset triggered, restart the bot from CLI or IDE to unregister all slash commands.");
         }
 

@@ -10,8 +10,8 @@ namespace OriBot.Utilities
         /* ********** **
         ** ATTRIBUTES **
         ** ********** */
-        private String ansiCodeTemplate = "\u001b[38;2;r;g;bm";
-        private static String ansiCodeReset = "\u001b[0m";
+        private String ansiCodeTemplate = "\x1b[38;2;r;g;bm";
+        private static String ansiCodeReset = "\x1b[0m";
         private String ansiCode;
 
         /* *********** **

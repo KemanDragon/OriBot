@@ -36,11 +36,11 @@ namespace main
 
         public async Task MainAsync()
         {
+            Logger.Cleanup(); // just in case the bot crashes or is forcefully shut off, this gets triggered
             using var ct = new CancellationTokenSource();
             var task = Login(ct.Token);
             var inputTask = ReadConsoleInputAsync(ct.Token);
             await Task.WhenAny(task, inputTask);
-
             ct.Cancel();
             await inputTask.ContinueWith(_ => { });
             await task;
@@ -158,14 +158,14 @@ namespace main
         private async Task Cleanup()
         {
             // FIXME: readd the logging cleanup operation
-            //Logging.Cleanup();
+            Logger.Cleanup();
             Environment.Exit(0);
             await Task.CompletedTask;
         }
 
         private Task Log(LogMessage msg)
         {
-            Logger.Log(msg.ToString());
+            Logger.Log(msg.ToString()[9..]);
             return Task.CompletedTask;
         }
 
