@@ -28,10 +28,10 @@ namespace OriBot.Utilities
         ** ********** */
 
         // Colors
-        private static readonly Color normalColor = new Color(248, 246, 246);
-        private static readonly Color warningColor = new Color(245, 208, 97);
-        private static readonly Color errorColor = new Color(207, 70, 71);
-        private static readonly Color fatalColor = new Color(233, 179, 132);
+        private static readonly Color infoColor = new Color(19, 237, 88);
+        private static readonly Color warningColor = new Color(224, 162, 16);
+        private static readonly Color errorColor = new Color(250, 50, 50);
+        private static readonly Color fatalColor = new Color(153, 8, 8);
 
         // Config
         private static readonly bool debug = Config.properties["logger"]["debugMode"];
@@ -123,7 +123,7 @@ namespace OriBot.Utilities
             {
                 currentLogLevel = LogLevel.DEBUG;
 
-                _Log(normalColor, LogLevel.DEBUG, message);
+                _Log(infoColor, LogLevel.DEBUG, message);
                 WriteLogsDebug("[DEBUG] {DateTime.Now:yyyyMMdd}", message);
 
                 previousLogLevel = currentLogLevel;
@@ -145,7 +145,7 @@ namespace OriBot.Utilities
             // }
             // else
             // {
-            _Log(normalColor, LogLevel.INFO, message);
+            _Log(infoColor, LogLevel.INFO, message);
             WriteLogsNormal("[INFO]", message);
             // }
 
