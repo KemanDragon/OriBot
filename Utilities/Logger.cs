@@ -110,7 +110,7 @@ namespace OriBot.Utilities
             {
                 currentLogLevel = LogLevel.DEBUG;
 
-                // _Log(infoColor, LogLevel.DEBUG, writeline);
+                _Log(infoColor, LogLevel.DEBUG, writeline);
                 WriteDebugLogs($"[DEBUG] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
                 previousLogLevel = currentLogLevel;
             }
