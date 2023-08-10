@@ -11,7 +11,7 @@ namespace OriBot.Framework
     {
         public PerGuildData GetPerGuildData(ulong serverID, SocketUser user)
         {
-            return ProfileManager.GetUserProfile(user).PerGuildData[serverID];
+            return ProfileManager.GetUserProfile(user.Id).PerGuildData[serverID];
         }
     }
 }

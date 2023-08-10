@@ -42,7 +42,17 @@ namespace OriBot.Commands
         /// <returns></returns>
         public override Requirements GetRequirements()
         {
-            return new Requirements((context, commandinfo, services) =>
+            return new Requirements(
+            (context, _, _) =>
+            {
+                if (context.Interaction.IsDMInteraction)
+                {
+                    context.Interaction.RespondAsync("Please execute this command in Oricord.", ephemeral: true);
+                    return false;
+                }
+                return true;
+            }, 
+            (context, commandinfo, services) =>
             {
                 var res = ((List<long>)Config.properties["oricordServers"].ToObject<List<long>>()).Contains((long)context.Guild.Id);
                 return res;

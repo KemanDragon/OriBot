@@ -38,30 +38,30 @@ namespace OriBot.Framework.UserProfiles
             RunAutosave(null,null);
         }
 
-        public static UserProfile GetUserProfile(IUser user)
+        public static UserProfile GetUserProfile(ulong user)
         {
-            if (ProfileCache.ContainsKey(user.Id)) return ProfileCache[user.Id];
+            if (ProfileCache.ContainsKey(user)) return ProfileCache[user];
             var result = UserProfile.GetOrCreateUserProfile(user);
             if (result != null)
             {
-                ProfileCache[user.Id] = result;
+                ProfileCache[user] = result;
                 return result;
             }
             return null;
         }
 
-        public static void RemoveFrom(IUser user) {
-            if (ProfileCache.ContainsKey(user.Id)) ProfileCache.Remove(user.Id);
+        public static void RemoveFrom(ulong userid) {
+            if (ProfileCache.ContainsKey(userid)) ProfileCache.Remove(userid);
         }
 
         public static void QueueAutosave(UserProfile profile)
         {
-            AutoSaveQueue[profile.Member.Id] = profile;
+            AutoSaveQueue[profile.UserID] = profile;
         }
 
         public static void RemoveFromQueue(UserProfile profile)
         {
-            AutoSaveQueue.Remove(profile.Member.Id);
+            AutoSaveQueue.Remove(profile.UserID);
         }
     }
 }

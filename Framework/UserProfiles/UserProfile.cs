@@ -101,6 +101,18 @@ namespace OriBot.Framework.UserProfiles
             }
         }
 
+        [JsonIgnore]
+        public bool IsBanned {
+            get => _IsBanned;
+            set {
+                _IsBanned = value;
+                Save();
+            }
+        }
+
+        [JsonProperty]
+        private bool _IsBanned = false;
+
         [JsonProperty]
         private long _MessagesSent = 0;
 
@@ -301,7 +313,7 @@ namespace OriBot.Framework.UserProfiles
         /// The file name ends with a .json to indicate that this is the new user profile file format.
         /// </summary>
         [JsonIgnore]
-        public string CurrentFileName => Path.Combine(BaseStorageDir, $"{Member.Id}.json");
+        public string CurrentFileName => Path.Combine(BaseStorageDir, $"{UserID}.json");
 
         /// <summary>
         /// This property determines what the user profile file will be called.
@@ -309,7 +321,7 @@ namespace OriBot.Framework.UserProfiles
         /// This property should only be used during the migration process to the new user profile file format ending with .json
         /// </summary>
         [JsonIgnore]
-        public string LegacyFileName => Path.Combine(BaseStorageDir, $"{Member.Id}.profile");
+        public string LegacyFileName => Path.Combine(BaseStorageDir, $"{UserID}.profile");
 
         #endregion Fixed Properties
 
@@ -465,7 +477,7 @@ namespace OriBot.Framework.UserProfiles
         /// For now this field is only used to determine where your user profile should be saved.
         /// </summary>
         [JsonIgnore]
-        public IUser Member { get; private set; }
+        public ulong UserID { get; private set; }
 
         /// <summary>
         /// This is a static constructor that is used to initialize the <see cref="LevelToExperience"/> array and also sets <see cref="MAX_EXPERIENCE"/>
@@ -488,9 +500,9 @@ namespace OriBot.Framework.UserProfiles
         /// All user profiles are stored under $CWD/Data/<see cref="StorageFolderName"/>
         /// </summary>
         /// <param name="user"></param>
-        private UserProfile(IUser user)
+        private UserProfile(ulong userid)
         {
-            Member = user;
+            UserID = userid;
         }
 
         [JsonConstructor]
@@ -596,7 +608,7 @@ namespace OriBot.Framework.UserProfiles
         public void Save()
         {
             var serialized = JsonConvert.SerializeObject(this, Formatting.None);
-            ProfileManager.RemoveFrom(Member);
+            ProfileManager.RemoveFrom(UserID);
             File.WriteAllText(CurrentFileName, serialized);
         }
 
@@ -610,16 +622,16 @@ namespace OriBot.Framework.UserProfiles
         /// <returns></returns>
         ///
 
-        public static UserProfile GetOrCreateUserProfile(IUser user)
+        public static UserProfile GetOrCreateUserProfile(ulong user)
         {
-            var userid = user.Id;
-            var tempprofile = new UserProfile(user);
+            var userid = user;
+            var tempprofile = new UserProfile(userid);
             Directory.CreateDirectory(Path.GetDirectoryName(tempprofile.CurrentFileName));
             if (File.Exists(tempprofile.CurrentFileName))
             {
                 var file = File.ReadAllText(tempprofile.CurrentFileName);
                 var tmp = JsonConvert.DeserializeObject<UserProfile>(file);
-                tmp.Member = user;
+                tmp.UserID = userid;
                 tmp.Save();
                 return tmp;
             }
@@ -669,6 +681,7 @@ namespace OriBot.Framework.UserProfiles
                     tempprofile.GrantBadge(BadgeRegistry.GetBadgeFromPredefinedRegistry(item.Name));
                 };
             }
+            
 
             foreach (var item in oldprofile.UserData.Keys)
             {

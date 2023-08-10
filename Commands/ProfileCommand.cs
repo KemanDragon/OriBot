@@ -12,20 +12,24 @@ using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Commands
 {
+    [Requirements(typeof(ProfileModule))]
     public class ProfileModule : OricordCommand
     {
         [SlashCommand("profile", "Gets your current user profile")]
         public async Task Profile()
         {
-            var tmp = UserProfile.GetOrCreateUserProfile(this.Context.User as SocketGuildUser);
+            var tmp = UserProfile.GetOrCreateUserProfile(Context.User.Id);
 
             var embed = new EmbedBuilder
             {
                 Title = "Title",
                 Description = "Desc"
             };
-
-            embed.AddField($"Profile id: <@{Context.User.Id}>", $"Badge count: {tmp.Badges.Count}\n Permission Level: {tmp.GetPermissionLevel(this.Context.Guild.Id)}")
+            var permissionlevel = "Permission Level: Unknown, please check in the relevant server.";
+            if (!Context.Interaction.IsDMInteraction) {
+                permissionlevel = $"Permission Level: { tmp.GetPermissionLevel(this.Context.Guild.Id)}";
+            }
+            embed.AddField($"Profile id: <@{Context.User.Id}>", $"Badge count: {tmp.Badges.Count}\n {permissionlevel}")
                 .WithAuthor(this.Context.User)
                 .WithFooter(footer => footer.Text = $"Oribot v{Constants.OriBotVersion}")
                 .WithColor(Color.Default)
@@ -39,6 +43,11 @@ namespace OriBot.Commands
             //          $"Badge count: {tmp.Badges.Count}\n" +
             //          $"Permission Level: {tmp.GetPermissionLevel(this.Context.Guild.Id)}",ephemeral: true
             //     );
+        }
+
+        public override Requirements GetRequirements()
+        {
+            return new Requirements();
         }
     }
 }

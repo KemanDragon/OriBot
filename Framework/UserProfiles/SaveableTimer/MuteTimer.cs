@@ -84,7 +84,7 @@ namespace OriBot.Framework.UserProfiles.SaveableTimer
             }
             guild.GetUser(UserID).RemoveRoleAsync(mutedrole).Wait();
             guild.GetUser(UserID).AddRoleAsync(normalrole).Wait();
-            var userprofile = UserProfile.GetOrCreateUserProfile(guild.GetUser(UserID));
+            var userprofile = UserProfile.GetOrCreateUserProfile(UserID);
             try {
                 guild.GetUser(UserID).SendMessageAsync("You have been unmuted.").Wait();
             } catch (Exception) {}
