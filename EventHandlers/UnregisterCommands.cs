@@ -33,6 +33,7 @@ namespace OriBot.EventHandlers
                 {
                     try
                     {
+                        Logger.Debug($"Deleting {commands[i]}");
                         await commands[i].DeleteAsync();
                         i++;
                     }
@@ -44,7 +45,10 @@ namespace OriBot.EventHandlers
                 }
                 File.Delete("reset.txt");
                 Logger.Debug("Reset Complete - Deleted 'reset.txt'");
-                Logger.Log("Reset Complete!");
+                Logger.Debug("The bot must be restarted in order to complete the process.");
+                Logger.Info("Reset Complete - Shutting down...");
+                Logger.Cleanup();
+                Environment.Exit(0);
             }
         }
     }
