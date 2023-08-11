@@ -26,7 +26,7 @@ namespace main
         public static Dictionary<string, Context> ContextStorage = new Dictionary<string, Context>();
     }
 
-        internal class Program
+    internal class Program
     {
         public static Task Main(string[] args) => new Program().MainAsync();
 
@@ -48,7 +48,7 @@ namespace main
 
         private async Task ReadConsoleInputAsync(CancellationToken cancellationToken)
         {
-            // FIXME: may wanna fix this
+            // TODO: may wanna fix this
             var exit = "exit";
             var help = "help";
             var sel = 0;
@@ -89,7 +89,9 @@ namespace main
 
         public async Task Login(CancellationToken ct)
         {
+            Logger.Info($"##############################");
             Logger.Info($"### Starting Oribot v{Constants.OriBotVersion} ###");
+            Logger.Info($"##############################");
 
             try
             {
@@ -169,9 +171,37 @@ namespace main
             await Task.CompletedTask;
         }
 
-        private Task Log(LogMessage msg)
+        private Task Log(LogMessage text)
         {
-            Logger.Info(msg.ToString()[9..]);
+            var translateLevel = text.Severity;
+
+            switch (translateLevel)
+            {
+                case LogSeverity.Info:
+                    Logger.Info(text.ToString()[9..]);
+                    break;
+
+                case LogSeverity.Verbose:
+                    Logger.Verbose(text.ToString()[9..]);
+                    break;
+
+                case LogSeverity.Warning:
+                    Logger.Warning(text.ToString()[9..]);
+                    break;
+
+                case LogSeverity.Error:
+                    Logger.Error(text.ToString()[9..]);
+                    break;
+
+                case LogSeverity.Critical:
+                    Logger.Fatal(text.ToString()[9..]);
+                    break;
+
+                default:
+                    // just in case
+                    Logger.Verbose("Missed to log a gateway level");
+                    break;
+            }
             return Task.CompletedTask;
         }
 

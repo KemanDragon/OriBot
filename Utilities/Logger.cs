@@ -13,6 +13,7 @@ namespace OriBot.Utilities
         {
             DEBUG,
             INFO,
+            VERBOSE,
             WARN,
             ERROR,
             FATAL
@@ -83,6 +84,9 @@ namespace OriBot.Utilities
                 case LogLevel.INFO:
                     category = "\x1b[92m[INFO]";
                     break;
+                case LogLevel.VERBOSE:
+                    category = "\x1b[36m[VERBOSE]";
+                    break;
                 case LogLevel.WARN:
                     category = "\x1b[38;5;208m[WARNING]";
                     break;
@@ -111,7 +115,7 @@ namespace OriBot.Utilities
                 currentLogLevel = LogLevel.DEBUG;
 
                 _Log(infoColor, LogLevel.DEBUG, writeline);
-                WriteDebugLogs($"[DEBUG] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
+                WriteFile($"[DEBUG] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
                 previousLogLevel = currentLogLevel;
             }
         }
@@ -125,7 +129,23 @@ namespace OriBot.Utilities
             currentLogLevel = LogLevel.INFO;
 
             _Log(infoColor, LogLevel.INFO, writeline);
-            WriteLogs($"[INFO] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
+            WriteFile($"[INFO] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
+            previousLogLevel = currentLogLevel;
+        }
+
+        /// <summary>
+        /// Creates a verbose level log.
+        /// </summary>
+        /// <param name="writeline"></param>
+        public static void Verbose(String writeline)
+        {
+            // FIXME: hook config here
+            if (!true) return;
+
+            currentLogLevel = LogLevel.VERBOSE;
+
+            _Log(infoColor, LogLevel.VERBOSE, writeline);
+            WriteFile($"[VERBOSE] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
             previousLogLevel = currentLogLevel;
         }
 
@@ -138,7 +158,7 @@ namespace OriBot.Utilities
             currentLogLevel = LogLevel.WARN;
 
             _Log(infoColor, LogLevel.WARN, writeline);
-            WriteLogs("[WARNING]", writeline);
+            WriteFile($"[WARNING] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
             previousLogLevel = currentLogLevel;
         }
 
@@ -151,7 +171,7 @@ namespace OriBot.Utilities
             currentLogLevel = LogLevel.ERROR;
 
             _Log(infoColor, LogLevel.ERROR, writeline);
-            WriteLogs("[ERROR]", writeline);
+            WriteFile($"[ERROR] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
             previousLogLevel = currentLogLevel;
         }
 
@@ -164,7 +184,7 @@ namespace OriBot.Utilities
             currentLogLevel = LogLevel.FATAL;
 
             _Log(infoColor, LogLevel.FATAL, writeline);
-            WriteLogs("[FATAL]", writeline);
+            WriteFile("[FATAL]", writeline);
             previousLogLevel = currentLogLevel;
         }
 
@@ -173,30 +193,12 @@ namespace OriBot.Utilities
         /// </summary>
         /// <param name="category"></param>
         /// <param name="writeline"></param>
-        private static void WriteLogs(String category, String writeline)
+        private static void WriteFile(String category, String writeline)
         {
             CheckCreateDirectory();
 
             // String fileName = logFile + "_" + CreateInstanceIdentifier() + ".log";
             String fileName = logFile + "latest" + ".log";
-
-            String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
-
-            String text = $"{category} - {writeline}\n";
-
-            File.AppendAllText(filePath, text);
-        }
-
-        /// <summary>
-        /// Writes debug logs to the disk.
-        /// </summary>
-        /// <param name="category"></param>
-        /// <param name="writeline"></param>
-        private static void WriteDebugLogs(String category, String writeline)
-        {
-            CheckCreateDirectory();
-
-            String fileName = "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
@@ -216,7 +218,7 @@ namespace OriBot.Utilities
 
             Logger.Fatal("Program crashed!");
 
-            String fileName = crashLogFile + "_" + CreateInstanceIdentifier() + ".dump";
+            String fileName = crashLogFile + "_" + CreateInstanceIdentifier() + ".txt";
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
             Logger.Info($"Creating dump file at {filePath}...");
@@ -250,8 +252,6 @@ namespace OriBot.Utilities
         {
             return DateTime.Now.ToString(dateTimeFormat);
         }
-
-        // TODO: Renames latest.log into the date
 
         internal static void Cleanup()
         {

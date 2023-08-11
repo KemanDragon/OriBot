@@ -26,7 +26,7 @@ public class GameActivityHandler : BaseEventHandler
 
     private async Task Client_Ready()
     {
-        Logger.Debug("Starting Activity Task");
+        Logger.Verbose("Starting Activity Task");
         await StartRandomStatus();
         await SelectStatus(14);
     }
@@ -43,8 +43,7 @@ public class GameActivityHandler : BaseEventHandler
 
     private async void Randomize(object sender, ElapsedEventArgs e)
     {
-        // FIXME: assign to verbose
-        Logger.Debug("Registering Activity Status");
+        // Logger.Verbose("Registering Activity Status");
         Random selector = new();
         var foo = selector.Next(0, 13);
         await SelectStatus(foo);
@@ -116,26 +115,22 @@ public class GameActivityHandler : BaseEventHandler
     // Ooohh.. repetative methods... compress it?
     private async Task UpdateStatusWatching(string description)
     {
-        // FIXME: link to verbose:
-        Logger.Debug($"Setting game status to '{ActivityType.Watching} {description}'");
+        Logger.Verbose($"Setting game status to '{ActivityType.Watching} {description}'");
         await Client.SetGameAsync(description, null, ActivityType.Watching);
     }
     private async Task UpdateStatusListening(string description)
     {
-        // FIXME: link to verbose:
-        Logger.Debug($"Setting game status to '{ActivityType.Listening} {description}'");
+        Logger.Verbose($"Setting game status to '{ActivityType.Listening} {description}'");
         await Client.SetGameAsync(description, null, ActivityType.Listening);
     }
     private async Task UpdateStatusPlaying(string description)
     {
-        // FIXME: link to verbose:
-        Logger.Debug($"Setting game status to '{ActivityType.Playing} {description}'");
+        Logger.Verbose($"Setting game status to '{ActivityType.Playing} {description}'");
         await Client.SetGameAsync(description, null, ActivityType.Playing);
     }
     private async Task UpdateStatusCompeting(string description)
     {
-        // FIXME: link to verbose:
-        Logger.Debug($"Setting game status to '{ActivityType.Competing} {description}'");
+        Logger.Verbose($"Setting game status to '{ActivityType.Competing} {description}'");
         await Client.SetGameAsync(description, null, ActivityType.Competing);
     }
 }
