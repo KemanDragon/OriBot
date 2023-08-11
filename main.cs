@@ -26,7 +26,7 @@ namespace main
         public static Dictionary<string, Context> ContextStorage = new Dictionary<string, Context>();
     }
 
-    internal class Program
+        internal class Program
     {
         public static Task Main(string[] args) => new Program().MainAsync();
 
@@ -89,6 +89,8 @@ namespace main
 
         public async Task Login(CancellationToken ct)
         {
+            Logger.Info($"### Starting Oribot v{Constants.OriBotVersion} ###");
+
             try
             {
                 var config = new DiscordSocketConfig();
@@ -123,10 +125,6 @@ namespace main
                     Logger.Error($"{e}");
                     await Cleanup(-1);
                 }
-
-
-                // FIXME: perhaps.. remove this? xd
-                Logger.Info($"Starting Oribot v{Constants.OriBotVersion}...");
 
                 // Block this task until the program is closed.
                 await Task.Delay(-1);

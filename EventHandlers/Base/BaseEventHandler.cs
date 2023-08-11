@@ -20,8 +20,7 @@ namespace OriBot.EventHandlers.Base
     /// </summary>
     public abstract class BaseEventHandler
     {
-        public BaseEventHandler()
-        { }
+        public BaseEventHandler() { }
 
         /// <summary>
         /// To create an event handler , simply inherit this class and implement <see cref="RegisterEventHandler(DiscordSocketClient)"/> to register any events that you would like onto <paramref name="client"/>

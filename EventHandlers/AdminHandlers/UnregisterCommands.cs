@@ -24,6 +24,7 @@ namespace OriBot.EventHandlers
 
         private async Task Client_Ready()
         {
+
             if (File.Exists("reset.txt"))
             {
                 Logger.Debug("Reset Triggered, unregistering and registering commands.");
