@@ -16,6 +16,7 @@ using OriBot.Framework.UserBehaviour;
 using OriBot.Framework.UserProfiles;
 using OriBot.Framework.UserProfiles.Badges;
 using OriBot.Framework.UserProfiles.SaveableTimer;
+using OriBot.GuildData;
 using OriBot.Transactions;
 using OriBot.Utilities;
 
@@ -52,7 +53,11 @@ namespace OriBot.Commands
     {
         public static SocketGuildChannel GetModerationChannel(SocketGuild guild)
         {
-            return guild.Channels.Where(x => x.Name == Config.properties["auditing"]["moderationlogs"].ToObject<string>()).FirstOrDefault() as SocketGuildChannel;
+            if (!GlobalGuildData.GetPerGuildData(guild.Id).ContainsKey("moderationlogs"))
+            {
+                return guild.Channels.Where(x => x.Name == Config.properties["auditing"]["moderationlogs"].ToObject<string>()).FirstOrDefault() as SocketGuildChannel;
+            }
+            return guild.Channels.FirstOrDefault(x => x.Id == GlobalGuildData.GetValueFromData<ulong>(guild.Id, "moderationlogs"));
         }
     }
 
@@ -121,10 +126,18 @@ namespace OriBot.Commands
                 }
                 return true;
             },
-        (context, commandinfo, services) =>
+            (context, _, _) =>
             {
                 var res = ((List<long>)Config.properties["oricordServers"].ToObject<List<long>>()).Contains((long)context.Guild.Id);
                 return res;
+            },
+            (context, _, _) => {
+                var userprofile = ProfileManager.GetUserProfile(context.User.Id);
+                if (userprofile.GetPermissionLevel(context.Guild.Id) < PermissionLevel.Moderator) {
+                    _ = context.Interaction.RespondAsync("You must be a Moderator or higher to execute this command.", ephemeral: true);
+                    return false;
+                }
+                return true;
             });
     }
 
@@ -468,114 +481,6 @@ namespace OriBot.Commands
         }
     }
 
-    [Requirements(typeof(InfractionModule))]
-    [Group("infraction", "Infraction commands")]
-    public class InfractionModule : OricordCommand
-    {
-
-        private static TransactionContainer transactions = new();
-
-        [SlashCommand("get", "Infractions for this user page by page.")]
-        public async Task GetInfractions(SocketGuildUser user, int page)
-        {
-            try
-            {
-                var userprofile = ProfileManager.GetUserProfile(user.Id);
-                var embed = new EmbedBuilder().WithAuthor(user);
-                var pagestart = ModerationModule.ItemsPerPage * (page - 1);
-                var pageend = ModerationModule.ItemsPerPage * page;
-                await DeferAsync();
-                {
-                    // Warns
-                    var builtstring = "";
-                    var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorWarnLogEntry select x;
-                    var count = listof.Count();
-                    var paginated = ModerationModule.PaginateArray(listof.ToArray(), ModerationModule.ItemsPerPage, page);
-                    var truncatedduetolength = false;
-                    foreach (var item in paginated)
-                    {
-                        var added = builtstring + item.FormatSimple() + "\n";
-                        if (added.Length > 1024)
-                        {
-                            truncatedduetolength = true;
-                            break;
-                        }
-                        builtstring = added;
-                    }
-                    if (builtstring.Length < 1)
-                    {
-                        builtstring += "This user has no Warnings.";
-                    }
-                    embed.AddField($"Warnings (showing from {Math.Max(Math.Min(pageend, count) - ModerationModule.ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
-                }
-                {
-                    // Mutes
-                    var builtstring = "";
-                    var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorMuteLogEntry select x;
-                    var count = listof.Count();
-                    var paginated = ModerationModule.PaginateArray(listof.ToArray(), ModerationModule.ItemsPerPage, page);
-                    var truncatedduetolength = false;
-                    foreach (var item in paginated)
-                    {
-                        var added = builtstring + item.FormatSimple() + "\n";
-                        if (added.Length > 1024)
-                        {
-                            truncatedduetolength = true;
-                            break;
-                        }
-                        builtstring = added;
-                    }
-                    if (builtstring.Length < 1)
-                    {
-                        builtstring += "This user has no Warnings.";
-                    }
-                    embed.AddField($"Mutes (showing from {Math.Max(Math.Min(pageend, count) - ModerationModule.ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
-                }
-                {
-                    // Bans
-                    var builtstring = "";
-                    var listof = from x in userprofile.BehaviourLogs.Logs where x is ModeratorBanLogEntry select x;
-                    var count = listof.Count();
-                    var paginated = ModerationModule.PaginateArray(listof.ToArray(), ModerationModule.ItemsPerPage, page);
-                    var truncatedduetolength = false;
-                    foreach (var item in paginated)
-                    {
-                        var added = builtstring + item.FormatSimple() + "\n";
-                        if (added.Length > 1024)
-                        {
-                            truncatedduetolength = true;
-                            break;
-                        }
-                        builtstring = added;
-                    }
-                    if (builtstring.Length < 1)
-                    {
-                        builtstring += "This user has no Bans.";
-                    }
-                    embed.AddField($"Bans (showing from {Math.Max(Math.Min(pageend, count) - ModerationModule.ItemsPerPage, 0)}-{Math.Min(pageend, count)}) {(truncatedduetolength ? "(Truncated due to 1024 char limit)" : "")}", builtstring);
-                }
-                await FollowupAsync(embed: embed.Build(), ephemeral: true);
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "infraction get", DateTime.UtcNow, Context.Guild as SocketGuild)
-                );
-            }
-            catch (Exception e)
-            {
-                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "infraction get", DateTime.UtcNow, Context.Guild as SocketGuild, e)
-                    .WithAdditonalField("User", $"{user.Mention}")
-                    .WithAdditonalField("Page", $"{page}")
-
-                );
-            }
-        }
-
-        public override Requirements GetRequirements()
-        {
-
-            return ModerationConstants.ModeratorRequirements;
-        }
-    }
 
     [Requirements(typeof(ModerationModule))]
     public class ModerationModule : OricordCommand
@@ -1238,15 +1143,40 @@ namespace OriBot.Commands
         }
         #endregion
 
+        [AutocompleteCommand("badgename", "addbadge")]
+        public async Task Autocomplete()
+        {
+            var possiblekeys = new List<AutocompleteResult>() {};
+            foreach (var item in BadgeRegistry.AllBadges)
+            {
+                possiblekeys.Add(new AutocompleteResult($"{item.Name}", item.Name));
+            }
+            string userInput = (Context.Interaction as SocketAutocompleteInteraction).Data.Current.Value.ToString();
+            IEnumerable<AutocompleteResult> results = possiblekeys.Where(x => x.Name.StartsWith(userInput, StringComparison.InvariantCultureIgnoreCase));
+
+
+            // max - 25 suggestions at a time
+            await (Context.Interaction as SocketAutocompleteInteraction).RespondAsync(results.Take(25));
+        }
+
         [SlashCommand("addbadge", "Adds a badge for this user")]
-        public async Task AddBadge(SocketGuildUser user, string badgename)
+        public async Task AddBadge(SocketGuildUser user, [Discord.Interactions.Summary("badgename"), Autocomplete] string badgename)
         {
             try
             {
                 var userprofile = ProfileManager.GetUserProfile(user.Id);
+                if (!BadgeRegistry.AllBadges.Any(x => x.Name == badgename)) {
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandWarningLogEntry(Context.User.Id, "addbadge", DateTime.UtcNow, Context.Guild as SocketGuild, $"No such badge with name {badgename} was found")
+                        .WithAdditonalField("User", $"{user.Mention}")
+                        .WithAdditonalField("Badge name", badgename)
+                    );
+                    await RespondAsync($"No such badge with name {badgename} was found");
+                    return;
+                }
                 userprofile.GrantBadge(BadgeRegistry.GetBadgeFromPredefinedRegistry(badgename));
                 await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
-                    new CommandSuccessLogEntry(Context.User.Id, "mute", DateTime.UtcNow, Context.Guild as SocketGuild)
+                    new CommandSuccessLogEntry(Context.User.Id, "addbadge", DateTime.UtcNow, Context.Guild as SocketGuild)
                 );
                 await RespondAsync($"{user.Mention} has been given the badge {badgename}.");
             }
@@ -1259,6 +1189,8 @@ namespace OriBot.Commands
                 );
             }
         }
+
+
 
 
         public override Requirements GetRequirements()

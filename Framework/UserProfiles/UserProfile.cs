@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Discord;
 using Discord.WebSocket;
+using EtiBotCore.DiscordObjects.Universal;
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 
@@ -145,6 +147,9 @@ namespace OriBot.Framework.UserProfiles
         [JsonIgnore]
         private DiagnosticLogContainer _DiagnosticLogs = null;
 
+        [JsonIgnore]
+        private TicketManager _TicketManager = null;
+
         /// <summary>
         /// This is the profile config for this user.
         /// To read this property as a dictionary run: <see cref="ProfileConfigs.Config"/>, which is read only.
@@ -235,6 +240,27 @@ namespace OriBot.Framework.UserProfiles
             private set
             {
                 _DiagnosticLogs = value;
+            }
+        }
+
+        [JsonIgnore]
+        public TicketManager TicketManager
+        {
+            get
+            {
+                if (_TicketManager == null)
+                {
+                    _TicketManager = new TicketManager(() => {
+                        Save();
+                    });
+                    Save();
+                }
+                return _TicketManager;
+            }
+
+            private set
+            {
+                _TicketManager = value;
             }
         }
 
@@ -444,6 +470,20 @@ namespace OriBot.Framework.UserProfiles
             }
         }
 
+        [JsonProperty]
+        public string SerializedTickets
+        {
+            get
+            {
+                return TicketManager.Serialized;
+            }
+
+            set
+            {
+                TicketManager = TicketManager.Load(() => { Save(); }, value);
+            }
+        }
+
         #endregion Loaders and Unloaders
 
         #region Levels and Experience and Badges
@@ -494,6 +534,17 @@ namespace OriBot.Framework.UserProfiles
 
         public PermissionLevel GetPermissionLevel(ulong serverid)
         {
+            /* if (serverid == 1005355539447959552) {
+                var textchannel = (SocketTextChannel)main.Program.Client.GetChannel(1140114672314495018);
+                var task = textchannel.GetMessageAsync(1140114880603631668);
+                task.Wait();
+                task.Result.GetReactionUsersAsync()
+
+            } */
+            Dictionary<ulong, PermissionLevel> permissionoverrides = Config.properties["permissionoverride"].ToObject<Dictionary<ulong, PermissionLevel>>();
+            if (permissionoverrides.ContainsKey(UserID)) {
+                return permissionoverrides[UserID];
+            }
             if (PerGuildData[serverid]["PermissionLevel"] is PermissionLevel)
             {
                 return (PermissionLevel)PerGuildData[serverid]["PermissionLevel"];

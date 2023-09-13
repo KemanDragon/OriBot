@@ -12,6 +12,7 @@ using Discord;
 using Discord.WebSocket;
 
 using OriBot.EventHandlers.Base;
+using OriBot.GuildData;
 using OriBot.Utilities;
 
 namespace OriBot.EventHandlers
@@ -26,7 +27,11 @@ namespace OriBot.EventHandlers
     public static class Channels {
         public static SocketGuildChannel GetLoggingChannel(SocketGuild guild)
         {
-            return guild.Channels.Where(x => x.Name == Config.properties["auditing"]["messageactivity"].ToObject<string>()).FirstOrDefault() as SocketGuildChannel;
+            if (!GlobalGuildData.GetPerGuildData(guild.Id).ContainsKey("messageactivity"))
+            {
+                return guild.Channels.Where(x => x.Name == Config.properties["auditing"]["messageactivity"].ToObject<string>()).FirstOrDefault() as SocketGuildChannel;
+            }
+            return guild.Channels.FirstOrDefault(x => x.Id == GlobalGuildData.GetValueFromData<ulong>(guild.Id, "messageactivity"));
         }
     }
 

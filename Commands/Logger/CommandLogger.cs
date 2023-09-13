@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using OriBot.Framework.UserProfiles;
+using OriBot.GuildData;
 using OriBot.Utilities;
 
 namespace OriBot.Commands {
@@ -167,6 +168,9 @@ namespace OriBot.Commands {
         }
 
         public CommandUnhandledExceptionLogEntry WithAdditonalField(string key, string value) {
+            if (value.Trim() == "") {
+                value = "No value";
+            }
             additionalFields[key] = value;
             return this;
         }
@@ -175,11 +179,15 @@ namespace OriBot.Commands {
     public static class CommandLogger {
 
         public static SocketGuildChannel GetLoggingChannel(SocketGuild guild) {
-            return guild.Channels.Where(x => x.Name == Config.properties["auditing"]["boteventlogs"].ToObject<string>()).FirstOrDefault() as SocketGuildChannel;
+            if (!GlobalGuildData.GetPerGuildData(guild.Id).ContainsKey("boteventlogs")) {
+                return guild.Channels.Where(x => x.Name == Config.properties["auditing"]["boteventlogs"].ToObject<string>()).FirstOrDefault() as SocketGuildChannel;
+            }
+            return guild.Channels.FirstOrDefault(x => x.Id == GlobalGuildData.GetValueFromData<ulong>(guild.Id, "boteventlogs"));
         }
 
         public async static Task LogCommandAsync(ulong userid, SocketGuild guild, CommandLogEntry entry) {
             var user = ProfileManager.GetUserProfile(userid);
+            //Logger.Debug(entry.ToLogString());
             user.DiagnosticLogs.Add(entry.ToLogString());
             if (guild is null) return;
             var channel = GetLoggingChannel(guild) as SocketTextChannel;

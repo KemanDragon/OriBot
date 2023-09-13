@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -38,30 +39,31 @@ namespace OriBot.Commands
     [Group("profile", "Profile Commands")]
     public class ProfileModule : OricordCommand
     {
-
-
-        [AutocompleteCommand("config", "set")]
-        public async Task Autocomplete()
+        private Requirements IsUserAMod => new Requirements((context, commandinfo, services) =>
         {
-            var possiblekeys = new List<AutocompleteResult>() {
-                new AutocompleteResult("title (text)", "title"),
-                new AutocompleteResult("description (text)", "description"),
-                new AutocompleteResult("color (hexcode)", "color"),
-                };
-            foreach (var item in ProfileManager.GetUserProfile(Context.User.Id).ProfileConfig.Config)
+            if (context.Interaction.IsDMInteraction)
             {
-                possiblekeys.Add(new AutocompleteResult($"{item.Key} ({ComplexTypeNameToSimple(item.Value.GetType().Name)})", item.Key));
+                _ = Context.Interaction.RespondAsync("Sorry, please execute this command on a guild.");
+                return false;
             }
-            string userInput = (Context.Interaction as SocketAutocompleteInteraction).Data.Current.Value.ToString();
-            IEnumerable<AutocompleteResult> results = possiblekeys.Where(x => x.Name.StartsWith(userInput, StringComparison.InvariantCultureIgnoreCase));
+            else if (ProfileManager.GetUserProfile(context.User.Id).GetPermissionLevel(context.Guild.Id) >= PermissionLevel.Moderator)
+            {
+                return true;
+            }
+            return false;
+        });
 
 
-            // max - 25 suggestions at a time
-            await (Context.Interaction as SocketAutocompleteInteraction).RespondAsync(results.Take(25));
+        private string AlwaysString(string target) {
+            if (target.Trim() == "")
+            {
+                return "No value";
+            }
+            return target;
         }
 
-        [AutocompleteCommand("config", "get")]
-        public async Task Autocomplete2()
+        [AutocompleteCommand("setting", "settings")]
+        public async Task Autocomplete()
         {
             var possiblekeys = new List<AutocompleteResult>() {
                 new AutocompleteResult("title (text)", "title"),
@@ -89,7 +91,7 @@ namespace OriBot.Commands
             {
                 try
                 {
-                    return ulong.Parse(mentionorid.Replace("<@", "").Replace(">", ""));
+                    return ulong.Parse(Regex.Replace(mentionorid, "[^0-9]",""));
                 } catch (Exception)
                 {
                     return 0;
@@ -151,48 +153,6 @@ namespace OriBot.Commands
             }
         }
 
-        [SlashCommand("set", "Sets a value for a user profile")]
-        public async Task Set([Discord.Interactions.Summary("config"), Autocomplete] string key, string value, SocketGuildUser user = null)
-        {
-            if (user == null)
-            {
-                user = Context.User as SocketGuildUser;
-            }
-            var userprofile = ProfileManager.GetUserProfile(user.Id);
-            switch (key)
-            {
-                case "title":
-                    userprofile.Title = value;
-                    await RespondAsync("I have successfully changed your profile title.");
-                    break;
-                case "description":
-                    userprofile.Description = value;
-                    await RespondAsync("I have successfully changed your profile description.");
-                    break;
-                case "color":
-                    uint intValue = uint.Parse(value, System.Globalization.NumberStyles.HexNumber);
-                    userprofile.Color = intValue;
-                    await RespondAsync("I have successfully changed your profile color.");
-                    break;
-                default:
-                    if (userprofile.ProfileConfig.Config.ContainsKey(key))
-                    {
-                        try {
-                            var parsed = StringToType(value, userprofile.ProfileConfig.Config[key].GetType());
-                            userprofile.ProfileConfig[key] = parsed;
-                            await RespondAsync("I have successfully changed your profile value.");
-                        } catch (Exception e)
-                        {
-                            await RespondAsync("Sorry, the value you entered is the wrong type.");
-                        }
-                        
-                    } else {
-                        await RespondAsync("Sorry, i could not find that key in your profile.");
-                    }
-                    break;
-            }
-        }
-
         private string FormatLevel(int level) {
             if (level > 0) {
                 return $"__**Lv. {level}**__";
@@ -215,19 +175,185 @@ namespace OriBot.Commands
 
         }
 
-        [SlashCommand("get", "Gets your current user profile or a value")]
-        public async Task Get(string User = null, [Discord.Interactions.Summary("config"), Autocomplete] string value = null)
-        {
-            ulong? user = GetIdFromString(User);
-            if (!UserProfile.DoesUserProfileExist(user.Value) && (await Context.Guild.GetUserAsync(user.Value)) is null) {
-                await RespondAsync($"Sorry, i could not find a user with ID {User}");
-                return;
+        [SlashCommand("settings", "Configures or views your profile settings.")]
+        public async Task Settings([Discord.Interactions.Summary("setting"), Autocomplete] string setting = null, string value = null, string User = null) {
+            try {
+                if (setting == null)
+                {
+                    // Viewing
+                    var userprofile = ProfileManager.GetUserProfile(Context.User.Id);
+                    var embed = new EmbedBuilder();
+                    SocketGuildUser discorduser = null;
+                    if (User != null)
+                    {
+                        ulong? user = GetIdFromString(User);
+                        if (!UserProfile.DoesUserProfileExist(user.Value) && (await Context.Guild.GetUserAsync(user.Value)) is null)
+                        {
+                            await RespondAsync($"Sorry, i could not find a user with ID {User}");
+                            await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                                new CommandSuccessLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild)
+                                .WithAdditonalField("Additional remarks", "Sorry, i could not find a user with ID {User}")
+                            );
+                            return;
+                        }
+                        userprofile = ProfileManager.GetUserProfile(user.Value);
+                    }
+                    if (await Context.Guild.GetUserAsync(userprofile.UserID) is SocketGuildUser discorduser2 && discorduser2 is not null)
+                    {
+                        embed.WithAuthor(discorduser2);
+                        discorduser = discorduser2;
+                    }
+                    embed.WithTitle("Profile configuration for this user.");
+                    embed.AddField("Profile color", userprofile.Color);
+                    embed.AddField("Profile description", AlwaysString(userprofile.Description));
+                    embed.AddField("Profile title", AlwaysString(userprofile.Title));
+                    foreach (var item in userprofile.ProfileConfig.Config)
+                    {
+                        embed.AddField(item.Key, item.Value);
+                    }
+                    await RespondAsync(embed: embed.Build());
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandSuccessLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild)
+                    );
+                }
+                else
+                {
+                    var userprofile = ProfileManager.GetUserProfile(Context.User.Id);
+                    var embed = new EmbedBuilder();
+                    SocketGuildUser discorduser = null;
+                    if (User != null)
+                    {
+                        ulong? user = GetIdFromString(User);
+                        if (!UserProfile.DoesUserProfileExist(user.Value) && (await Context.Guild.GetUserAsync(user.Value)) is null)
+                        {
+                            await RespondAsync($"Sorry, i could not find a user with ID {User}");
+                            await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                                new CommandSuccessLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild)
+                                .WithAdditonalField("Additional remarks", $"Sorry, i could not find a user with ID {User}")
+                            );
+                            return;
+                        }
+                        userprofile = ProfileManager.GetUserProfile(user.Value);
+                    }
+                    if (await Context.Guild.GetUserAsync(userprofile.UserID) is SocketGuildUser discorduser2 && discorduser2 is not null)
+                    {
+                        embed.WithAuthor(discorduser2);
+                        discorduser = discorduser2;
+                    }
+                    if (!IsUserAMod.CheckRequirements(Context,null,null) && userprofile.UserID != Context.User.Id) {
+                        await RespondAsync("Sorry, only moderators can change other people's user profiles.");
+                        await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                                new CommandWarningLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild, "Sorry, only moderators can change other people's user profiles.")
+                            );
+                        return;
+                    }
+                    
+                    switch (setting)
+                    {
+                        case "title":
+                            userprofile.Title = value;
+                            await RespondAsync("I have successfully changed your profile title.");
+                            break;
+                        case "description":
+                            userprofile.Description = value;
+                            await RespondAsync("I have successfully changed your profile description.");
+                            break;
+                        case "color":
+                            if (value == null) {
+                                userprofile.Color = 0;
+                                await RespondAsync("Profile color cleared.");
+                            }
+                            try {
+                                uint intValue = uint.Parse(value, System.Globalization.NumberStyles.HexNumber);
+                                userprofile.Color = intValue;
+                            } catch (Exception e) {
+                                await RespondAsync("Sorry, that colorcode seems invalid, please check your input again.");
+                                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                                    new CommandWarningLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild, "Sorry, that colorcode seems invalid, please check your input again.")
+                                );
+                                return;
+                            }
+                            await RespondAsync("I have successfully changed your profile color.");
+                            break;
+                        default:
+                            if (value == null)
+                            {
+                                await RespondAsync("Sorry, `value` cannot be empty, if `setting` is not. Please set `value` to the value you want.");
+                                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                                        new CommandWarningLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild, "Sorry, `value` cannot be empty, if `setting` is not. Please set `value` to the value you want.")
+                                    );
+                                return;
+                            }
+                            if (userprofile.ProfileConfig.Config.ContainsKey(setting))
+                            {
+                                try
+                                {
+                                    var parsed = StringToType(value, userprofile.ProfileConfig.Config[setting].GetType());
+                                    userprofile.ProfileConfig[setting] = parsed;
+                                    await RespondAsync("I have successfully changed your profile value.");
+                                }
+                                catch (Exception e)
+                                {
+                                    await RespondAsync("Sorry, the value you entered is the wrong type.");
+                                }
+
+                            }
+                            else
+                            {
+                                await RespondAsync("Sorry, i could not find that key in your profile.");
+                            }
+                            break;
+                    }
+                    await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandSuccessLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild)
+                    );
+
+
+                }
+            } catch (Exception e) {
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "profile settings", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    .WithAdditonalField("Setting", setting)
+                    .WithAdditonalField("Value", value)
+                    .WithAdditonalField("User", User)
+                );
             }
-            var userprofile = ProfileManager.GetUserProfile(user.Value);
-            if (value == null)
-            {
+        }
+
+        [SlashCommand("color", "Sets your current color")]
+        public async Task Color(string colorcode = null, string User = null) {
+            await Settings("color", colorcode, User);
+        }
+
+        [SlashCommand("description", "Sets your profile description")]
+        public async Task Description(string value = null, string User = null)
+        {
+            await Settings("description", value, User);
+        }
+
+        [SlashCommand("title", "Sets your profile title")]
+        public async Task Title(string value = null, string User = null)
+        {
+            await Settings("title", value, User);
+        }
+
+        [SlashCommand("get", "Gets your current user profile or someone else's")]
+        public async Task Get(string User = null)
+        {
+            try {
+                var userprofile = ProfileManager.GetUserProfile(Context.User.Id);
                 var embed = new EmbedBuilder();
-                
+                if (User != null)
+                {
+                    ulong? user = GetIdFromString(User);
+                    if (!UserProfile.DoesUserProfileExist(user.Value) && (await Context.Guild.GetUserAsync(user.Value)) is null)
+                    {
+                        await RespondAsync($"Sorry, i could not find a user with ID {User}");
+                        return;
+                    }
+                    userprofile = ProfileManager.GetUserProfile(user.Value);
+                }
+
                 var builtpermissionlevel = "";
                 {
                     if (Context.Interaction.IsDMInteraction)
@@ -241,15 +367,20 @@ namespace OriBot.Commands
                 }
                 embed.WithColor(userprofile.Color);
                 #region Ranking
-                var getuser = await Context.Guild.GetUserAsync(user.Value);
-                if (getuser != null) {
+                var getuser = await Context.Guild.GetUserAsync(userprofile.UserID);
+                if (getuser != null)
+                {
                     embed.WithAuthor(getuser);
                 }
-                
-                
+
+
                 if (userprofile.Description != "")
                 {
                     embed.AddField("User description", userprofile.Description);
+                }
+                if (userprofile.Title != "")
+                {
+                    embed.WithTitle(userprofile.Title);
                 }
                 embed.AddField("Ranking", string.Format(
                @"
@@ -264,7 +395,7 @@ namespace OriBot.Commands
                 ));
                 #endregion
                 #region Age
-                var parsed = Snowflake.Parse(user.Value.ToString());
+                var parsed = Snowflake.Parse(userprofile.UserID.ToString());
 
 
                 embed.AddField("Age", string.Format(
@@ -286,51 +417,14 @@ namespace OriBot.Commands
                 }
                 #endregion
                 await RespondAsync(embed: embed.Build());
-            } else
-            {
-                var embed = new EmbedBuilder();
-                var builtpermissionlevel = "";
-                {
-                    if (Context.Interaction.IsDMInteraction)
-                    {
-                        builtpermissionlevel = "Permisison level cannot be obtained in DM.";
-                    }
-                    else
-                    {
-                        builtpermissionlevel = $"Permission Level {(int)userprofile.GetPermissionLevel(Context.Guild.Id)} [\"{userprofile.GetPermissionLevel(Context.Guild.Id)}\"]";
-                    }
-                }
-                var getuser = await Context.Guild.GetUserAsync(user.Value);
-                if (getuser != null)
-                {
-                    embed.WithAuthor(getuser);
-                }
-                switch (value)
-                {
-                    case "title":
-                        embed.AddField($"User title", $"{userprofile.Title}");
-                        break;
-                    case "description":
-                        embed.AddField($"User description", $"{userprofile.Description}");
-                        break;
-                    case "color":
-                        embed.AddField($"User embed color", $"{userprofile.Color}");
-                        break;
-                    default:
-                        if (userprofile.ProfileConfig.Config.ContainsKey(value))
-                        {
-                            embed.AddField($"{value}", $"{userprofile.ProfileConfig[value]}");
-                        }
-                        else
-                        {
-                            await RespondAsync("Sorry, i could not find that key in your profile.");
-                        }
-                        break;
-                }
-                embed.WithColor(userprofile.Color);
-                
-                await RespondAsync("",embed: embed.Build());
-               // embed.AddField($"{value}", $"{userprofile.P.GetValue(value)}");
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                        new CommandSuccessLogEntry(Context.User.Id, "profile get", DateTime.UtcNow, Context.Guild as SocketGuild)
+                );
+            } catch (Exception e) {
+                await CommandLogger.LogCommandAsync(Context.User.Id, Context.Guild as SocketGuild,
+                    new CommandUnhandledExceptionLogEntry(Context.User.Id, "profile get", DateTime.UtcNow, Context.Guild as SocketGuild, e)
+                    .WithAdditonalField("Parameter 'User'", $"{User}")
+                );
             }
         }
 

@@ -15,11 +15,22 @@
         "moderationlogs": "moderation-logs",
         "boteventlogs": "bot-event-logs"
     },
+    "channels": {  
+        "tickets": "tickets"
+    },
     "userProfileFolderName": "UserProfiles",
     "timersFolderName": "Timers",
+    "guildDataFolderName": "GuildData",
     "rolenames": {
-        "normal": "Spirits",
-        "muted": "Muted"
+        "normal": "Explorers",
+        "muted": "Muted",
+        "moderators": "Celestial Supervisor"
+    },
+    "permissionoverride": {
+        "345819451247296516": 4,
+        "449434986110648320": 4, // thatnerd527
+        "186315471769829377": 4, // Keman
+        "99841384969695232": 5 // jayneivana
     },
     "moderation": {
         "itemsPerPage": 10,

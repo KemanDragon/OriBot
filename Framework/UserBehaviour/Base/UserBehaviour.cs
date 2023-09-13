@@ -43,6 +43,8 @@ namespace OriBot.Framework.UserBehaviour
                 new ModeratorDeleteNoteLogEntry(),
                 new ModeratorPurgeNoteLogEntry(),
                 new ModeratorUnbanLogEntry(),
+                new UserVerifiedLogEntry(),
+                new UserPromotedLogEntry(),
             };
         }
 
@@ -160,6 +162,17 @@ namespace OriBot.Framework.UserBehaviour
         }
 
         protected PardonLog() : base()
+        {
+        }
+    }
+
+    public abstract class PermissionChangeLog : UserBehaviourLogEntry
+    {
+        protected PermissionChangeLog(ulong id, ulong timestamp) : base(id, timestamp)
+        {
+        }
+
+        protected PermissionChangeLog() : base()
         {
         }
     }
