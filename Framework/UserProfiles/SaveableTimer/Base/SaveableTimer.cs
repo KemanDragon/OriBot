@@ -21,7 +21,7 @@ namespace OriBot.Framework.UserProfiles.SaveableTimer
         public bool Started { get; protected set; } = false;
 
         [JsonProperty]
-        protected DateTime _target = DateTime.Now;
+        protected DateTime _target = DateTime.UtcNow;
 
         [JsonIgnore]
         public DateTime Target {
@@ -59,7 +59,7 @@ namespace OriBot.Framework.UserProfiles.SaveableTimer
 
         public virtual void Start()
         {
-            timer = new Timer(Math.Max((Target - DateTime.Now).TotalMilliseconds,0));
+            timer = new Timer(Math.Max((Target - DateTime.UtcNow).TotalMilliseconds,1));
             timer.Elapsed += (sender, args) =>
             {
                 OnTarget();
@@ -67,6 +67,15 @@ namespace OriBot.Framework.UserProfiles.SaveableTimer
             timer.AutoReset = false;
             Started = true;
             timer.Start();
+        }
+
+        public virtual void Stop(bool permanent = false)
+        {
+            timer.Stop();
+            if (permanent)
+            {
+                Started = false;
+            }
         }
 
         [JsonProperty]
@@ -100,7 +109,8 @@ namespace OriBot.Framework.UserProfiles.SaveableTimer
         private static List<SaveableTimer> _timers = new();
 
         private static List<SaveableTimer> TimerCache = new() { 
-            new ExampleTimer()
+            new ExampleTimer(),
+            new MuteTimer(),
         };
 
         public static T CreateTimer<T>(DateTime target, bool autostart = true) where T : SaveableTimer
@@ -117,7 +127,7 @@ namespace OriBot.Framework.UserProfiles.SaveableTimer
             return null;
         }
 
-        public static SaveableTimer LoadLogEntryFromString(string data)
+        public static SaveableTimer LoadTimerFromString(string data)
         {
             var tmp = JsonConvert.DeserializeObject<SaveableTimer>(data);
             foreach (SaveableTimer log in TimerCache)

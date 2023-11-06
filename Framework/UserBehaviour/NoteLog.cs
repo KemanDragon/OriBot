@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-
+using Discord;
 using Discord.WebSocket;
 
 using Newtonsoft.Json;
 
 using OldOriBot.Data.MemberInformation;
+
 using OriBot.Framework.UserProfiles;
 
 namespace OriBot.Framework.UserBehaviour
 {
-
-    public class ModeratorNoteLogEntry : MajorLog
+    public class ModeratorNoteLogEntry : MinorLog
     {
         [JsonProperty]
         public string Note = "";
@@ -22,7 +22,7 @@ namespace OriBot.Framework.UserBehaviour
         [JsonProperty]
         public ulong ModeratorId = 0;
 
-        public ModeratorNoteLogEntry(ulong id = 0, string note = "", ulong moderatorid = 0) : base(id)
+        public ModeratorNoteLogEntry(ulong id = 0, ulong timestamp = 0, string note = "", ulong moderatorid = 0) : base(id, timestamp)
         {
             Note = note;
             ModeratorId = moderatorid;
@@ -38,7 +38,7 @@ namespace OriBot.Framework.UserBehaviour
 
         public override UserBehaviourLogEntry Instantiate()
         {
-            var tmp = new ModeratorNoteLogEntry((ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Note,ModeratorId);
+            var tmp = new ModeratorNoteLogEntry(0,(ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Note,ModeratorId);
             tmp._template = false;
             return tmp;
         }
@@ -59,9 +59,21 @@ namespace OriBot.Framework.UserBehaviour
             return JsonConvert.SerializeObject(this, Formatting.None);
         }
 
-        public override string Format()
+        public override string FormatSimple()
         {
-            return $"{UnixTimeStampToDateTime(ID).ToUniversalTime().ToString()} UTC: Moderator <@{ModeratorId}> made a private note: \"{Note}\" for this user.";
+            return $"- {ID}: <@{ModeratorId}> made a private note at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user.";
+        }
+
+        public override EmbedBuilder FormatDetailed()
+        {
+            var embed = new EmbedBuilder();
+            embed.WithTitle($"Note made at <t:{Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}> for this user")
+                .WithDescription($"<@{ModeratorId}> created a private note for this user.")
+                .AddField("Note", Note)
+                .AddField("Note ID", ID)
+                .WithColor(Color.Orange)
+                .WithFooter($"Note ID: {ID} | Moderator ID: {ModeratorId} | Event timestamp: {Math.Floor(UnixTimeStampToDateTime(TimestampUTC).ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds)}");
+            return embed;
         }
 
         public static DateTime UnixTimeStampToDateTime(ulong unixTimeStamp)

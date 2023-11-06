@@ -1,43 +1,25 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using OriBot.Commands.RequirementEngine;
 // using OriBot.Framework;
 using OriBot.Framework.UserProfiles;
+using OriBot.Utilities;
 
 namespace OriBot.Commands
 {
     public class AdminModule : OricordCommand
     {
-        [SlashCommand("admintest", "Gets your current user profile")]
-        public async Task Profile()
+        [SlashCommand("reset", "Unregisters all slash commands at next restart.")]
+        public async Task ResetCommand()
         {
-            var tmp = UserProfile.GetOrCreateUserProfile(this.Context.User as SocketGuildUser);
-
-            var embed = new EmbedBuilder
-            {
-                Title = "Title",
-                Description = "Desc"
-            };
-
-            embed.AddField($"Profile id: <@{Context.User.Id}>", $"Badge count: {tmp.Badges.Count}\n Permission Level: {tmp.GetPermissionLevel(this.Context.Guild.Id)}")
-                .WithAuthor(this.Context.User)
-                .WithFooter(footer => footer.Text = $"Oribot v{Constants.OriBotVersion}")
-                .WithColor(Color.Default)
-                .WithDescription("User Profile")
-                .WithCurrentTimestamp();
-
-            // await this.RespondAsync(UseEmbed.);
-            await this.RespondAsync(embed: embed.Build());
-            // await this.RespondAsync(
-            //     $"Profile id: <@{Context.User.Id}\n>" +
-            //          $"Badge count: {tmp.Badges.Count}\n" +
-            //          $"Permission Level: {tmp.GetPermissionLevel(this.Context.Guild.Id)}",ephemeral: true
-            //     );
+            File.CreateText("reset.txt").Close();
+            Logger.Info("Commands Reset Triggered, type 'exit' to confirm. (there's no going back)");
+            await RespondAsync("Reset triggered, restart the bot from CLI or IDE to unregister all slash commands.");
         }
 
         public override Requirements GetRequirements()
@@ -48,7 +30,7 @@ namespace OriBot.Commands
                 return servers.Contains(context.Guild.Id);
             }, (context, commandinfo, services) =>
             {
-                if (ProfileManager.GetUserProfile(context.User as SocketUser).GetPermissionLevel(context.Guild.Id) >= PermissionLevel.Moderator)
+                if (ProfileManager.GetUserProfile(context.User.Id).GetPermissionLevel(context.Guild.Id) >= PermissionLevel.Moderator)
                 {
                     return true;
                 }

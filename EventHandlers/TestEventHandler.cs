@@ -19,7 +19,7 @@ namespace OriBot.EventHandlers
 
         private async Task Client_ReactionAdded(Discord.Cacheable<Discord.IUserMessage, ulong> arg1, Discord.Cacheable<Discord.IMessageChannel, ulong> arg2, SocketReaction arg3)
         {
-            await arg2.Value.SendMessageAsync("12313");
+            //  await arg2.Value.SendMessageAsync("12313");
         }
     }
 }

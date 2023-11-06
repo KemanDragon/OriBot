@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 
 namespace OriBot.Framework.UserProfiles.ProfileConfig
 {
+    
+
     /// <summary>
     /// This class represents a user profile's configuration.
     /// This class uses a dictionary to store user configuration.
@@ -32,6 +34,10 @@ namespace OriBot.Framework.UserProfiles.ProfileConfig
         public IReadOnlyDictionary<string, object> Config
         {
             get { return _Config.ToDictionary(entry => entry.Key, entry => entry.Value); }
+            set { 
+                _Config = value.ToDictionary(entry => entry.Key, entry => entry.Value);
+                saveAction();
+            }
         }
 
         private ProfileConfigs()

@@ -3,11 +3,43 @@
         "logFolder": "Logs",
         "debugLogFile": "Debug", // Debug File name (base)
         "crashLogFile": "Crash_Log", // Crash dump file name (base)
-        "normalLogFile": "", // Normal log file name (base)
+        "logFile": "name", // Normal log file name (base)
         "fileDateTimeFormat": "yyyy-MM-dd_HH-mm-ss", // Adds date time data to file
         "debugMode": true, // Whether to print debug logs
         "clumpLevelsTogether": false, // Writes a \n char when levels change
         "crashLogBufferSize": 100 // How many logs will be stored in crash dump
-    }
+    },
+    "auditing": {
+        "voiceactivity": "voice-activity",
+        "messageactivity": "message-activity",
+        "moderationlogs": "moderation-logs",
+        "boteventlogs": "bot-event-logs"
+    },
+    "channels": {  
+        "tickets": "tickets"
+    },
+    "userProfileFolderName": "UserProfiles",
+    "timersFolderName": "Timers",
+    "guildDataFolderName": "GuildData",
+    "rolenames": {
+        "normal": "Explorers",
+        "muted": "Muted",
+        "moderators": "Celestial Supervisor"
+    },
+    "permissionoverride": {
+        "345819451247296516": 4,
+        "449434986110648320": 4, // thatnerd527
+        "186315471769829377": 4, // Keman
+        "99841384969695232": 5 // jayneivana
+    },
+    "moderation": {
+        "itemsPerPage": 10,
+        "enableConfirmations": true
+    },
+    "userprofile": {
+        "maxdiagnosticlogentries": 50
+    },
+    "cachingServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776], // Servers where when a user deletes a message, the attachments are reuploaded
+    "oricordServers": [1005355539447959552, 988594970778804245, 1131908192004231178, 927439277661515776] // Servers considered "oricord"
 }
 

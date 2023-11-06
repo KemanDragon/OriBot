@@ -9,11 +9,10 @@ namespace OriBot.Framework.UserProfiles
     public enum PermissionLevel
     {
         NewUser = 0,
-        ValidatedUser = 1,
-        Moderator = 2,
-        BotAdmin = 3,
-        BotAndServerOwner = 4
-
-
+        Member = 1,
+        VIP = 2,
+        Moderator = 3,
+        BotAdmin = 4,
+        BotAndServerOwner = 5
     }
 }

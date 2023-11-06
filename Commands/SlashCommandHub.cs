@@ -37,7 +37,6 @@ namespace OriBot.Commands
                     return Task.FromResult(PreconditionResult.FromError("You do not meet the requirements"));
                 }
             }
-            
         }
     }
 }

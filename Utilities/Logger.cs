@@ -4,40 +4,33 @@ using System.Text;
 
 namespace OriBot.Utilities
 {
-    // TODO: Add archiving
-
     /// <summary>
     /// A basic logger with support for colors and logs including crash logs.
     /// </summary>
     public class Logger
     {
-        /* **** ***** **
-        ** DATA TYPES **
-        ** **** ***** */
         private enum LogLevel
         {
             DEBUG,
             INFO,
+            VERBOSE,
             WARN,
             ERROR,
             FATAL
         }
 
-        /* ********** **
-        ** ATTRIBUTES **
-        ** ********** */
-
+        #region Attributes
         // Colors
-        private static readonly Color normalColor = new Color(248, 246, 246);
-        private static readonly Color warningColor = new Color(245, 208, 97);
-        private static readonly Color errorColor = new Color(207, 70, 71);
-        private static readonly Color fatalColor = new Color(233, 179, 132);
+        private static readonly Color infoColor = new Color(19, 237, 88);
+        private static readonly Color warningColor = new Color(224, 162, 16);
+        private static readonly Color errorColor = new Color(250, 50, 50);
+        private static readonly Color fatalColor = new Color(153, 8, 8);
 
         // Config
         private static readonly bool debug = Config.properties["logger"]["debugMode"];
 
         private static readonly String logFolder = Config.properties["logger"]["logFolder"];
-        private static readonly String normalLogFile = Config.properties["logger"]["normalLogFile"];
+        private static readonly String logFile = Config.properties["logger"]["normalLogFile"];
         private static readonly String debugLogFile = Config.properties["logger"]["debugLogFile"];
         private static readonly String crashLogFile = Config.properties["logger"]["crashLogFile"];
 
@@ -56,15 +49,12 @@ namespace OriBot.Utilities
 
         // Writing
         private static String instanceFileIdentifier = null;
+        
+        #endregion
 
-        /* ************ **
-        ** CONSTRUCTORS **
-        ** ************ */
 
         // To avoid instantiation
-        private Logger()
-        {
-        }
+        private Logger() { }
 
         /// <summary>
         /// Sets up the crash handling.
@@ -75,56 +65,57 @@ namespace OriBot.Utilities
             AppDomain.CurrentDomain.UnhandledException += Logger.DumpCrashLog;
         }
 
-        /* ******* **
-        ** METHODS **
-        ** ******* */
+        # region Methods
 
         /// <summary>
         /// Writes a log to the screen.
         /// </summary>
         /// <param name="color"></param>
         /// <param name="category"></param>
-        /// <param name="message"></param>
-        private static void _Log(Color color, LogLevel logLevel, String message)
+        /// <param name="writeline"></param>
+        private static void _Log(Color color, LogLevel logLevel, String writeline)
         {
             String category = null;
             switch (logLevel)
             {
                 case LogLevel.DEBUG:
-                    category = "debug";
+                    category = "\x1b[94m[DEBUG]";
                     break;
                 case LogLevel.INFO:
-                    category = "info";
+                    category = "\x1b[92m[INFO]";
+                    break;
+                case LogLevel.VERBOSE:
+                    category = "\x1b[36m[VERBOSE]";
                     break;
                 case LogLevel.WARN:
-                    category = "warning";
+                    category = "\x1b[38;5;208m[WARNING]";
                     break;
                 case LogLevel.ERROR:
-                    category = "error";
+                    category = "\x1b[31m[ERROR]";
                     break;
                 case LogLevel.FATAL:
-                    category = "fatal";
+                    category = "\x1b[38;5;124m[FATAL]";
                     break;
                 default:
                     break;
             }
 
-            String unformattedLog = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}";
+            String unformattedLog = $"{category}\x1b[0m {DateTime.Now:yyyy-MM-dd HH:mm:ss} - {writeline}";
             crashDumpBuffer.Add(unformattedLog);
 
-            String log = $"{((previousLogLevel != currentLogLevel) && clumpLogs ? "\n" : "")}{color}{unformattedLog}{Color.Reset()}";
-            Console.WriteLine(log);
+            // String log = $"{((previousLogLevel != currentLogLevel) && clumpLogs ? "\n" : "")}{color}{unformattedLog}{Color.Reset()}";
+            // Console.WriteLine(log);
+            Console.WriteLine(unformattedLog);
         }
 
-        public static void Debug(String message)
+        public static void Debug(String writeline)
         {
             if (debug)
             {
                 currentLogLevel = LogLevel.DEBUG;
 
-                _Log(normalColor, LogLevel.DEBUG, message);
-                WriteLogsDebug("debug", message);
-
+                _Log(infoColor, LogLevel.DEBUG, writeline);
+                WriteFile($"[DEBUG] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
                 previousLogLevel = currentLogLevel;
             }
         }
@@ -132,134 +123,86 @@ namespace OriBot.Utilities
         /// <summary>
         /// Creates a normal info level log.
         /// </summary>
-        /// <param name="message"></param>
-        public static void Log(String message)
+        /// <param name="writeline"></param>
+        public static void Info(String writeline)
         {
             currentLogLevel = LogLevel.INFO;
 
-            if (debug)
-            {
-                _Log(normalColor, LogLevel.INFO, message);
-                WriteLogsDebug("info", message);
-            }
-            else
-            {
-                _Log(normalColor, LogLevel.INFO, message);
-                WriteLogsNormal("info", message);
-            }
+            _Log(infoColor, LogLevel.INFO, writeline);
+            WriteFile($"[INFO] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
+            previousLogLevel = currentLogLevel;
+        }
 
+        /// <summary>
+        /// Creates a verbose level log.
+        /// </summary>
+        /// <param name="writeline"></param>
+        public static void Verbose(String writeline)
+        {
+            // FIXME: hook config here
+            if (!true) return;
+
+            currentLogLevel = LogLevel.VERBOSE;
+
+            _Log(infoColor, LogLevel.VERBOSE, writeline);
+            WriteFile($"[VERBOSE] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
             previousLogLevel = currentLogLevel;
         }
 
         /// <summary>
         /// Creates a warning level log.
         /// </summary>
-        /// <param name="message"></param>
-        public static void Warning(String message)
+        /// <param name="writeline"></param>
+        public static void Warning(String writeline)
         {
             currentLogLevel = LogLevel.WARN;
 
-            if (debug)
-            {
-                _Log(warningColor, LogLevel.WARN, message);
-                WriteLogsDebug("warning", message);
-            }
-            else
-            {
-                _Log(warningColor, LogLevel.WARN, message);
-                WriteLogsNormal("warning", message);
-            }
-
+            _Log(infoColor, LogLevel.WARN, writeline);
+            WriteFile($"[WARNING] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
             previousLogLevel = currentLogLevel;
         }
 
         /// <summary>
         /// Creates an error level log.
         /// </summary>
-        /// <param name="message"></param>
-        public static void Error(String message)
+        /// <param name="writeline"></param>
+        public static void Error(String writeline)
         {
             currentLogLevel = LogLevel.ERROR;
 
-            if (debug)
-            {
-                _Log(errorColor, LogLevel.ERROR, message);
-                WriteLogsDebug("error", message);
-            }
-            else
-            {
-                _Log(errorColor, LogLevel.ERROR, message);
-                WriteLogsNormal("error", message);
-            }
-
+            _Log(infoColor, LogLevel.ERROR, writeline);
+            WriteFile($"[ERROR] {DateTime.Now:yyyy-MM-dd HH:mm:ss}", writeline);
             previousLogLevel = currentLogLevel;
         }
 
         /// <summary>
         /// Creates an fatal level log.
         /// </summary>
-        /// <param name="message"></param>
-        public static void Fatal(String message)
+        /// <param name="writeline"></param>
+        public static void Fatal(String writeline)
         {
             currentLogLevel = LogLevel.FATAL;
 
-            if (debug)
-            {
-                _Log(fatalColor, LogLevel.FATAL, message);
-                WriteLogsDebug("fatal", message);
-            }
-            else
-            {
-                _Log(fatalColor, LogLevel.FATAL, message);
-                WriteLogsNormal("fatal", message);
-            }
-
+            _Log(infoColor, LogLevel.FATAL, writeline);
+            WriteFile("[FATAL]", writeline);
             previousLogLevel = currentLogLevel;
-        }
-
-        /// <summary>
-        /// Repeats a given string.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="times"></param>
-        /// <returns>String result</returns>
-        private static String RepeatString(String message, int times)
-        {
-            return new StringBuilder(message.Length * times).Insert(0, message, times).ToString();
         }
 
         /// <summary>
         /// Writes normal logs to the disk.
         /// </summary>
         /// <param name="category"></param>
-        /// <param name="message"></param>
-        private static void WriteLogsNormal(String category, String message)
+        /// <param name="writeline"></param>
+        private static void WriteFile(String category, String writeline)
         {
             CheckCreateDirectory();
 
-            String fileName = normalLogFile + "_" + CreateInstanceIdentifier() + ".log";
+            // String fileName = logFile + "_" + CreateInstanceIdentifier() + ".log";
+            String fileName = logFile + "latest" + ".log";
 
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
-            String text = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}\n";
-
-            File.AppendAllText(filePath, text);
-        }
-
-        /// <summary>
-        /// Writes debug logs to the disk.
-        /// </summary>
-        /// <param name="category"></param>
-        /// <param name="message"></param>
-        private static void WriteLogsDebug(String category, String message)
-        {
-            CheckCreateDirectory();
-
-            String fileName = debugLogFile + "_" + CreateInstanceIdentifier() + ".log";
-
-            String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
-
-            String text = $"[ {category.ToUpper()}{RepeatString(" ", (MAX_CAT_SPACE - category.Length))} ] - {message}\n";
+            String text = $"{category} - {writeline}\n";
 
             File.AppendAllText(filePath, text);
         }
@@ -275,17 +218,17 @@ namespace OriBot.Utilities
 
             Logger.Fatal("Program crashed!");
 
-            String fileName = crashLogFile + "_" + CreateInstanceIdentifier() + ".dump";
+            String fileName = crashLogFile + "_" + CreateInstanceIdentifier() + ".txt";
             String filePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), fileName);
 
-            Logger.Log($"Creating dump file at {filePath}...");
+            Logger.Info($"Creating dump file at {filePath}...");
 
             foreach (String log in crashDumpBuffer.ToArray())
             {
                 File.AppendAllText(filePath, log + "\n");
             }
 
-            Logger.Log("Dump file created!");
+            Logger.Info("Dump file created!");
         }
 
         /// <summary>
@@ -309,6 +252,33 @@ namespace OriBot.Utilities
         {
             return DateTime.Now.ToString(dateTimeFormat);
         }
+
+        internal static void Cleanup()
+        {
+            CheckCreateDirectory();
+
+            String logFolder = "logs";
+            String oldLogFolder = Path.Combine(Config.GetRootDirectory(), logFolder, "old");
+
+            if (!Directory.Exists(oldLogFolder))
+            {
+                Directory.CreateDirectory(oldLogFolder);
+            }
+
+            String existingFileName = "latest.log";
+            String newFileName = $"{CreateInstanceIdentifier()}.log";
+
+            String existingFilePath = Path.Combine(Path.Combine(Config.GetRootDirectory(), logFolder), existingFileName);
+            String newFilePath = Path.Combine(oldLogFolder, newFileName);
+
+            if (File.Exists(existingFilePath))
+            {
+                // Move the existing log file to the "old" folder
+                File.Move(existingFilePath, newFilePath);
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>

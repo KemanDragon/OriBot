@@ -2,16 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
+using Discord;
 using Discord.WebSocket;
+using EtiBotCore.DiscordObjects.Universal;
+using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
+
 using OldOriBot.Data.MemberInformation;
+
 using OriBot.Framework.UserBehaviour;
 using OriBot.Framework.UserProfiles;
 using OriBot.Framework.UserProfiles.Badges;
 using OriBot.Framework.UserProfiles.BehaviourLogContainer;
 using OriBot.Framework.UserProfiles.PerGuildData;
 using OriBot.Framework.UserProfiles.ProfileConfig;
+using OriBot.Utilities;
 
 namespace OriBot.Framework.UserProfiles
 {
@@ -64,7 +71,7 @@ namespace OriBot.Framework.UserProfiles
         /// This field is used by <see cref="BaseStorageDir"/>, to determine after $CWD/Data/ what the folder name will be.
         /// </summary>
         [JsonIgnore]
-        private const string StorageFolderName = "UserProfiles";
+        private static string StorageFolderName = Config.properties["userProfileFolderName"];
 
         #endregion Constants
 
@@ -84,6 +91,30 @@ namespace OriBot.Framework.UserProfiles
             }
         }
 
+        [JsonIgnore]
+        public bool IsMuted => _MutedTimerID != "";
+
+        [JsonIgnore]
+        public string MutedTimerID {
+            get => _MutedTimerID;
+            set {
+                _MutedTimerID = value;
+                Save();
+            }
+        }
+
+        [JsonIgnore]
+        public bool IsBanned {
+            get => _IsBanned;
+            set {
+                _IsBanned = value;
+                Save();
+            }
+        }
+
+        [JsonProperty]
+        private bool _IsBanned = false;
+
         [JsonProperty]
         private long _MessagesSent = 0;
 
@@ -97,8 +128,10 @@ namespace OriBot.Framework.UserProfiles
         private string _Description = "";
 
         [JsonProperty]
-        private int? _Color = null;
+        private uint _Color = 0;
 
+        [JsonProperty]
+        private string _MutedTimerID = "";
 
         [JsonIgnore]
         private ProfileConfigs _ProfileConfig = ProfileConfigs.Load(null, () =>
@@ -110,6 +143,12 @@ namespace OriBot.Framework.UserProfiles
 
         [JsonIgnore]
         private UserBehaviourLogContainer _BehaviourLogs = null;
+
+        [JsonIgnore]
+        private DiagnosticLogContainer _DiagnosticLogs = null;
+
+        [JsonIgnore]
+        private TicketManager _TicketManager = null;
 
         /// <summary>
         /// This is the profile config for this user.
@@ -182,6 +221,49 @@ namespace OriBot.Framework.UserProfiles
             }
         }
 
+        [JsonIgnore]
+        public DiagnosticLogContainer DiagnosticLogs
+        {
+            get
+            {
+                if (_DiagnosticLogs == null)
+                {
+                    _DiagnosticLogs = DiagnosticLogContainer.Load(null, () =>
+                    {
+                        Save();
+                    });
+                    Save();
+                }
+                return _DiagnosticLogs;
+            }
+
+            private set
+            {
+                _DiagnosticLogs = value;
+            }
+        }
+
+        [JsonIgnore]
+        public TicketManager TicketManager
+        {
+            get
+            {
+                if (_TicketManager == null)
+                {
+                    _TicketManager = new TicketManager(() => {
+                        Save();
+                    });
+                    Save();
+                }
+                return _TicketManager;
+            }
+
+            private set
+            {
+                _TicketManager = value;
+            }
+        }
+
         /// <summary>
         /// The public title of this user. Setting this property will also automatically save the user profile.
         /// </summary>
@@ -208,7 +290,7 @@ namespace OriBot.Framework.UserProfiles
         /// The color of this user's embed. A null color means to use Discord's default. Setting this will save the profile.
         /// </summary>
         [JsonIgnore]
-        public int? Color
+        public uint Color
         {
             get => _Color;
             set
@@ -275,14 +357,14 @@ namespace OriBot.Framework.UserProfiles
         /// This is the folder where all user profiles will be stored, use <see cref="StorageFolderName"/> to adjust what the directory will be called after $CWD/Data/
         /// </summary>
         [JsonIgnore]
-        private string BaseStorageDir => Path.Combine(Environment.CurrentDirectory, "Data", StorageFolderName);
+        private static string BaseStorageDir => Path.Combine(Environment.CurrentDirectory, "Data", StorageFolderName);
 
         /// <summary>
         /// This property determines what the user profile file will be called.
         /// The file name ends with a .json to indicate that this is the new user profile file format.
         /// </summary>
         [JsonIgnore]
-        public string CurrentFileName => Path.Combine(BaseStorageDir, $"{Member.Id}.json");
+        public string CurrentFileName => Path.Combine(BaseStorageDir, $"{UserID}.json");
 
         /// <summary>
         /// This property determines what the user profile file will be called.
@@ -290,7 +372,7 @@ namespace OriBot.Framework.UserProfiles
         /// This property should only be used during the migration process to the new user profile file format ending with .json
         /// </summary>
         [JsonIgnore]
-        public string LegacyFileName => Path.Combine(BaseStorageDir, $"{Member.Id}.profile");
+        public string LegacyFileName => Path.Combine(BaseStorageDir, $"{UserID}.profile");
 
         #endregion Fixed Properties
 
@@ -374,6 +456,34 @@ namespace OriBot.Framework.UserProfiles
             }
         }
 
+        [JsonProperty]
+        public string SerializedDiagnosticLogs
+        {
+            get
+            {
+                return DiagnosticLogs.Serialized;
+            }
+
+            set
+            {
+                DiagnosticLogs = DiagnosticLogContainer.Load(value, () => { Save(); });
+            }
+        }
+
+        [JsonProperty]
+        public string SerializedTickets
+        {
+            get
+            {
+                return TicketManager.Serialized;
+            }
+
+            set
+            {
+                TicketManager = TicketManager.Load(() => { Save(); }, value);
+            }
+        }
+
         #endregion Loaders and Unloaders
 
         #region Levels and Experience and Badges
@@ -424,12 +534,23 @@ namespace OriBot.Framework.UserProfiles
 
         public PermissionLevel GetPermissionLevel(ulong serverid)
         {
+            /* if (serverid == 1005355539447959552) {
+                var textchannel = (SocketTextChannel)main.Program.Client.GetChannel(1140114672314495018);
+                var task = textchannel.GetMessageAsync(1140114880603631668);
+                task.Wait();
+                task.Result.GetReactionUsersAsync()
+
+            } */
+            Dictionary<ulong, PermissionLevel> permissionoverrides = Config.properties["permissionoverride"].ToObject<Dictionary<ulong, PermissionLevel>>();
+            if (permissionoverrides.ContainsKey(UserID)) {
+                return permissionoverrides[UserID];
+            }
             if (PerGuildData[serverid]["PermissionLevel"] is PermissionLevel)
             {
                 return (PermissionLevel)PerGuildData[serverid]["PermissionLevel"];
-            } else
+            }
+            else
             {
-
                 return (PermissionLevel)Convert.ToInt32((long)PerGuildData[serverid]["PermissionLevel"]);
             }
         }
@@ -439,14 +560,14 @@ namespace OriBot.Framework.UserProfiles
             PerGuildData[serverid]["PermissionLevel"] = level;
         }
 
-        #endregion
+        #endregion Permission Level
 
         /// <summary>
         /// This is an instance <see cref="SocketGuildUser"/> that is passed in the constructor
         /// For now this field is only used to determine where your user profile should be saved.
         /// </summary>
         [JsonIgnore]
-        public SocketUser Member { get; private set; }
+        public ulong UserID { get; private set; }
 
         /// <summary>
         /// This is a static constructor that is used to initialize the <see cref="LevelToExperience"/> array and also sets <see cref="MAX_EXPERIENCE"/>
@@ -469,9 +590,9 @@ namespace OriBot.Framework.UserProfiles
         /// All user profiles are stored under $CWD/Data/<see cref="StorageFolderName"/>
         /// </summary>
         /// <param name="user"></param>
-        private UserProfile(SocketUser user)
+        private UserProfile(ulong userid)
         {
-            Member = user;
+            UserID = userid;
         }
 
         [JsonConstructor]
@@ -577,6 +698,7 @@ namespace OriBot.Framework.UserProfiles
         public void Save()
         {
             var serialized = JsonConvert.SerializeObject(this, Formatting.None);
+            ProfileManager.RemoveFrom(UserID);
             File.WriteAllText(CurrentFileName, serialized);
         }
 
@@ -590,16 +712,16 @@ namespace OriBot.Framework.UserProfiles
         /// <returns></returns>
         ///
 
-        public static UserProfile GetOrCreateUserProfile(SocketUser user)
+        public static UserProfile GetOrCreateUserProfile(ulong user)
         {
-            var userid = user.Id;
-            var tempprofile = new UserProfile(user);
+            var userid = user;
+            var tempprofile = new UserProfile(userid);
             Directory.CreateDirectory(Path.GetDirectoryName(tempprofile.CurrentFileName));
             if (File.Exists(tempprofile.CurrentFileName))
             {
                 var file = File.ReadAllText(tempprofile.CurrentFileName);
                 var tmp = JsonConvert.DeserializeObject<UserProfile>(file);
-                tmp.Member = user;
+                tmp.UserID = userid;
                 tmp.Save();
                 return tmp;
             }
@@ -607,7 +729,7 @@ namespace OriBot.Framework.UserProfiles
             {
                 var userprof = MigrateUserProfile(userid, tempprofile);
                 userprof.Save();
-                File.Move(userprof.LegacyFileName, Path.Combine(userprof.BaseStorageDir, Path.GetFileNameWithoutExtension(userprof.CurrentFileName) + ".profile.backup"));
+                File.Move(userprof.LegacyFileName, Path.Combine(UserProfile.BaseStorageDir, Path.GetFileNameWithoutExtension(userprof.CurrentFileName) + ".profile.backup"));
                 return userprof;
             }
             else
@@ -630,7 +752,7 @@ namespace OriBot.Framework.UserProfiles
             var file = File.ReadAllBytes(tempprofile.LegacyFileName);
             var oldprofile = OldOriBot.UserProfiles.UserProfile.GetOrCreateProfileOf2(userid, file);
             tempprofile._MessagesSent = oldprofile.MessagesSent;
-            tempprofile.Color = oldprofile.Color;
+            tempprofile.Color = (uint)oldprofile.Color;
             tempprofile.Title = oldprofile.Title;
             tempprofile.Description = oldprofile.Description;
             // Conversion pt2
@@ -649,12 +771,18 @@ namespace OriBot.Framework.UserProfiles
                     tempprofile.GrantBadge(BadgeRegistry.GetBadgeFromPredefinedRegistry(item.Name));
                 };
             }
+            
 
             foreach (var item in oldprofile.UserData.Keys)
             {
                 tempprofile.ProfileConfig[item] = oldprofile.UserData[item];
             }
             return tempprofile;
+        }
+
+        public static bool DoesUserProfileExist(ulong userid)
+        {
+            return File.Exists(Path.Combine(BaseStorageDir, userid.ToString() + ".json"));
         }
     }
 }

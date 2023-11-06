@@ -13,10 +13,6 @@ namespace OriBot.PassiveHandlers
         }
 
         [PassiveHandler]
-        public void Test()
-        {
-            // FIXME: implement a debug channel in Logging util
-            // Logger.Info("YES");
-        }
+        public void Test() { }
     }
 }
